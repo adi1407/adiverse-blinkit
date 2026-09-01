@@ -1,12 +1,15 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "../screens/HomeScreen";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import CartScreen from "../screens/CartScreen";
 import AccountScreen from "../screens/AccountScreen";
+import CategoryProductsScreen from "../screens/CategoryProductsScreen";
 import { colors } from "../theme/colors";
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 function tabIcon(name, focused) {
   return (
@@ -18,7 +21,7 @@ function tabIcon(name, focused) {
   );
 }
 
-export default function AppNavigator() {
+function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -71,5 +74,14 @@ export default function AppNavigator() {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
+    </Stack.Navigator>
   );
 }

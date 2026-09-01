@@ -1,5 +1,6 @@
 import { SafeAreaView, ScrollView, StyleSheet, StatusBar, Platform } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
+import { useNavigation } from "@react-navigation/native";
 import HomeHeader from "../components/HomeHeader";
 import SearchBar from "../components/SearchBar";
 import CategoryGrid from "../components/CategoryGrid";
@@ -13,6 +14,12 @@ import {
 import { colors } from "../theme/colors";
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
+  function openCategory(cat) {
+    navigation.navigate("CategoryProducts", { categoryId: cat.id });
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <ExpoStatusBar style="dark" />
@@ -27,7 +34,7 @@ export default function HomeScreen() {
           address={deliveryInfo.address}
         />
         <SearchBar />
-        <CategoryGrid categories={categories} />
+        <CategoryGrid categories={categories} onSelectCategory={openCategory} />
         <ProductRow title="Dairy, Bread & Eggs" products={dairyProducts} />
         <ProductRow title="Snacks & Munchies" products={snackProducts} />
       </ScrollView>

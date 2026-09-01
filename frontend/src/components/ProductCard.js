@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, radii } from "../theme/colors";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, variant = "carousel" }) {
   const showMrp = product.mrp > product.price;
+  const isGrid = variant === "grid";
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isGrid && styles.cardGrid]}>
       <View style={styles.imageBox}>
         <Text style={styles.emoji}>{product.emoji}</Text>
       </View>
@@ -38,6 +39,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.sm,
+  },
+  cardGrid: {
+    width: "100%",
+    marginRight: 0,
+    marginBottom: spacing.md,
+    flex: 1,
   },
   imageBox: {
     height: 100,

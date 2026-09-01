@@ -1,13 +1,17 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, radii } from "../theme/colors";
 
-export default function CategoryGrid({ categories }) {
+export default function CategoryGrid({ categories, onSelectCategory, showTitle = true }) {
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>Shop by category</Text>
+      {showTitle ? <Text style={styles.title}>Shop by category</Text> : null}
       <View style={styles.grid}>
         {categories.map((cat) => (
-          <Pressable key={cat.id} style={styles.item}>
+          <Pressable
+            key={cat.id}
+            style={styles.item}
+            onPress={() => onSelectCategory?.(cat)}
+          >
             <View style={[styles.tile, { backgroundColor: cat.bg }]}>
               <Text style={styles.emoji}>{cat.emoji}</Text>
             </View>
