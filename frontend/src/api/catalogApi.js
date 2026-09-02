@@ -25,3 +25,7 @@ export function fetchSearch(query) {
   const q = encodeURIComponent(String(query || "").trim());
   return apiGet(`/api/search?q=${q}`);
 }
+
+export function fetchProduct(productId) {
+  return apiGet(`/api/products/${encodeURIComponent(productId)}`);
+}

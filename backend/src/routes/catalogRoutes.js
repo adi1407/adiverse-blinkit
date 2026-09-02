@@ -102,4 +102,28 @@ router.get("/search", (req, res) => {
   });
 });
 
+// GET /api/products/:id — PDP + similar picks
+router.get("/products/:id", (req, res) => {
+  const product = getProductById(req.params.id);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  const category = getCategoryById(product.categoryId);
+  const similar = getSimilarProducts(product.id, 12);
+
+  res.json({
+    success: true,
+    data: {
+      product,
+      category: category || null,
+      similar,
+    },
+  });
+});
+
 export default router;
