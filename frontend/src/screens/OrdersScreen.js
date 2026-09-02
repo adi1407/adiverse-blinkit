@@ -45,8 +45,20 @@ function OrderCard({ order, onPress }) {
           <Text style={styles.orderId}>{order.id}</Text>
           <Text style={styles.when}>{formatWhen(order.createdAt)}</Text>
         </View>
-        <View style={styles.statusPill}>
-          <Text style={styles.statusText}>{statusLabel(order.status)}</Text>
+        <View
+          style={[
+            styles.statusPill,
+            order.status === "cancelled" && styles.statusPillCancelled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.statusText,
+              order.status === "cancelled" && styles.statusTextCancelled,
+            ]}
+          >
+            {statusLabel(order.status)}
+          </Text>
         </View>
       </View>
 
@@ -226,11 +238,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
+  statusPillCancelled: {
+    backgroundColor: "#FFE8EA",
+  },
   statusText: {
     fontSize: 11,
     fontWeight: "800",
     color: colors.accentDark,
     textTransform: "capitalize",
+  },
+  statusTextCancelled: {
+    color: colors.danger,
   },
   thumbs: {
     flexDirection: "row",

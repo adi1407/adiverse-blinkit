@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
   Pressable,
+  Alert,
 } from "react-native";
 import {
   ChevronLeft,
@@ -21,7 +22,8 @@ import {
 import ProductImage from "../components/ProductImage";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
-import { fetchOrderById } from "../api/ordersApi";
+import { cancelOrder, fetchOrderById } from "../api/ordersApi";
+import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
@@ -47,8 +49,10 @@ function formatWhen(iso) {
 
 export default function OrderDetailScreen({ navigation, route }) {
   const { orderId } = route.params;
+  const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -70,10 +74,45 @@ export default function OrderDetailScreen({ navigation, route }) {
 
   // Poll while order is still moving
   useEffect(() => {
-    if (!order || order.status === "delivered") return undefined;
+    if (!order || order.status === "delivered" || order.status === "cancelled") {
+      return undefined;
+    }
     const id = setInterval(load, 8000);
     return () => clearInterval(id);
   }, [order?.status, load]);
+
+  function onCancel() {
+    Alert.alert(
+      "Cancel order?",
+      "You can only cancel while the order is still confirmed (before packing).",
+      [
+        { text: "Keep order", style: "cancel" },
+        {
+          text: "Cancel order",
+          style: "destructive",
+          onPress: async () => {
+            if (!user?.phone || cancelling) return;
+            setCancelling(true);
+            try {
+              const data = await cancelOrder({
+                orderId,
+                phone: user.phone,
+              });
+              setOrder(data);
+              Alert.alert("Cancelled", "Your order was cancelled successfully.");
+            } catch (err) {
+              Alert.alert("Could not cancel", err.message || "Try again");
+              load();
+            } finally {
+              setCancelling(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  const cancelled = order?.status === "cancelled";
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -94,52 +133,88 @@ export default function OrderDetailScreen({ navigation, route }) {
         <ErrorState message={error} onRetry={load} />
       ) : (
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          <View style={[styles.hero, shadows.soft]}>
-            <Text style={styles.heroStatus}>{statusLabel(order.status)}</Text>
+          <View style={[styles.hero, cancelled && styles.heroCancelled, shadows.soft]}>
+            <Text style={[styles.heroStatus, cancelled && styles.heroStatusCancelled]}>
+              {statusLabel(order.status)}
+            </Text>
             <Text style={styles.heroId}>{order.id}</Text>
             <Text style={styles.heroWhen}>Placed {formatWhen(order.createdAt)}</Text>
-            {order.status !== "delivered" ? (
+            {cancelled && order.cancelledAt ? (
+              <Text style={styles.heroHint}>
+                Cancelled {formatWhen(order.cancelledAt)}
+              </Text>
+            ) : null}
+            {!cancelled && order.status !== "delivered" ? (
               <Text style={styles.heroHint}>
                 Demo tracker: packing ~20s · on the way ~50s · delivered ~90s
               </Text>
             ) : null}
           </View>
 
-          <Text style={styles.section}>Live timeline</Text>
-          <View style={[styles.timelineCard, shadows.soft]}>
-            {(order.timeline || []).map((step, index, arr) => {
-              const Icon = STEP_ICON[step.key] || Package;
-              const last = index === arr.length - 1;
-              return (
-                <View key={step.key} style={styles.stepRow}>
-                  <View style={styles.rail}>
-                    <View
-                      style={[
-                        styles.dot,
-                        step.done && styles.dotDone,
-                        step.active && styles.dotActive,
-                      ]}
-                    >
-                      <Icon
-                        size={14}
-                        color={step.done ? colors.white : colors.textMuted}
-                        strokeWidth={2.2}
-                      />
+          {order.canCancel ? (
+            <Pressable
+              style={[styles.cancelBtn, cancelling && { opacity: 0.7 }]}
+              onPress={onCancel}
+              disabled={cancelling}
+            >
+              <Text style={styles.cancelText}>
+                {cancelling ? "Cancelling…" : "Cancel order"}
+              </Text>
+            </Pressable>
+          ) : null}
+
+          {!cancelled ? (
+            <>
+              <Text style={styles.section}>Live timeline</Text>
+              <View style={[styles.timelineCard, shadows.soft]}>
+                {(order.timeline || []).map((step, index, arr) => {
+                  const Icon = STEP_ICON[step.key] || Package;
+                  const last = index === arr.length - 1;
+                  return (
+                    <View key={step.key} style={styles.stepRow}>
+                      <View style={styles.rail}>
+                        <View
+                          style={[
+                            styles.dot,
+                            step.done && styles.dotDone,
+                            step.active && styles.dotActive,
+                          ]}
+                        >
+                          <Icon
+                            size={14}
+                            color={step.done ? colors.white : colors.textMuted}
+                            strokeWidth={2.2}
+                          />
+                        </View>
+                        {!last ? (
+                          <View style={[styles.line, step.done && styles.lineDone]} />
+                        ) : null}
+                      </View>
+                      <View style={styles.stepCopy}>
+                        <Text
+                          style={[
+                            styles.stepTitle,
+                            step.active && styles.stepTitleActive,
+                          ]}
+                        >
+                          {step.title}
+                        </Text>
+                        <Text style={styles.stepHint}>{step.hint}</Text>
+                      </View>
                     </View>
-                    {!last ? (
-                      <View style={[styles.line, step.done && styles.lineDone]} />
-                    ) : null}
-                  </View>
-                  <View style={styles.stepCopy}>
-                    <Text style={[styles.stepTitle, step.active && styles.stepTitleActive]}>
-                      {step.title}
-                    </Text>
-                    <Text style={styles.stepHint}>{step.hint}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+                  );
+                })}
+              </View>
+            </>
+          ) : (
+            <View style={[styles.cancelledNote, shadows.soft]}>
+              <Text style={styles.cancelledNoteTitle}>Order stopped</Text>
+              <Text style={styles.cancelledNoteText}>
+                No packing or delivery will happen for this order. Place a new
+                one anytime from Cart.
+              </Text>
+            </View>
+          )}
 
           {order.address ? (
             <>
@@ -243,6 +318,13 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: colors.accentDark,
   },
+  heroCancelled: {
+    borderColor: "#F8C9CD",
+    backgroundColor: "#FFF8F8",
+  },
+  heroStatusCancelled: {
+    color: colors.danger,
+  },
   heroId: {
     marginTop: 4,
     fontSize: 12,
@@ -261,6 +343,40 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: "500",
     lineHeight: 16,
+  },
+  cancelBtn: {
+    borderWidth: 1.5,
+    borderColor: colors.danger,
+    borderRadius: radii.md,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginBottom: spacing.lg,
+    backgroundColor: "#FFF5F5",
+  },
+  cancelText: {
+    color: colors.danger,
+    fontWeight: "900",
+    fontSize: 14,
+  },
+  cancelledNote: {
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  cancelledNoteTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+    marginBottom: 4,
+  },
+  cancelledNoteText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 19,
+    fontWeight: "500",
   },
   section: {
     fontSize: 14,
