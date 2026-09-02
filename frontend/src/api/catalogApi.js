@@ -11,3 +11,8 @@ export function fetchCategories() {
 export function fetchCategoryProducts(categoryId) {
   return apiGet(`/api/categories/${categoryId}/products`);
 }
+
+export function fetchSearch(query) {
+  const q = encodeURIComponent(String(query || "").trim());
+  return apiGet(`/api/search?q=${q}`);
+}

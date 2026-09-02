@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Search } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const HINTS = ['Search "milk"', 'Search "bread"', 'Search "chips"', 'Search "rice"'];
 
-export default function SearchBar() {
+export default function SearchBar({ onPress }) {
   const [hintIndex, setHintIndex] = useState(0);
 
   useEffect(() => {
@@ -17,18 +17,14 @@ export default function SearchBar() {
 
   return (
     <View style={styles.wrap}>
-      <Pressable style={[styles.bar, shadows.soft]}>
-        <Ionicons name="search" size={20} color={colors.textSecondary} />
+      <Pressable
+        style={[styles.bar, shadows.soft]}
+        onPress={onPress}
+        accessibilityRole="search"
+        accessibilityLabel="Open search"
+      >
+        <Search size={20} color={colors.textSecondary} strokeWidth={2.2} />
         <Text style={styles.placeholder}>{HINTS[hintIndex]}</Text>
-        <View style={styles.actions}>
-          <Pressable style={styles.iconHit}>
-            <Ionicons name="mic-outline" size={20} color={colors.text} />
-          </Pressable>
-          <View style={styles.divider} />
-          <Pressable style={styles.iconHit}>
-            <Ionicons name="options-outline" size={18} color={colors.text} />
-          </Pressable>
-        </View>
       </Pressable>
     </View>
   );
@@ -56,19 +52,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textMuted,
     fontWeight: "500",
-  },
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconHit: {
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-  },
-  divider: {
-    width: 1,
-    height: 18,
-    backgroundColor: colors.borderStrong,
-    marginHorizontal: 4,
   },
 });

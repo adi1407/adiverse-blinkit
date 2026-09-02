@@ -161,3 +161,23 @@ export function getCategoryById(id) {
 export function getProductsByCategoryId(id) {
   return productsByCategory[id] || [];
 }
+
+/** Flat product list with categoryId for search results */
+export function getAllProducts() {
+  return Object.entries(productsByCategory).flatMap(([categoryId, products]) =>
+    products.map((product) => ({ ...product, categoryId }))
+  );
+}
+
+export function searchProducts(query) {
+  const q = String(query || "")
+    .trim()
+    .toLowerCase();
+
+  if (!q) return [];
+
+  return getAllProducts().filter((product) => {
+    const haystack = `${product.name} ${product.unit}`.toLowerCase();
+    return haystack.includes(q);
+  });
+}

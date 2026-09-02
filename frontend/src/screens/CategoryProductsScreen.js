@@ -69,7 +69,10 @@ export default function CategoryProductsScreen({ navigation, route }) {
           ) : null}
         </View>
 
-        <Pressable style={styles.iconBtn}>
+        <Pressable
+          style={styles.iconBtn}
+          onPress={() => navigation.navigate("Search")}
+        >
           <Search size={20} color={colors.text} strokeWidth={2.2} />
         </Pressable>
       </View>

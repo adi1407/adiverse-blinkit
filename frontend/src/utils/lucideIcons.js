@@ -40,4 +40,5 @@ export { default as TriangleAlert } from "lucide-react-native/icons/triangle-ale
 export { default as Upload } from "lucide-react-native/icons/upload";
 export { default as UserRound } from "lucide-react-native/icons/user-round";
 export { default as Wheat } from "lucide-react-native/icons/wheat";
+export { default as X } from "lucide-react-native/icons/x";
 export { default as Zap } from "lucide-react-native/icons/zap";

@@ -76,7 +76,7 @@ export default function HomeScreen() {
             addressLabel={data.deliveryInfo.addressLabel}
             address={data.deliveryInfo.address}
           />
-          <SearchBar />
+          <SearchBar onPress={() => navigation.navigate("Search")} />
           <View style={styles.heroCurve} />
         </View>
 

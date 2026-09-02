@@ -5,6 +5,7 @@ import {
   featuredRows,
   getCategoryById,
   getProductsByCategoryId,
+  searchProducts,
 } from "../data/catalog.js";
 
 const router = Router();
@@ -62,6 +63,21 @@ router.get("/categories/:id/products", (req, res) => {
     data: {
       category,
       products: getProductsByCategoryId(req.params.id),
+    },
+  });
+});
+
+// GET /api/search?q=milk
+router.get("/search", (req, res) => {
+  const q = String(req.query.q || "").trim();
+  const products = searchProducts(q);
+
+  res.json({
+    success: true,
+    data: {
+      query: q,
+      count: products.length,
+      products,
     },
   });
 });
