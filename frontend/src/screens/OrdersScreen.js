@@ -17,6 +17,7 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { useAuth } from "../context/AuthContext";
 import { fetchOrders } from "../api/ordersApi";
+import { statusLabel } from "../utils/orderStatus";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 function formatWhen(iso) {
@@ -33,19 +34,19 @@ function formatWhen(iso) {
   }
 }
 
-function OrderCard({ order }) {
+function OrderCard({ order, onPress }) {
   const preview = order.items.slice(0, 3);
   const extra = order.items.length - preview.length;
 
   return (
-    <View style={[styles.card, shadows.soft]}>
+    <Pressable style={[styles.card, shadows.soft]} onPress={onPress}>
       <View style={styles.cardTop}>
         <View>
           <Text style={styles.orderId}>{order.id}</Text>
           <Text style={styles.when}>{formatWhen(order.createdAt)}</Text>
         </View>
         <View style={styles.statusPill}>
-          <Text style={styles.statusText}>{order.status}</Text>
+          <Text style={styles.statusText}>{statusLabel(order.status)}</Text>
         </View>
       </View>
 
@@ -70,14 +71,17 @@ function OrderCard({ order }) {
           {order.items.reduce((n, i) => n + i.qty, 0)} items
           {order.address?.label ? ` · ${order.address.label}` : ""}
         </Text>
-        <Text style={styles.total}>₹{order.grandTotal}</Text>
+        <View style={styles.trackRow}>
+          <Text style={styles.total}>₹{order.grandTotal}</Text>
+          <ChevronRight size={16} color={colors.accent} />
+        </View>
       </View>
       {order.address?.line1 ? (
         <Text style={styles.shipTo} numberOfLines={1}>
           {order.address.line1}
         </Text>
       ) : null}
-    </View>
+    </Pressable>
   );
 }
 
@@ -115,7 +119,7 @@ export default function OrdersScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScreenHeader showBack title="Your orders" subtitle="Past checkouts" />
+      <ScreenHeader showBack title="Your orders" subtitle="Tap an order to track" />
       <View style={styles.curve} />
 
       {!isLoggedIn ? (
@@ -153,7 +157,14 @@ export default function OrdersScreen({ navigation }) {
               </Text>
             </View>
           }
-          renderItem={({ item }) => <OrderCard order={item} />}
+          renderItem={({ item }) => (
+            <OrderCard
+              order={item}
+              onPress={() =>
+                navigation.navigate("OrderDetail", { orderId: item.id })
+              }
+            />
+          )}
         />
       )}
     </SafeAreaView>
@@ -261,6 +272,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "900",
     color: colors.text,
+  },
+  trackRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
   },
   shipTo: {
     marginTop: 8,
