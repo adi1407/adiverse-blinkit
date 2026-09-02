@@ -9,7 +9,12 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  House,
+  LayoutGrid,
+  Printer,
+  RotateCcw,
+} from "../utils/lucideIcons";
 import { useCart } from "../context/CartContext";
 import { colors } from "../theme/colors";
 
@@ -17,29 +22,26 @@ const TABS = [
   {
     name: "Home",
     label: "Home",
-    icon: "home-outline",
-    iconActive: "home",
+    Icon: House,
     tone: "yellow",
+    fillWhenActive: true,
   },
   {
     name: "OrderAgain",
     label: "Order Again",
-    icon: "bag-handle-outline",
-    iconActive: "bag-handle",
+    Icon: RotateCcw,
     tone: "green",
   },
   {
     name: "Categories",
     label: "Categories",
-    icon: "grid-outline",
-    iconActive: "grid",
+    Icon: LayoutGrid,
     tone: "green",
   },
   {
     name: "Print",
     label: "Print",
-    icon: "print-outline",
-    iconActive: "print",
+    Icon: Printer,
     tone: "green",
     badge: "NEW",
   },
@@ -52,6 +54,7 @@ function TabItem({ meta, focused, onPress, cartCount }) {
   const scale = useRef(new Animated.Value(1)).current;
   const lift = useRef(new Animated.Value(0)).current;
   const pill = useRef(new Animated.Value(focused ? 1 : 0)).current;
+  const Icon = meta.Icon || House;
 
   useEffect(() => {
     Animated.parallel([
@@ -142,10 +145,11 @@ function TabItem({ meta, focused, onPress, cartCount }) {
             },
           ]}
         >
-          <Ionicons
-            name={focused ? meta.iconActive : meta.icon}
-            size={focused ? 23 : 22}
+          <Icon
+            size={focused ? 23 : 21}
             color={iconColor}
+            strokeWidth={focused ? 2.45 : 2.05}
+            fill={focused && meta.fillWhenActive ? iconColor : "transparent"}
           />
         </Animated.View>
 
@@ -233,8 +237,7 @@ export default function BlinkitTabBar({ state, navigation }) {
           const meta = TABS.find((t) => t.name === route.name) || {
             name: route.name,
             label: route.name,
-            icon: "ellipse-outline",
-            iconActive: "ellipse",
+            Icon: House,
             tone: "green",
           };
 

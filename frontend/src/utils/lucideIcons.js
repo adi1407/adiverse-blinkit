@@ -18,6 +18,7 @@ export { default as Flame } from "lucide-react-native/icons/flame";
 export { default as House } from "lucide-react-native/icons/house";
 export { default as Image } from "lucide-react-native/icons/image";
 export { default as Info } from "lucide-react-native/icons/info";
+export { default as LayoutGrid } from "lucide-react-native/icons/layout-grid";
 export { default as MapPin } from "lucide-react-native/icons/map-pin";
 export { default as MessageCircle } from "lucide-react-native/icons/message-circle";
 export { default as Milk } from "lucide-react-native/icons/milk";
