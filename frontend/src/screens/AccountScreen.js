@@ -49,8 +49,8 @@ export default function AccountScreen({ navigation }) {
       navigation.navigate("Orders");
       return;
     }
-    if (!isLoggedIn && id === "address") {
-      navigation.navigate("Login");
+    if (id === "address") {
+      navigation.navigate("Addresses");
       return;
     }
     Alert.alert("Coming soon", "This section is UI-only for now.");

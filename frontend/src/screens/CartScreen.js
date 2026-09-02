@@ -151,7 +151,32 @@ export default function CartScreen({ navigation }) {
             contentContainerStyle={styles.list}
             renderItem={({ item }) => <CartRow item={item} />}
             ListFooterComponent={
-              <View style={[styles.bill, shadows.soft]}>
+              <View>
+                <Pressable
+                  style={[styles.addressCard, shadows.soft]}
+                  onPress={() => navigation.navigate("Addresses")}
+                >
+                  <View style={styles.addressIcon}>
+                    <MapPin size={16} color={colors.accent} strokeWidth={2.2} />
+                  </View>
+                  <View style={styles.addressCopy}>
+                    <Text style={styles.addressTitle}>
+                      Deliver to {selectedAddress?.label || "address"}
+                    </Text>
+                    <Text style={styles.addressLine} numberOfLines={2}>
+                      {selectedAddress
+                        ? `${selectedAddress.line1}${
+                            selectedAddress.line2
+                              ? `, ${selectedAddress.line2}`
+                              : ""
+                          }`
+                        : "Add a delivery address"}
+                    </Text>
+                  </View>
+                  <Text style={styles.changeText}>Change</Text>
+                </Pressable>
+
+                <View style={[styles.bill, shadows.soft]}>
                 <Text style={styles.billTitle}>Bill details</Text>
                 <View style={styles.billRow}>
                   <Text style={styles.billLabel}>Item total</Text>
@@ -184,6 +209,7 @@ export default function CartScreen({ navigation }) {
                       : "Add ₹" + (199 - totalPrice) + " more for free delivery"}
                   </Text>
                 </View>
+              </View>
               </View>
             }
           />
@@ -322,6 +348,44 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.lg,
     marginTop: spacing.sm,
+  },
+  addressCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.md,
+  },
+  addressIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addressCopy: {
+    flex: 1,
+  },
+  addressTitle: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  addressLine: {
+    marginTop: 2,
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
+  changeText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.accent,
   },
   billTitle: {
     fontSize: 15,

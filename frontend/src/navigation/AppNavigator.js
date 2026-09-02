@@ -11,6 +11,7 @@ import PrintScreen from "../screens/PrintScreen";
 import SearchScreen from "../screens/SearchScreen";
 import LoginScreen from "../screens/LoginScreen";
 import OrdersScreen from "../screens/OrdersScreen";
+import AddressesScreen from "../screens/AddressesScreen";
 import BlinkitTabBar from "../components/BlinkitTabBar";
 import FloatingCartBar from "../components/FloatingCartBar";
 import { colors } from "../theme/colors";

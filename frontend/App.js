@@ -4,13 +4,15 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { CartProvider } from "./src/context/CartContext";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
+import { AddressProvider, useAddress } from "./src/context/AddressContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { colors } from "./src/theme/colors";
 
 function Root() {
-  const { ready } = useAuth();
+  const { ready: authReady } = useAuth();
+  const { ready: addressReady } = useAddress();
 
-  if (!ready) {
+  if (!authReady || !addressReady) {
     return (
       <View style={styles.boot}>
         <ActivityIndicator size="large" color={colors.accent} />
@@ -32,7 +34,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <Root />
+        <AddressProvider>
+          <Root />
+        </AddressProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );
