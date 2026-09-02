@@ -9,10 +9,11 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { ArrowRight } from "lucide-react-native";
 import { useCart } from "../context/CartContext";
 import { colors, spacing } from "../theme/colors";
 import { TAB_BAR_BASE_HEIGHT } from "./BlinkitTabBar";
+import ProductImage from "./ProductImage";
 
 export default function FloatingCartBar() {
   const { totalItems, totalPrice, items } = useCart();
@@ -84,13 +85,20 @@ export default function FloatingCartBar() {
         onPress={() => navigation.navigate("Cart")}
       >
         <View style={styles.left}>
-          <View style={styles.emojiRow}>
+          <View style={styles.thumbRow}>
             {preview.map((item, i) => (
               <View
                 key={item.id}
-                style={[styles.emojiChip, { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 }]}
+                style={[
+                  styles.thumbChip,
+                  { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 },
+                ]}
               >
-                <Text style={styles.emoji}>{item.emoji}</Text>
+                <ProductImage
+                  uri={item.image}
+                  style={styles.thumbImage}
+                  iconSize={14}
+                />
               </View>
             ))}
           </View>
@@ -105,7 +113,7 @@ export default function FloatingCartBar() {
         <View style={styles.cta}>
           <Text style={styles.ctaText}>View Cart</Text>
           <View style={styles.ctaIcon}>
-            <Ionicons name="arrow-forward" size={14} color={colors.accent} />
+            <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
           </View>
         </View>
       </Pressable>
@@ -147,22 +155,22 @@ const styles = StyleSheet.create({
     gap: 10,
     flex: 1,
   },
-  emojiRow: {
+  thumbRow: {
     flexDirection: "row",
     alignItems: "center",
   },
-  emojiChip: {
+  thumbChip: {
     width: 36,
     height: 36,
     borderRadius: 10,
     backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: "hidden",
     borderWidth: 2,
     borderColor: "#0A7A1C",
   },
-  emoji: {
-    fontSize: 16,
+  thumbImage: {
+    width: "100%",
+    height: "100%",
   },
   meta: {
     flexShrink: 1,

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ArrowRight, Zap, Percent, Pill } from "lucide-react-native";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const OFFERS = [
@@ -7,7 +7,7 @@ const OFFERS = [
     id: "o1",
     title: "Get FREE delivery",
     subtitle: "on your first order above ₹199",
-    emoji: "⚡",
+    Icon: Zap,
     bg: "#1C1C1C",
     tint: "#F8CB46",
   },
@@ -15,7 +15,7 @@ const OFFERS = [
     id: "o2",
     title: "Up to 50% OFF",
     subtitle: "Snacks, drinks & more",
-    emoji: "🔥",
+    Icon: Percent,
     bg: "#0C831F",
     tint: "#FFFFFF",
   },
@@ -23,7 +23,7 @@ const OFFERS = [
     id: "o3",
     title: "Pharmacy in minutes",
     subtitle: "Medicines & wellness",
-    emoji: "💊",
+    Icon: Pill,
     bg: "#1434A0",
     tint: "#FFFFFF",
   },
@@ -39,22 +39,34 @@ export default function PromoBanner() {
         decelerationRate="fast"
         snapToInterval={292}
       >
-        {OFFERS.map((offer) => (
-          <Pressable
-            key={offer.id}
-            style={[styles.card, { backgroundColor: offer.bg }, shadows.card]}
-          >
-            <View style={styles.copy}>
-              <Text style={[styles.title, { color: offer.tint }]}>{offer.title}</Text>
-              <Text style={styles.subtitle}>{offer.subtitle}</Text>
-              <View style={styles.ctaRow}>
-                <Text style={[styles.cta, { color: offer.tint }]}>Explore</Text>
-                <Ionicons name="arrow-forward" size={14} color={offer.tint} />
+        {OFFERS.map((offer) => {
+          const Icon = offer.Icon;
+          return (
+            <Pressable
+              key={offer.id}
+              style={[styles.card, { backgroundColor: offer.bg }, shadows.card]}
+            >
+              <View style={styles.copy}>
+                <Text style={[styles.title, { color: offer.tint }]}>
+                  {offer.title}
+                </Text>
+                <Text style={styles.subtitle}>{offer.subtitle}</Text>
+                <View style={styles.ctaRow}>
+                  <Text style={[styles.cta, { color: offer.tint }]}>Explore</Text>
+                  <ArrowRight size={14} color={offer.tint} strokeWidth={2.4} />
+                </View>
               </View>
-            </View>
-            <Text style={styles.emoji}>{offer.emoji}</Text>
-          </Pressable>
-        ))}
+              <View
+                style={[
+                  styles.iconWrap,
+                  { backgroundColor: "rgba(255,255,255,0.12)" },
+                ]}
+              >
+                <Icon size={28} color={offer.tint} strokeWidth={2} />
+              </View>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -104,7 +116,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
   },
-  emoji: {
-    fontSize: 42,
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

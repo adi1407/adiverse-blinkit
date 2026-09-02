@@ -8,9 +8,10 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ShoppingCart } from "lucide-react-native";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
+import ProductImage from "../components/ProductImage";
 import { useCart } from "../context/CartContext";
 import { colors, spacing, radii } from "../theme/colors";
 
@@ -19,9 +20,7 @@ function CartRow({ item }) {
 
   return (
     <View style={styles.row}>
-      <View style={styles.emojiBox}>
-        <Text style={styles.emoji}>{item.emoji}</Text>
-      </View>
+      <ProductImage uri={item.image} style={styles.thumb} iconSize={22} />
 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={2}>
@@ -64,7 +63,7 @@ export default function CartScreen() {
       {isEmpty ? (
         <View style={styles.body}>
           <View style={styles.emptyBox}>
-            <Ionicons name="cart-outline" size={56} color={colors.textMuted} />
+            <ShoppingCart size={56} color={colors.textMuted} strokeWidth={1.6} />
             <Text style={styles.emptyTitle}>Your cart is empty</Text>
             <Text style={styles.emptyText}>
               Tap ADD on any product. Come back here to change quantity.
@@ -147,16 +146,11 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  emojiBox: {
+  thumb: {
     width: 56,
     height: 56,
     borderRadius: radii.sm,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  emoji: {
-    fontSize: 28,
+    overflow: "hidden",
   },
   info: {
     flex: 1,

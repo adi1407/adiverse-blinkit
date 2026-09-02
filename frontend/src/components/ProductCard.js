@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Zap } from "lucide-react-native";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { useCart } from "../context/CartContext";
 import QtyStepper from "./QtyStepper";
+import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product, variant = "carousel" }) {
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
@@ -21,9 +22,11 @@ export default function ProductCard({ product, variant = "carousel" }) {
             <Text style={styles.discountText}>{discountPct}% OFF</Text>
           </View>
         ) : null}
-        <Text style={styles.emoji}>{product.emoji}</Text>
+
+        <ProductImage uri={product.image} style={styles.image} iconSize={32} />
+
         <View style={styles.etaChip}>
-          <Ionicons name="flash" size={10} color={colors.accent} />
+          <Zap size={10} color={colors.accent} fill={colors.accent} />
           <Text style={styles.etaText}>8 MINS</Text>
         </View>
       </View>
@@ -76,10 +79,12 @@ const styles = StyleSheet.create({
     height: 108,
     borderRadius: radii.sm,
     backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: spacing.sm,
     overflow: "hidden",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
   },
   discountBadge: {
     position: "absolute",
@@ -96,22 +101,20 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "900",
   },
-  emoji: {
-    fontSize: 42,
-  },
   etaChip: {
     position: "absolute",
     left: 6,
     bottom: 6,
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    gap: 3,
     backgroundColor: colors.white,
     borderRadius: 4,
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderWidth: 1,
     borderColor: colors.border,
+    zIndex: 2,
   },
   etaText: {
     fontSize: 9,

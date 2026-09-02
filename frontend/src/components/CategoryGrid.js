@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { getLucideIcon } from "../utils/icons";
 
 export default function CategoryGrid({
   categories,
@@ -16,18 +17,33 @@ export default function CategoryGrid({
       ) : null}
 
       <View style={styles.grid}>
-        {categories.map((cat) => (
-          <Pressable
-            key={cat.id}
-            style={styles.item}
-            onPress={() => onSelectCategory?.(cat)}
-          >
-            <View style={[styles.tile, { backgroundColor: cat.bg }, shadows.soft]}>
-              <Text style={styles.emoji}>{cat.emoji}</Text>
-            </View>
-            <Text style={styles.name}>{cat.name}</Text>
-          </Pressable>
-        ))}
+        {categories.map((cat) => {
+          const Icon = getLucideIcon(cat.icon);
+          return (
+            <Pressable
+              key={cat.id}
+              style={styles.item}
+              onPress={() => onSelectCategory?.(cat)}
+            >
+              <View
+                style={[
+                  styles.tile,
+                  { backgroundColor: cat.bg },
+                  shadows.soft,
+                ]}
+              >
+                <View style={styles.iconCircle}>
+                  <Icon
+                    size={26}
+                    color={cat.color || colors.accent}
+                    strokeWidth={2.1}
+                  />
+                </View>
+              </View>
+              <Text style={styles.name}>{cat.name}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
@@ -74,8 +90,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.03)",
   },
-  emoji: {
-    fontSize: 30,
+  iconCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "rgba(255,255,255,0.72)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   name: {
     fontSize: 11,

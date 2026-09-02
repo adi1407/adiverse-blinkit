@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ChevronRight } from "lucide-react-native";
 import ProductCard from "./ProductCard";
 import { colors, spacing } from "../theme/colors";
 
@@ -13,7 +13,7 @@ export default function ProductRow({ title, products, onSeeAll }) {
         </View>
         <Pressable style={styles.seeAll} onPress={onSeeAll}>
           <Text style={styles.seeAllText}>See all</Text>
-          <Ionicons name="chevron-forward" size={14} color={colors.accent} />
+          <ChevronRight size={14} color={colors.accent} strokeWidth={2.6} />
         </Pressable>
       </View>
 
