@@ -1,7 +1,11 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, radii } from "../theme/colors";
+import { useCart } from "../context/CartContext";
+import QtyStepper from "./QtyStepper";
 
 export default function ProductCard({ product, variant = "carousel" }) {
+  const { getQty, addItem, increaseQty, decreaseQty } = useCart();
+  const qty = getQty(product.id);
   const showMrp = product.mrp > product.price;
   const isGrid = variant === "grid";
 
@@ -22,9 +26,18 @@ export default function ProductCard({ product, variant = "carousel" }) {
           {showMrp ? <Text style={styles.mrp}>₹{product.mrp}</Text> : null}
         </View>
 
-        <Pressable style={styles.addBtn}>
-          <Text style={styles.addText}>ADD</Text>
-        </Pressable>
+        {qty > 0 ? (
+          <QtyStepper
+            qty={qty}
+            compact
+            onIncrease={() => increaseQty(product.id)}
+            onDecrease={() => decreaseQty(product.id)}
+          />
+        ) : (
+          <Pressable style={styles.addBtn} onPress={() => addItem(product)}>
+            <Text style={styles.addText}>ADD</Text>
+          </Pressable>
+        )}
       </View>
     </View>
   );

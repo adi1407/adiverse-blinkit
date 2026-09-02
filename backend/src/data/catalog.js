@@ -1,4 +1,4 @@
-// Fake data — later we'll replace this with API responses.
+// Catalog data lives on the server now — frontend will fetch via API.
 
 export const deliveryInfo = {
   minutes: 8,
@@ -17,14 +17,14 @@ export const categories = [
   { id: "c8", name: "Snacks &\nMunchies", emoji: "🍿", bg: "#FFFDE7" },
 ];
 
-export const dairyProducts = [
+const dairyProducts = [
   { id: "p1", name: "Amul Taaza Toned Milk", unit: "500 ml", price: 28, mrp: 30, emoji: "🥛" },
   { id: "p2", name: "Britannia Bread", unit: "400 g", price: 45, mrp: 50, emoji: "🍞" },
   { id: "p3", name: "Farm Fresh Eggs", unit: "6 pcs", price: 52, mrp: 60, emoji: "🥚" },
   { id: "p4", name: "Amul Butter", unit: "100 g", price: 58, mrp: 62, emoji: "🧈" },
 ];
 
-export const snackProducts = [
+const snackProducts = [
   { id: "p5", name: "Lay's Classic Salted", unit: "52 g", price: 20, mrp: 20, emoji: "🥔" },
   { id: "p6", name: "Kurkure Masala Munch", unit: "75 g", price: 20, mrp: 20, emoji: "🌽" },
   { id: "p7", name: "Bingo Mad Angles", unit: "66 g", price: 20, mrp: 20, emoji: "🔺" },
@@ -73,7 +73,6 @@ const drinkProducts = [
   { id: "d4", name: "Real Orange", unit: "1 L", price: 95, mrp: 110, emoji: "🍊" },
 ];
 
-// category id → products for that aisle
 export const productsByCategory = {
   c1: vegProducts,
   c2: dairyProducts,
@@ -85,14 +84,15 @@ export const productsByCategory = {
   c8: snackProducts,
 };
 
+export const featuredRows = [
+  { id: "row-dairy", title: "Dairy, Bread & Eggs", products: dairyProducts },
+  { id: "row-snacks", title: "Snacks & Munchies", products: snackProducts },
+];
+
 export function getCategoryById(id) {
   return categories.find((cat) => cat.id === id);
 }
 
 export function getProductsByCategoryId(id) {
   return productsByCategory[id] || [];
-}
-
-export function categoryTitle(cat) {
-  return cat.name.replace(/\n/g, " ");
 }

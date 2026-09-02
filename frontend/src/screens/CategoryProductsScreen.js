@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -10,17 +11,37 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ProductCard from "../components/ProductCard";
-import {
-  getCategoryById,
-  getProductsByCategoryId,
-  categoryTitle,
-} from "../data/mockHome";
+import LoadingState from "../components/LoadingState";
+import ErrorState from "../components/ErrorState";
+import { fetchCategoryProducts } from "../api/catalogApi";
+import { categoryTitle } from "../utils/category";
 import { colors, spacing } from "../theme/colors";
 
 export default function CategoryProductsScreen({ navigation, route }) {
   const { categoryId } = route.params;
-  const category = getCategoryById(categoryId);
-  const products = getProductsByCategoryId(categoryId);
+  const [category, setCategory] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await fetchCategoryProducts(categoryId);
+      setCategory(data.category);
+      setProducts(data.products);
+    } catch (err) {
+      setError(err.message || "Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  }, [categoryId]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
   const title = category ? categoryTitle(category) : "Products";
 
   return (
@@ -35,22 +56,28 @@ export default function CategoryProductsScreen({ navigation, route }) {
         <View style={styles.backBtn} />
       </View>
 
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text style={styles.empty}>No products in this category yet.</Text>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.cell}>
-            <ProductCard product={item} variant="grid" />
-          </View>
-        )}
-      />
+      {loading ? (
+        <LoadingState message="Loading products..." />
+      ) : error ? (
+        <ErrorState message={error} onRetry={loadProducts} />
+      ) : (
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={styles.empty}>No products in this category yet.</Text>
+          }
+          renderItem={({ item }) => (
+            <View style={styles.cell}>
+              <ProductCard product={item} variant="grid" />
+            </View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }

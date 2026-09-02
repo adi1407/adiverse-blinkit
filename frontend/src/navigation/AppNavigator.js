@@ -1,3 +1,4 @@
+import { View, Text, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,6 +7,7 @@ import CategoriesScreen from "../screens/CategoriesScreen";
 import CartScreen from "../screens/CartScreen";
 import AccountScreen from "../screens/AccountScreen";
 import CategoryProductsScreen from "../screens/CategoryProductsScreen";
+import { useCart } from "../context/CartContext";
 import { colors } from "../theme/colors";
 
 const Tab = createBottomTabNavigator();
@@ -18,6 +20,23 @@ function tabIcon(name, focused) {
       size={22}
       color={focused ? colors.accent : colors.textMuted}
     />
+  );
+}
+
+function CartTabIcon({ focused }) {
+  const { totalItems } = useCart();
+
+  return (
+    <View>
+      {tabIcon(focused ? "cart" : "cart-outline", focused)}
+      {totalItems > 0 ? (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>
+            {totalItems > 99 ? "99+" : totalItems}
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -61,8 +80,7 @@ function MainTabs() {
         name="Cart"
         component={CartScreen}
         options={{
-          tabBarIcon: ({ focused }) =>
-            tabIcon(focused ? "cart" : "cart-outline", focused),
+          tabBarIcon: ({ focused }) => <CartTabIcon focused={focused} />,
         }}
       />
       <Tab.Screen
@@ -85,3 +103,23 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  badge: {
+    position: "absolute",
+    right: -8,
+    top: -4,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: colors.danger,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: "800",
+  },
+});

@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, StatusBar, Platform } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
@@ -5,19 +6,52 @@ import HomeHeader from "../components/HomeHeader";
 import SearchBar from "../components/SearchBar";
 import CategoryGrid from "../components/CategoryGrid";
 import ProductRow from "../components/ProductRow";
-import {
-  deliveryInfo,
-  categories,
-  dairyProducts,
-  snackProducts,
-} from "../data/mockHome";
+import LoadingState from "../components/LoadingState";
+import ErrorState from "../components/ErrorState";
+import { fetchHomeData } from "../api/catalogApi";
 import { colors } from "../theme/colors";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadHome = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const homeData = await fetchHomeData();
+      setData(homeData);
+    } catch (err) {
+      setError(err.message || "Failed to load home data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHome();
+  }, [loadHome]);
 
   function openCategory(cat) {
     navigation.navigate("CategoryProducts", { categoryId: cat.id });
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <LoadingState message="Loading home..." />
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <ErrorState message={error} onRetry={loadHome} />
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -29,14 +63,18 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HomeHeader
-          minutes={deliveryInfo.minutes}
-          addressLabel={deliveryInfo.addressLabel}
-          address={deliveryInfo.address}
+          minutes={data.deliveryInfo.minutes}
+          addressLabel={data.deliveryInfo.addressLabel}
+          address={data.deliveryInfo.address}
         />
         <SearchBar />
-        <CategoryGrid categories={categories} onSelectCategory={openCategory} />
-        <ProductRow title="Dairy, Bread & Eggs" products={dairyProducts} />
-        <ProductRow title="Snacks & Munchies" products={snackProducts} />
+        <CategoryGrid
+          categories={data.categories}
+          onSelectCategory={openCategory}
+        />
+        {data.featuredRows.map((row) => (
+          <ProductRow key={row.id} title={row.title} products={row.products} />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
