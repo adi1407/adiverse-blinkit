@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { ChevronLeft, Search } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
@@ -16,32 +17,64 @@ import ErrorState from "../components/ErrorState";
 import { fetchCategoryProducts } from "../api/catalogApi";
 import { categoryTitle } from "../utils/category";
 import { getLucideIcon } from "../utils/icons";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { colors, spacing, radii } from "../theme/colors";
+
+const PAGE_SIZE = 40;
 
 export default function CategoryProductsScreen({ navigation, route }) {
   const { categoryId } = route.params;
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await fetchCategoryProducts(categoryId);
-      setCategory(data.category);
-      setProducts(data.products);
-    } catch (err) {
-      setError(err.message || "Failed to load products");
-    } finally {
-      setLoading(false);
-    }
-  }, [categoryId]);
+  const loadPage = useCallback(
+    async (nextPage, { append } = { append: false }) => {
+      if (append) setLoadingMore(true);
+      else {
+        setLoading(true);
+        setError("");
+      }
+
+      try {
+        const data = await fetchCategoryProducts(categoryId, {
+          page: nextPage,
+          limit: PAGE_SIZE,
+        });
+        setCategory(data.category);
+        setTotal(data.total || 0);
+        setHasMore(Boolean(data.hasMore));
+        setPage(data.page || nextPage);
+        setProducts((prev) =>
+          append ? [...prev, ...(data.products || [])] : data.products || []
+        );
+      } catch (err) {
+        if (!append) {
+          setError(err.message || "Failed to load products");
+          setProducts([]);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [categoryId]
+  );
 
   useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+    setProducts([]);
+    setPage(1);
+    loadPage(1, { append: false });
+  }, [categoryId, loadPage]);
+
+  function onEndReached() {
+    if (loading || loadingMore || !hasMore) return;
+    loadPage(page + 1, { append: true });
+  }
 
   const title = category ? categoryTitle(category) : "Products";
   const Icon = getLucideIcon(category?.icon);
@@ -65,7 +98,9 @@ export default function CategoryProductsScreen({ navigation, route }) {
             </Text>
           </View>
           {!loading && !error ? (
-            <Text style={styles.count}>{products.length} items · delivery in 8 mins</Text>
+            <Text style={styles.count}>
+              {total} items · showing {products.length}
+            </Text>
           ) : null}
         </View>
 
@@ -82,7 +117,7 @@ export default function CategoryProductsScreen({ navigation, route }) {
       {loading ? (
         <LoadingState message="Loading products..." />
       ) : error ? (
-        <ErrorState message={error} onRetry={loadProducts} />
+        <ErrorState message={error} onRetry={() => loadPage(1)} />
       ) : (
         <FlatList
           data={products}
@@ -91,11 +126,24 @@ export default function CategoryProductsScreen({ navigation, route }) {
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.4}
           ListHeaderComponent={
             <View style={styles.strip}>
               <Text style={styles.stripText}>Sorted by relevance</Text>
-              <Text style={styles.stripLink}>Filters</Text>
+              <Text style={styles.stripLink}>
+                {hasMore ? "Scroll for more" : "All loaded"}
+              </Text>
             </View>
+          }
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator color={colors.accent} />
+              </View>
+            ) : (
+              <View style={{ height: 24 }} />
+            )
           }
           ListEmptyComponent={
             <Text style={styles.empty}>No products in this category yet.</Text>
@@ -198,5 +246,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textSecondary,
     marginTop: 40,
+  },
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: "center",
   },
 });
