@@ -1,12 +1,31 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing } from "../theme/colors";
 
-// Small reusable top bar for non-Home screens
-export default function ScreenHeader({ title, subtitle }) {
+export default function ScreenHeader({ title, subtitle, showBack = false }) {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      <View style={styles.row}>
+        {showBack ? (
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={styles.backBtn}
+            hitSlop={8}
+          >
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
+          </Pressable>
+        ) : (
+          <View style={styles.backBtn} />
+        )}
+        <View style={styles.titles}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
+        <View style={styles.backBtn} />
+      </View>
     </View>
   );
 }
@@ -14,18 +33,33 @@ export default function ScreenHeader({ title, subtitle }) {
 const styles = StyleSheet.create({
   wrap: {
     backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.sm,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  titles: {
+    flex: 1,
+    alignItems: "center",
+  },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "800",
     color: colors.text,
   },
   subtitle: {
-    marginTop: 4,
-    fontSize: 13,
+    marginTop: 2,
+    fontSize: 12,
     color: colors.textSecondary,
+    textAlign: "center",
   },
 });

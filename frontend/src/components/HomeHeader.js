@@ -1,8 +1,13 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { useCart } from "../context/CartContext";
 import { colors, spacing } from "../theme/colors";
 
 export default function HomeHeader({ minutes, addressLabel, address }) {
+  const navigation = useNavigation();
+  const { totalItems } = useCart();
+
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
@@ -19,9 +24,30 @@ export default function HomeHeader({ minutes, addressLabel, address }) {
           </Pressable>
         </View>
 
-        <Pressable style={styles.cartBtn} accessibilityLabel="Cart">
-          <Ionicons name="cart-outline" size={24} color={colors.text} />
-        </Pressable>
+        <View style={styles.right}>
+          <Pressable
+            style={styles.iconBtn}
+            onPress={() => navigation.navigate("Account")}
+            accessibilityLabel="Account"
+          >
+            <Ionicons name="person-circle-outline" size={28} color={colors.text} />
+          </Pressable>
+
+          <Pressable
+            style={styles.iconBtn}
+            onPress={() => navigation.navigate("Cart")}
+            accessibilityLabel="Cart"
+          >
+            <Ionicons name="cart-outline" size={24} color={colors.text} />
+            {totalItems > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {totalItems > 99 ? "99+" : totalItems}
+                </Text>
+              </View>
+            ) : null}
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -43,6 +69,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: spacing.md,
   },
+  right: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
   eta: {
     fontSize: 13,
     color: colors.text,
@@ -63,12 +94,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.text,
   },
-  cartBtn: {
+  iconBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: "rgba(255,255,255,0.45)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  badge: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: colors.danger,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: "800",
   },
 });

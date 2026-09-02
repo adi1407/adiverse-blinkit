@@ -13,7 +13,11 @@ const MENU = [
 export default function AccountScreen() {
   return (
     <SafeAreaView style={styles.safe}>
-      <ScreenHeader title="Account" subtitle="Profile & settings (UI only)" />
+      <ScreenHeader
+        showBack
+        title="Account"
+        subtitle="Profile & settings (UI only)"
+      />
       <View style={styles.body}>
         <View style={styles.profileCard}>
           <View style={styles.avatar}>

@@ -52,6 +52,7 @@ export default function CartScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
+        showBack
         title="Cart"
         subtitle={
           isEmpty
