@@ -6,6 +6,8 @@ import {
   featuredRows,
   filterCategoryProducts,
   getCategoryById,
+  getProductById,
+  getSimilarProducts,
   searchProducts,
 } from "../data/catalog.js";
 

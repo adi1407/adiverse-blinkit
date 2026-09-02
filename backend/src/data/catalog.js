@@ -302,6 +302,35 @@ export function getAllProducts() {
   );
 }
 
+export function getProductById(id) {
+  return getAllProducts().find((product) => product.id === id) || null;
+}
+
+/** Same-category picks, preferring name-token overlap (brand / flavour). */
+export function getSimilarProducts(id, limit = 12) {
+  const product = getProductById(id);
+  if (!product) return [];
+
+  const tokens = String(product.name || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 2);
+
+  const scored = getProductsByCategoryId(product.categoryId)
+    .filter((item) => item.id !== id)
+    .map((item) => {
+      const haystack = `${item.name} ${item.unit}`.toLowerCase();
+      const score = tokens.reduce(
+        (sum, token) => sum + (haystack.includes(token) ? 1 : 0),
+        0
+      );
+      return { item, score };
+    });
+
+  scored.sort((a, b) => b.score - a.score || a.item.price - b.item.price);
+  return scored.slice(0, limit).map(({ item }) => item);
+}
+
 export function searchProducts(query) {
   const q = String(query || "")
     .trim()
