@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   categories,
+  catalogStats,
   deliveryInfo,
   featuredRows,
   getCategoryById,
@@ -18,6 +19,7 @@ router.get("/home", (req, res) => {
       deliveryInfo,
       categories,
       featuredRows,
+      stats: catalogStats,
     },
   });
 });

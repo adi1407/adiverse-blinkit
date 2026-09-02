@@ -1,4 +1,6 @@
-// Premium catalog — real product images + Lucide icon keys (no emoji).
+// Catalog: curated staples + Open Food Facts mega pack (real packaging photos).
+
+import generated from "./generatedProducts.json" with { type: "json" };
 
 const img = (photoId) =>
   `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=400&q=80`;
@@ -31,15 +33,6 @@ const dairyProducts = [
   { id: "p4", name: "Amul Butter", unit: "100 g", price: 58, mrp: 62, image: img("photo-1589985270826-4b7bb135bc9d") },
   { id: "p9", name: "Mother Dairy Curd", unit: "400 g", price: 35, mrp: 40, image: img("photo-1628088062854-d1870b4553da") },
   { id: "p10", name: "Amul Cheese Slices", unit: "100 g", price: 72, mrp: 80, image: img("photo-1486297678162-eb2a19b0a32d") },
-];
-
-const snackProducts = [
-  { id: "p5", name: "Lay's Classic Salted", unit: "52 g", price: 20, mrp: 20, image: img("photo-1566478989037-eec175614204") },
-  { id: "p6", name: "Kurkure Masala Munch", unit: "75 g", price: 20, mrp: 20, image: img("photo-1621939514649-cecb6959c1a0") },
-  { id: "p7", name: "Bingo Mad Angles", unit: "66 g", price: 20, mrp: 20, image: img("photo-1599490659213-e2b9527bd087") },
-  { id: "p8", name: "Haldiram's Bhujia", unit: "200 g", price: 55, mrp: 60, image: img("photo-1601050690597-df0568f70950") },
-  { id: "p11", name: "Uncle Chipps Spicy", unit: "55 g", price: 20, mrp: 20, image: img("photo-1613919113640-25732ec5e61f") },
-  { id: "p12", name: "Act II Butter Popcorn", unit: "30 g", price: 25, mrp: 30, image: img("photo-1578849278619-e73505e9610f") },
 ];
 
 const vegProducts = [
@@ -89,13 +82,22 @@ const meatProducts = [
   { id: "t6", name: "Prawns Medium", unit: "250 g", price: 280, mrp: 320, image: img("photo-1565680018434-b513d5e5fd47") },
 ];
 
-const drinkProducts = [
+const drinkSeed = [
   { id: "d1", name: "Coca-Cola", unit: "750 ml", price: 40, mrp: 40, image: img("photo-1554866585-cd94860890b7") },
   { id: "d2", name: "Tropicana Mixed Fruit", unit: "1 L", price: 110, mrp: 125, image: img("photo-1600271886742-f049cd062f01") },
   { id: "d3", name: "Kinley Soda", unit: "750 ml", price: 20, mrp: 20, image: img("photo-1523362628745-0c100150b504") },
   { id: "d4", name: "Real Orange", unit: "1 L", price: 95, mrp: 110, image: img("photo-1621506289937-a8e4df240d0b") },
   { id: "d5", name: "Sprite", unit: "750 ml", price: 40, mrp: 40, image: img("photo-1625772299848-391b6a87d7b3") },
   { id: "d6", name: "Red Bull", unit: "250 ml", price: 125, mrp: 125, image: img("photo-1613479020146-448cb276463e") },
+];
+
+const snackSeed = [
+  { id: "p5", name: "Lay's Classic Salted", unit: "52 g", price: 20, mrp: 20, image: img("photo-1566478989037-eec175614204") },
+  { id: "p6", name: "Kurkure Masala Munch", unit: "75 g", price: 20, mrp: 20, image: img("photo-1621939514649-cecb6959c1a0") },
+  { id: "p7", name: "Bingo Mad Angles", unit: "66 g", price: 20, mrp: 20, image: img("photo-1599490659213-e2b9527bd087") },
+  { id: "p8", name: "Haldiram's Bhujia", unit: "200 g", price: 55, mrp: 60, image: img("photo-1601050690597-df0568f70950") },
+  { id: "p11", name: "Uncle Chipps Spicy", unit: "55 g", price: 20, mrp: 20, image: img("photo-1613919113640-25732ec5e61f") },
+  { id: "p12", name: "Act II Butter Popcorn", unit: "30 g", price: 25, mrp: 30, image: img("photo-1578849278619-e73505e9610f") },
 ];
 
 const personalCareProducts = [
@@ -130,12 +132,94 @@ const petProducts = [
   { id: "pt4", name: "Dog Chew Stick", unit: "4 pcs", price: 90, mrp: 110, image: img("photo-1587300003388-59208cc962cb") },
 ];
 
+function stripMeta(product) {
+  const { id, name, unit, price, mrp, image } = product;
+  return { id, name, unit, price, mrp, image };
+}
+
+function mergeUnique(seed, extras) {
+  const map = new Map();
+  for (const p of seed) map.set(p.id, stripMeta(p));
+  for (const p of extras) {
+    if (!p?.id || !p?.image || !p?.name) continue;
+    if (!map.has(p.id)) map.set(p.id, stripMeta(p));
+  }
+  return [...map.values()];
+}
+
+const offProducts = Array.isArray(generated.products) ? generated.products : [];
+
+const offSnacks = offProducts.filter((p) => p.categoryId === "c8");
+const offDrinks = offProducts.filter((p) => p.categoryId === "c7");
+const offBakery = offProducts.filter((p) => p.categoryId === "c5");
+
+const snackProducts = mergeUnique(snackSeed, offSnacks);
+const drinkProducts = mergeUnique(drinkSeed, offDrinks);
+const bakeryMerged = mergeUnique(bakeryProducts, offBakery);
+
+/** Pick first match by name keywords (for Home featured rows). */
+function pickHero(list, patterns, limit = 12) {
+  const out = [];
+  const used = new Set();
+
+  for (const pattern of patterns) {
+    const hit = list.find(
+      (p) => !used.has(p.id) && pattern.test(p.name)
+    );
+    if (hit) {
+      used.add(hit.id);
+      out.push(hit);
+    }
+    if (out.length >= limit) break;
+  }
+
+  for (const p of list) {
+    if (out.length >= limit) break;
+    if (used.has(p.id)) continue;
+    used.add(p.id);
+    out.push(p);
+  }
+
+  return out;
+}
+
+const heroSnacks = pickHero(snackProducts, [
+  /lay'?s.*classic|classic.*salted|salted/i,
+  /lay'?s.*(magic|india|masala|spanish|tomato|green)/i,
+  /lay'?s.*(cream|onion|blue|american)/i,
+  /doritos.*nacho/i,
+  /doritos.*(cool|ranch|cheese|flama|bbq)/i,
+  /doritos/i,
+  /kurkure.*masala/i,
+  /kurkure.*puff|kurkure.*green|kurkure/i,
+  /pringles.*original/i,
+  /pringles.*(sour|onion)/i,
+  /pringles.*(bbq|cheese|hot)/i,
+  /cheetos/i,
+  /bingo/i,
+  /nacho/i,
+  /protein\s*bar|quest.*bar|yoga\s*bar/i,
+  /popcorn/i,
+]);
+
+const heroEnergyCoffee = pickHero(drinkProducts, [
+  /monster.*energy(?!.*ultra)/i,
+  /monster.*ultra|monster.*white|monster.*zero/i,
+  /monster/i,
+  /red\s*bull/i,
+  /nescafe.*classic|nescaf[eé].*classic/i,
+  /nescafe|nescaf[eé]/i,
+  /charged|sting|hell energy/i,
+  /coca.?cola|coke/i,
+  /sprite|pepsi|fanta/i,
+]);
+
 export const productsByCategory = {
   c1: vegProducts,
   c2: dairyProducts,
   c3: attaProducts,
   c4: masalaProducts,
-  c5: bakeryProducts,
+  c5: bakeryMerged,
   c6: meatProducts,
   c7: drinkProducts,
   c8: snackProducts,
@@ -146,11 +230,33 @@ export const productsByCategory = {
 };
 
 export const featuredRows = [
+  {
+    id: "row-hero-snacks",
+    title: "Chips, nachos & munchies",
+    products: heroSnacks.slice(0, 14),
+  },
+  {
+    id: "row-energy-coffee",
+    title: "Energy drinks & coffee",
+    products: heroEnergyCoffee.slice(0, 12),
+  },
   { id: "row-dairy", title: "Dairy, Bread & Eggs", products: dairyProducts },
-  { id: "row-snacks", title: "Snacks & Munchies", products: snackProducts },
+  {
+    id: "row-snacks-more",
+    title: "More snacks to explore",
+    products: snackProducts.slice(14, 28),
+  },
   { id: "row-veg", title: "Fresh Vegetables & Fruits", products: vegProducts },
-  { id: "row-drinks", title: "Cold Drinks & Juices", products: drinkProducts },
-  { id: "row-bakery", title: "Bakery & Biscuits", products: bakeryProducts },
+  {
+    id: "row-drinks",
+    title: "Cold Drinks & Juices",
+    products: drinkProducts.slice(0, 12),
+  },
+  {
+    id: "row-bakery",
+    title: "Bakery & Biscuits",
+    products: bakeryMerged.slice(0, 12),
+  },
   { id: "row-personal", title: "Personal Care", products: personalCareProducts },
 ];
 
@@ -162,7 +268,6 @@ export function getProductsByCategoryId(id) {
   return productsByCategory[id] || [];
 }
 
-/** Flat product list with categoryId for search results */
 export function getAllProducts() {
   return Object.entries(productsByCategory).flatMap(([categoryId, products]) =>
     products.map((product) => ({ ...product, categoryId }))
@@ -176,8 +281,18 @@ export function searchProducts(query) {
 
   if (!q) return [];
 
-  return getAllProducts().filter((product) => {
-    const haystack = `${product.name} ${product.unit}`.toLowerCase();
-    return haystack.includes(q);
-  });
+  // Cap search results so the phone stays snappy with a huge catalog
+  return getAllProducts()
+    .filter((product) => {
+      const haystack = `${product.name} ${product.unit}`.toLowerCase();
+      return haystack.includes(q);
+    })
+    .slice(0, 80);
 }
+
+export const catalogStats = {
+  generatedCount: generated.count || offProducts.length,
+  totalProducts: getAllProducts().length,
+  snacks: snackProducts.length,
+  drinks: drinkProducts.length,
+};
