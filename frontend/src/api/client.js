@@ -1,17 +1,6 @@
 import { API_BASE_URL } from "../config/api";
 
-export async function apiGet(path) {
-  const url = `${API_BASE_URL}${path}`;
-
-  let response;
-  try {
-    response = await fetch(url);
-  } catch {
-    throw new Error(
-      `Cannot reach API at ${API_BASE_URL}. Is the backend running on port 5000?`
-    );
-  }
-
+async function parseResponse(response) {
   let body;
   try {
     body = await response.json();
@@ -24,4 +13,31 @@ export async function apiGet(path) {
   }
 
   return body.data;
+}
+
+async function request(path, options) {
+  const url = `${API_BASE_URL}${path}`;
+
+  let response;
+  try {
+    response = await fetch(url, options);
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_BASE_URL}. Is the backend running on port 5000?`
+    );
+  }
+
+  return parseResponse(response);
+}
+
+export function apiGet(path) {
+  return request(path);
+}
+
+export function apiPost(path, body) {
+  return request(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }

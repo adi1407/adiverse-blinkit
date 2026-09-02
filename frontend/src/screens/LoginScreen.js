@@ -34,12 +34,12 @@ export default function LoginScreen({ navigation, route }) {
     }
   }
 
-  function onContinue() {
+  async function onContinue() {
     setError("");
     setBusy(true);
     try {
       // Mock login — real Blinkit would send OTP next
-      login({ name, phone });
+      await login({ name, phone });
       finish();
     } catch (err) {
       setError(err.message || "Login failed");

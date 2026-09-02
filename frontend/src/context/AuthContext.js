@@ -1,13 +1,38 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Shared auth "brain" — mock phone login (no real OTP/server yet).
+// Shared auth "brain" — mock phone login, persisted on device.
 
 const AuthContext = createContext(null);
+const STORAGE_KEY = "@blinkit_clone_user";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
 
-  function login({ name, phone }) {
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        if (alive && raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.phone) setUser(parsed);
+        }
+      } catch {
+        // Corrupt storage — start logged out
+      } finally {
+        if (alive) setReady(true);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  async function login({ name, phone }) {
     const cleanPhone = String(phone || "").replace(/\D/g, "");
     const cleanName = String(name || "").trim() || "Blinkit User";
 
@@ -15,26 +40,30 @@ export function AuthProvider({ children }) {
       throw new Error("Enter a valid 10-digit mobile number");
     }
 
-    setUser({
+    const nextUser = {
       name: cleanName,
       phone: cleanPhone,
-      // Demo session id — real apps get this from the server after OTP
       sessionId: `demo-${cleanPhone}`,
-    });
+    };
+
+    setUser(nextUser);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
   }
 
-  function logout() {
+  async function logout() {
     setUser(null);
+    await AsyncStorage.removeItem(STORAGE_KEY);
   }
 
   const value = useMemo(
     () => ({
       user,
+      ready,
       isLoggedIn: Boolean(user),
       login,
       logout,
     }),
-    [user]
+    [user, ready]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

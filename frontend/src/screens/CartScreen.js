@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -15,6 +16,7 @@ import QtyStepper from "../components/QtyStepper";
 import ProductImage from "../components/ProductImage";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { placeOrder } from "../api/ordersApi";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 function CartRow({ item }) {
@@ -52,8 +54,9 @@ export default function CartScreen({ navigation }) {
   const isEmpty = items.length === 0;
   const deliveryFee = totalPrice >= 199 ? 0 : 25;
   const grandTotal = totalPrice + deliveryFee;
+  const [placing, setPlacing] = useState(false);
 
-  function onProceed() {
+  async function onProceed() {
     if (!isLoggedIn) {
       Alert.alert("Login required", "Please login to place your order.", [
         { text: "Cancel", style: "cancel" },
@@ -65,11 +68,37 @@ export default function CartScreen({ navigation }) {
       return;
     }
 
-    Alert.alert(
-      "Order placed!",
-      `Thanks ${user.name}! Demo order for ₹${grandTotal} is confirmed.`,
-      [{ text: "OK", onPress: clearCart }]
-    );
+    if (placing) return;
+    setPlacing(true);
+
+    try {
+      const order = await placeOrder({
+        name: user.name,
+        phone: user.phone,
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          unit: item.unit,
+          price: item.price,
+          qty: item.qty,
+          image: item.image,
+        })),
+      });
+
+      clearCart();
+      Alert.alert(
+        "Order placed!",
+        `Thanks ${user.name}! Order ${order.id} for ₹${order.grandTotal} is confirmed.`,
+        [
+          { text: "View orders", onPress: () => navigation.replace("Orders") },
+          { text: "OK" },
+        ]
+      );
+    } catch (err) {
+      Alert.alert("Checkout failed", err.message || "Could not place order");
+    } finally {
+      setPlacing(false);
+    }
   }
 
   return (
@@ -146,13 +175,21 @@ export default function CartScreen({ navigation }) {
             <Pressable style={styles.clearBtn} onPress={clearCart}>
               <Text style={styles.clearText}>Clear</Text>
             </Pressable>
-            <Pressable style={styles.checkoutBtn} onPress={onProceed}>
+            <Pressable
+              style={[styles.checkoutBtn, placing && styles.checkoutDisabled]}
+              onPress={onProceed}
+              disabled={placing}
+            >
               <View>
                 <Text style={styles.checkoutPrice}>₹{grandTotal}</Text>
                 <Text style={styles.checkoutSub}>TOTAL</Text>
               </View>
               <Text style={styles.checkoutText}>
-                {isLoggedIn ? "Proceed →" : "Login to proceed →"}
+                {placing
+                  ? "Placing…"
+                  : isLoggedIn
+                    ? "Proceed →"
+                    : "Login to proceed →"}
               </Text>
             </Pressable>
           </View>
@@ -357,6 +394,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  checkoutDisabled: {
+    opacity: 0.7,
   },
   checkoutPrice: {
     color: colors.white,

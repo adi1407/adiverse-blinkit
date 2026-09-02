@@ -34,12 +34,22 @@ export default function AccountScreen({ navigation }) {
   function onLogout() {
     Alert.alert("Log out?", "You’ll need to login again to place orders.", [
       { text: "Cancel", style: "cancel" },
-      { text: "Log out", style: "destructive", onPress: logout },
+      {
+        text: "Log out",
+        style: "destructive",
+        onPress: () => {
+          logout();
+        },
+      },
     ]);
   }
 
   function onMenuPress(id) {
-    if (!isLoggedIn && (id === "orders" || id === "address")) {
+    if (id === "orders") {
+      navigation.navigate("Orders");
+      return;
+    }
+    if (!isLoggedIn && id === "address") {
       navigation.navigate("Login");
       return;
     }
