@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, StyleSheet, StatusBar, Platform, Pressable } from "react-native";
+import { Alert, SafeAreaView, View, Text, StyleSheet, StatusBar, Platform, Pressable } from "react-native";
 import {
   Package,
   MapPin,
@@ -6,8 +6,10 @@ import {
   Info,
   ChevronRight,
   UserRound,
+  LogOut,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
+import { useAuth } from "../context/AuthContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
@@ -17,7 +19,33 @@ const MENU = [
   { id: "about", label: "About Blinkit Clone", hint: "App version 1.0", Icon: Info },
 ];
 
-export default function AccountScreen() {
+function formatPhone(phone) {
+  if (!phone || phone.length !== 10) return phone || "";
+  return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+}
+
+export default function AccountScreen({ navigation }) {
+  const { user, isLoggedIn, logout } = useAuth();
+
+  function onLogin() {
+    navigation.navigate("Login");
+  }
+
+  function onLogout() {
+    Alert.alert("Log out?", "You’ll need to login again to place orders.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Log out", style: "destructive", onPress: logout },
+    ]);
+  }
+
+  function onMenuPress(id) {
+    if (!isLoggedIn && (id === "orders" || id === "address")) {
+      navigation.navigate("Login");
+      return;
+    }
+    Alert.alert("Coming soon", "This section is UI-only for now.");
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
@@ -33,12 +61,25 @@ export default function AccountScreen() {
             <UserRound size={28} color={colors.text} strokeWidth={2} />
           </View>
           <View style={styles.profileText}>
-            <Text style={styles.name}>Guest User</Text>
-            <Text style={styles.phone}>Login to sync orders & addresses</Text>
+            <Text style={styles.name}>
+              {isLoggedIn ? user.name : "Guest User"}
+            </Text>
+            <Text style={styles.phone}>
+              {isLoggedIn
+                ? formatPhone(user.phone)
+                : "Login to sync orders & addresses"}
+            </Text>
           </View>
-          <Pressable style={styles.loginBtn}>
-            <Text style={styles.loginText}>Login</Text>
-          </Pressable>
+          {isLoggedIn ? (
+            <Pressable style={styles.logoutBtn} onPress={onLogout}>
+              <LogOut size={14} color={colors.danger} strokeWidth={2.4} />
+              <Text style={styles.logoutText}>Logout</Text>
+            </Pressable>
+          ) : (
+            <Pressable style={styles.loginBtn} onPress={onLogin}>
+              <Text style={styles.loginText}>Login</Text>
+            </Pressable>
+          )}
         </View>
 
         <View style={[styles.menuCard, shadows.soft]}>
@@ -47,6 +88,7 @@ export default function AccountScreen() {
             return (
               <Pressable
                 key={item.id}
+                onPress={() => onMenuPress(item.id)}
                 style={[
                   styles.menuRow,
                   index === MENU.length - 1 && styles.menuRowLast,
@@ -128,6 +170,22 @@ const styles = StyleSheet.create({
   loginText: {
     color: colors.white,
     fontWeight: "900",
+    fontSize: 12,
+  },
+  logoutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderRadius: radii.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: "#F8C9CD",
+    backgroundColor: "#FFF5F5",
+  },
+  logoutText: {
+    color: colors.danger,
+    fontWeight: "800",
     fontSize: 12,
   },
   menuCard: {

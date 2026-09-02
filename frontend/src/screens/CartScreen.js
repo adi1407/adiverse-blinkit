@@ -7,12 +7,14 @@ import {
   Platform,
   FlatList,
   Pressable,
+  Alert,
 } from "react-native";
 import { ShoppingCart, Trash2, ShieldCheck, Bike } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
 import ProductImage from "../components/ProductImage";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 function CartRow({ item }) {
@@ -44,11 +46,31 @@ function CartRow({ item }) {
   );
 }
 
-export default function CartScreen() {
+export default function CartScreen({ navigation }) {
   const { items, totalItems, totalPrice, clearCart } = useCart();
+  const { isLoggedIn, user } = useAuth();
   const isEmpty = items.length === 0;
   const deliveryFee = totalPrice >= 199 ? 0 : 25;
   const grandTotal = totalPrice + deliveryFee;
+
+  function onProceed() {
+    if (!isLoggedIn) {
+      Alert.alert("Login required", "Please login to place your order.", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Login",
+          onPress: () => navigation.navigate("Login", { returnTo: "Cart" }),
+        },
+      ]);
+      return;
+    }
+
+    Alert.alert(
+      "Order placed!",
+      `Thanks ${user.name}! Demo order for ₹${grandTotal} is confirmed.`,
+      [{ text: "OK", onPress: clearCart }]
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -124,12 +146,14 @@ export default function CartScreen() {
             <Pressable style={styles.clearBtn} onPress={clearCart}>
               <Text style={styles.clearText}>Clear</Text>
             </Pressable>
-            <Pressable style={styles.checkoutBtn}>
+            <Pressable style={styles.checkoutBtn} onPress={onProceed}>
               <View>
                 <Text style={styles.checkoutPrice}>₹{grandTotal}</Text>
                 <Text style={styles.checkoutSub}>TOTAL</Text>
               </View>
-              <Text style={styles.checkoutText}>Proceed →</Text>
+              <Text style={styles.checkoutText}>
+                {isLoggedIn ? "Proceed →" : "Login to proceed →"}
+              </Text>
             </Pressable>
           </View>
         </View>
