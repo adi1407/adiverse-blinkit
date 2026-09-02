@@ -268,6 +268,34 @@ export function getProductsByCategoryId(id) {
   return productsByCategory[id] || [];
 }
 
+/**
+ * Filter + sort products inside a category (for chips / price sort).
+ * @param {string} id category id
+ * @param {{ q?: string, sort?: 'relevance' | 'price_asc' | 'price_desc' }} options
+ */
+export function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) {
+  const query = String(q || "")
+    .trim()
+    .toLowerCase();
+
+  let list = [...getProductsByCategoryId(id)];
+
+  if (query) {
+    list = list.filter((product) => {
+      const haystack = `${product.name} ${product.unit}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }
+
+  if (sort === "price_asc") {
+    list.sort((a, b) => a.price - b.price);
+  } else if (sort === "price_desc") {
+    list.sort((a, b) => b.price - a.price);
+  }
+
+  return list;
+}
+
 export function getAllProducts() {
   return Object.entries(productsByCategory).flatMap(([categoryId, products]) =>
     products.map((product) => ({ ...product, categoryId }))

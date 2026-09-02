@@ -4,8 +4,8 @@ import {
   catalogStats,
   deliveryInfo,
   featuredRows,
+  filterCategoryProducts,
   getCategoryById,
-  getProductsByCategoryId,
   searchProducts,
 } from "../data/catalog.js";
 
@@ -49,7 +49,7 @@ router.get("/categories/:id", (req, res) => {
   });
 });
 
-// GET /api/categories/:id/products?page=1&limit=40
+// GET /api/categories/:id/products?page=1&limit=40&q=lays&sort=price_asc
 router.get("/categories/:id/products", (req, res) => {
   const category = getCategoryById(req.params.id);
 
@@ -60,7 +60,9 @@ router.get("/categories/:id/products", (req, res) => {
     });
   }
 
-  const all = getProductsByCategoryId(req.params.id);
+  const q = String(req.query.q || "").trim();
+  const sort = String(req.query.sort || "relevance");
+  const all = filterCategoryProducts(req.params.id, { q, sort });
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(60, Math.max(1, Number(req.query.limit) || 40));
   const start = (page - 1) * limit;
@@ -77,6 +79,8 @@ router.get("/categories/:id/products", (req, res) => {
       limit,
       total,
       hasMore,
+      q,
+      sort,
     },
   });
 });
