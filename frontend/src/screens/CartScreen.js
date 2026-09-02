@@ -107,6 +107,11 @@ export default function CartScreen({ navigation }) {
         "Order placed!",
         `Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
         [
+          {
+            text: "Track order",
+            onPress: () =>
+              navigation.replace("OrderDetail", { orderId: order.id }),
+          },
           { text: "View orders", onPress: () => navigation.replace("Orders") },
           { text: "OK" },
         ]
