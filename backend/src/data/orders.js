@@ -1,4 +1,5 @@
 // Orders store backed by a JSON file (survives backend restarts).
+// Status auto-advances over time for demo tracking.
 
 import fs from "fs";
 import path from "path";
@@ -6,6 +7,14 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORE_PATH = path.join(__dirname, "orders.store.json");
+
+/** Demo timeline (seconds after place order). Real apps use rider GPS/events. */
+export const STATUS_STEPS = [
+  { key: "confirmed", afterSec: 0, title: "Order confirmed", hint: "Store got your order" },
+  { key: "packing", afterSec: 20, title: "Packing", hint: "Items are being packed" },
+  { key: "out_for_delivery", afterSec: 50, title: "Out for delivery", hint: "Partner is on the way" },
+  { key: "delivered", afterSec: 90, title: "Delivered", hint: "Enjoy your order" },
+];
 
 function loadOrders() {
   try {
@@ -18,10 +27,10 @@ function loadOrders() {
   }
 }
 
-function saveOrders(orders) {
+function saveOrders(list) {
   const tmp = `${STORE_PATH}.tmp`;
   const payload = JSON.stringify(
-    { updatedAt: new Date().toISOString(), orders },
+    { updatedAt: new Date().toISOString(), orders: list },
     null,
     2
   );
@@ -33,6 +42,50 @@ let orders = loadOrders();
 
 function makeId() {
   return `ord_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function statusForAge(ageSec) {
+  let current = STATUS_STEPS[0].key;
+  for (const step of STATUS_STEPS) {
+    if (ageSec >= step.afterSec) current = step.key;
+  }
+  return current;
+}
+
+function withTimeline(order) {
+  const created = new Date(order.createdAt).getTime();
+  const ageSec = Math.max(0, Math.floor((Date.now() - created) / 1000));
+  const status = statusForAge(ageSec);
+  const stepIndex = STATUS_STEPS.findIndex((s) => s.key === status);
+
+  return {
+    ...order,
+    status,
+    statusUpdatedAt: order.statusUpdatedAt || order.createdAt,
+    timeline: STATUS_STEPS.map((step, index) => ({
+      ...step,
+      done: index <= stepIndex,
+      active: index === stepIndex,
+    })),
+    ageSec,
+  };
+}
+
+function refreshAllStatuses() {
+  let changed = false;
+  orders = orders.map((order) => {
+    const next = withTimeline(order);
+    if (next.status !== order.status) {
+      changed = true;
+      return {
+        ...order,
+        status: next.status,
+        statusUpdatedAt: new Date().toISOString(),
+      };
+    }
+    return order;
+  });
+  if (changed) saveOrders(orders);
 }
 
 export function createOrder({ name, phone, items, address }) {
@@ -78,6 +131,7 @@ export function createOrder({ name, phone, items, address }) {
       }
     : null;
 
+  const now = new Date().toISOString();
   const order = {
     id: makeId(),
     name: cleanName,
@@ -88,21 +142,27 @@ export function createOrder({ name, phone, items, address }) {
     deliveryFee,
     grandTotal,
     status: "confirmed",
-    createdAt: new Date().toISOString(),
+    statusUpdatedAt: now,
+    createdAt: now,
   };
 
   orders = [order, ...orders];
   saveOrders(orders);
-  return order;
+  return withTimeline(order);
 }
 
 export function getOrdersByPhone(phone) {
+  refreshAllStatuses();
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  return orders.filter((order) => order.phone === cleanPhone);
+  return orders
+    .filter((order) => order.phone === cleanPhone)
+    .map(withTimeline);
 }
 
 export function getOrderById(id) {
-  return orders.find((order) => order.id === id);
+  refreshAllStatuses();
+  const order = orders.find((o) => o.id === id);
+  return order ? withTimeline(order) : null;
 }
 
 /** Unique products from a user's past orders (newest first). */
