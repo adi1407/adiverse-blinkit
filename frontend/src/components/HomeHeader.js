@@ -2,11 +2,16 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../context/CartContext";
+import { useAddress } from "../context/AddressContext";
 import { colors, spacing, shadows } from "../theme/colors";
 
-export default function HomeHeader({ minutes, addressLabel, address }) {
+export default function HomeHeader({ minutes }) {
   const navigation = useNavigation();
   const { totalItems } = useCart();
+  const { selectedAddress } = useAddress();
+
+  const label = selectedAddress?.label || "Home";
+  const line = selectedAddress?.line1 || "Add delivery address";
 
   return (
     <View style={styles.wrap}>
@@ -40,10 +45,13 @@ export default function HomeHeader({ minutes, addressLabel, address }) {
       <Text style={styles.etaLabel}>Delivery in</Text>
       <Text style={styles.etaValue}>{minutes} minutes</Text>
 
-      <Pressable style={styles.addressRow}>
+      <Pressable
+        style={styles.addressRow}
+        onPress={() => navigation.navigate("Addresses")}
+      >
         <Ionicons name="location-sharp" size={15} color={colors.text} />
         <Text style={styles.addressLabel} numberOfLines={1}>
-          {addressLabel} · {address}
+          {label} · {line}
         </Text>
         <Ionicons name="chevron-down" size={15} color={colors.text} />
       </Pressable>

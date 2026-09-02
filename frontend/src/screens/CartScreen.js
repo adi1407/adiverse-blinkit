@@ -10,12 +10,13 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import { ShoppingCart, Trash2, ShieldCheck, Bike } from "../utils/lucideIcons";
+import { ShoppingCart, Trash2, ShieldCheck, Bike, MapPin } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
 import ProductImage from "../components/ProductImage";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useAddress } from "../context/AddressContext";
 import { placeOrder } from "../api/ordersApi";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
@@ -51,6 +52,7 @@ function CartRow({ item }) {
 export default function CartScreen({ navigation }) {
   const { items, totalItems, totalPrice, clearCart } = useCart();
   const { isLoggedIn, user } = useAuth();
+  const { selectedAddress } = useAddress();
   const isEmpty = items.length === 0;
   const deliveryFee = totalPrice >= 199 ? 0 : 25;
   const grandTotal = totalPrice + deliveryFee;
@@ -68,6 +70,16 @@ export default function CartScreen({ navigation }) {
       return;
     }
 
+    if (!selectedAddress) {
+      Alert.alert("Add address", "Pick a delivery address first.", [
+        {
+          text: "Add address",
+          onPress: () => navigation.navigate("Addresses"),
+        },
+      ]);
+      return;
+    }
+
     if (placing) return;
     setPlacing(true);
 
@@ -75,6 +87,11 @@ export default function CartScreen({ navigation }) {
       const order = await placeOrder({
         name: user.name,
         phone: user.phone,
+        address: {
+          label: selectedAddress.label,
+          line1: selectedAddress.line1,
+          line2: selectedAddress.line2 || "",
+        },
         items: items.map((item) => ({
           id: item.id,
           name: item.name,
@@ -88,7 +105,7 @@ export default function CartScreen({ navigation }) {
       clearCart();
       Alert.alert(
         "Order placed!",
-        `Thanks ${user.name}! Order ${order.id} for ₹${order.grandTotal} is confirmed.`,
+        `Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
         [
           { text: "View orders", onPress: () => navigation.replace("Orders") },
           { text: "OK" },

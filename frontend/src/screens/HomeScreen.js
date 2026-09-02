@@ -71,11 +71,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>
-          <HomeHeader
-            minutes={data.deliveryInfo.minutes}
-            addressLabel={data.deliveryInfo.addressLabel}
-            address={data.deliveryInfo.address}
-          />
+          <HomeHeader minutes={data.deliveryInfo.minutes} />
           <SearchBar onPress={() => navigation.navigate("Search")} />
           <View style={styles.heroCurve} />
         </View>
