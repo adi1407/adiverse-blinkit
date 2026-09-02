@@ -8,8 +8,10 @@ export function fetchCategories() {
   return apiGet("/api/categories");
 }
 
-export function fetchCategoryProducts(categoryId) {
-  return apiGet(`/api/categories/${categoryId}/products`);
+export function fetchCategoryProducts(categoryId, { page = 1, limit = 40 } = {}) {
+  return apiGet(
+    `/api/categories/${categoryId}/products?page=${page}&limit=${limit}`
+  );
 }
 
 export function fetchSearch(query) {
