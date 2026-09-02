@@ -49,7 +49,7 @@ router.get("/categories/:id", (req, res) => {
   });
 });
 
-// GET /api/categories/:id/products
+// GET /api/categories/:id/products?page=1&limit=40
 router.get("/categories/:id/products", (req, res) => {
   const category = getCategoryById(req.params.id);
 
@@ -60,11 +60,23 @@ router.get("/categories/:id/products", (req, res) => {
     });
   }
 
+  const all = getProductsByCategoryId(req.params.id);
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(60, Math.max(1, Number(req.query.limit) || 40));
+  const start = (page - 1) * limit;
+  const products = all.slice(start, start + limit);
+  const total = all.length;
+  const hasMore = start + products.length < total;
+
   res.json({
     success: true,
     data: {
       category,
-      products: getProductsByCategoryId(req.params.id),
+      products,
+      page,
+      limit,
+      total,
+      hasMore,
     },
   });
 });

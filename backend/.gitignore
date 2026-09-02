@@ -2,3 +2,5 @@ node_modules/
 .env
 .DS_Store
 *.log
+src/data/orders.store.json
+src/data/orders.store.json.tmp

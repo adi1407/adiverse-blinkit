@@ -1,6 +1,35 @@
-// In-memory orders store (resets when the backend restarts).
+// Orders store backed by a JSON file (survives backend restarts).
 
-const orders = [];
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const STORE_PATH = path.join(__dirname, "orders.store.json");
+
+function loadOrders() {
+  try {
+    if (!fs.existsSync(STORE_PATH)) return [];
+    const raw = fs.readFileSync(STORE_PATH, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.orders) ? parsed.orders : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOrders(orders) {
+  const tmp = `${STORE_PATH}.tmp`;
+  const payload = JSON.stringify(
+    { updatedAt: new Date().toISOString(), orders },
+    null,
+    2
+  );
+  fs.writeFileSync(tmp, payload, "utf8");
+  fs.renameSync(tmp, STORE_PATH);
+}
+
+let orders = loadOrders();
 
 function makeId() {
   return `ord_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -62,7 +91,8 @@ export function createOrder({ name, phone, items, address }) {
     createdAt: new Date().toISOString(),
   };
 
-  orders.unshift(order);
+  orders = [order, ...orders];
+  saveOrders(orders);
   return order;
 }
 

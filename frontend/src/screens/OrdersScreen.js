@@ -262,6 +262,12 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: colors.text,
   },
+  shipTo: {
+    marginTop: 8,
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
   emptyBox: {
     alignItems: "center",
     backgroundColor: colors.white,
