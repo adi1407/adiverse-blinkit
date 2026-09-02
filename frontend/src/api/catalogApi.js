@@ -8,10 +8,17 @@ export function fetchCategories() {
   return apiGet("/api/categories");
 }
 
-export function fetchCategoryProducts(categoryId, { page = 1, limit = 40 } = {}) {
-  return apiGet(
-    `/api/categories/${categoryId}/products?page=${page}&limit=${limit}`
-  );
+export function fetchCategoryProducts(
+  categoryId,
+  { page = 1, limit = 40, q = "", sort = "relevance" } = {}
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    sort: String(sort || "relevance"),
+  });
+  if (q) params.set("q", q);
+  return apiGet(`/api/categories/${categoryId}/products?${params.toString()}`);
 }
 
 export function fetchSearch(query) {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -9,6 +9,7 @@ import {
   Platform,
   Pressable,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { ChevronLeft, Search } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
@@ -21,8 +22,58 @@ import { colors, spacing, radii } from "../theme/colors";
 
 const PAGE_SIZE = 40;
 
+const BRAND_FILTERS = {
+  c8: [
+    { id: "all", label: "All", q: "" },
+    { id: "lays", label: "Lay's", q: "lay" },
+    { id: "doritos", label: "Doritos", q: "doritos" },
+    { id: "kurkure", label: "Kurkure", q: "kurkure" },
+    { id: "pringles", label: "Pringles", q: "pringles" },
+    { id: "cheetos", label: "Cheetos", q: "cheetos" },
+    { id: "nachos", label: "Nachos", q: "nacho" },
+    { id: "protein", label: "Protein", q: "protein" },
+  ],
+  c7: [
+    { id: "all", label: "All", q: "" },
+    { id: "monster", label: "Monster", q: "monster" },
+    { id: "nescafe", label: "Nescafé", q: "nescafe" },
+    { id: "redbull", label: "Red Bull", q: "red bull" },
+    { id: "cola", label: "Cola", q: "cola" },
+    { id: "sprite", label: "Sprite", q: "sprite" },
+  ],
+  c5: [
+    { id: "all", label: "All", q: "" },
+    { id: "oreo", label: "Oreo", q: "oreo" },
+    { id: "parle", label: "Parle", q: "parle" },
+    { id: "britannia", label: "Britannia", q: "britannia" },
+  ],
+};
+
+const SORT_OPTIONS = [
+  { id: "relevance", label: "Relevance" },
+  { id: "price_asc", label: "Price ↑" },
+  { id: "price_desc", label: "Price ↓" },
+];
+
+function Chip({ label, active, onPress }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.chip, active && styles.chipActive]}
+    >
+      <Text style={[styles.chipText, active && styles.chipTextActive]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 export default function CategoryProductsScreen({ navigation, route }) {
   const { categoryId } = route.params;
+  const brandFilters = BRAND_FILTERS[categoryId] || [
+    { id: "all", label: "All", q: "" },
+  ];
+
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
@@ -31,6 +82,13 @@ export default function CategoryProductsScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
+  const [brandId, setBrandId] = useState("all");
+  const [sort, setSort] = useState("relevance");
+
+  const activeBrand = useMemo(
+    () => brandFilters.find((b) => b.id === brandId) || brandFilters[0],
+    [brandFilters, brandId]
+  );
 
   const loadPage = useCallback(
     async (nextPage, { append } = { append: false }) => {
@@ -44,6 +102,8 @@ export default function CategoryProductsScreen({ navigation, route }) {
         const data = await fetchCategoryProducts(categoryId, {
           page: nextPage,
           limit: PAGE_SIZE,
+          q: activeBrand.q,
+          sort,
         });
         setCategory(data.category);
         setTotal(data.total || 0);
@@ -62,14 +122,14 @@ export default function CategoryProductsScreen({ navigation, route }) {
         setLoadingMore(false);
       }
     },
-    [categoryId]
+    [categoryId, activeBrand.q, sort]
   );
 
   useEffect(() => {
     setProducts([]);
     setPage(1);
     loadPage(1, { append: false });
-  }, [categoryId, loadPage]);
+  }, [categoryId, activeBrand.q, sort, loadPage]);
 
   function onEndReached() {
     if (loading || loadingMore || !hasMore) return;
@@ -78,6 +138,8 @@ export default function CategoryProductsScreen({ navigation, route }) {
 
   const title = category ? categoryTitle(category) : "Products";
   const Icon = getLucideIcon(category?.icon);
+  const sortLabel =
+    SORT_OPTIONS.find((s) => s.id === sort)?.label || "Relevance";
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -89,8 +151,17 @@ export default function CategoryProductsScreen({ navigation, route }) {
         <View style={styles.titleBlock}>
           <View style={styles.titleRow}>
             {category ? (
-              <View style={[styles.catChip, { backgroundColor: category.bg || colors.surface }]}>
-                <Icon size={14} color={category.color || colors.accent} strokeWidth={2.2} />
+              <View
+                style={[
+                  styles.catChip,
+                  { backgroundColor: category.bg || colors.surface },
+                ]}
+              >
+                <Icon
+                  size={14}
+                  color={category.color || colors.accent}
+                  strokeWidth={2.2}
+                />
               </View>
             ) : null}
             <Text style={styles.title} numberOfLines={1}>
@@ -114,6 +185,37 @@ export default function CategoryProductsScreen({ navigation, route }) {
 
       <View style={styles.curve} />
 
+      <View style={styles.filtersWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipRow}
+        >
+          {brandFilters.map((f) => (
+            <Chip
+              key={f.id}
+              label={f.label}
+              active={brandId === f.id}
+              onPress={() => setBrandId(f.id)}
+            />
+          ))}
+        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipRow}
+        >
+          {SORT_OPTIONS.map((s) => (
+            <Chip
+              key={s.id}
+              label={s.label}
+              active={sort === s.id}
+              onPress={() => setSort(s.id)}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
       {loading ? (
         <LoadingState message="Loading products..." />
       ) : error ? (
@@ -130,7 +232,10 @@ export default function CategoryProductsScreen({ navigation, route }) {
           onEndReachedThreshold={0.4}
           ListHeaderComponent={
             <View style={styles.strip}>
-              <Text style={styles.stripText}>Sorted by relevance</Text>
+              <Text style={styles.stripText}>
+                {activeBrand.label}
+                {activeBrand.q ? ` · “${activeBrand.q}”` : ""} · {sortLabel}
+              </Text>
               <Text style={styles.stripLink}>
                 {hasMore ? "Scroll for more" : "All loaded"}
               </Text>
@@ -146,7 +251,9 @@ export default function CategoryProductsScreen({ navigation, route }) {
             )
           }
           ListEmptyComponent={
-            <Text style={styles.empty}>No products in this category yet.</Text>
+            <Text style={styles.empty}>
+              No products match this filter. Try All or another brand.
+            </Text>
           }
           renderItem={({ item }) => (
             <View style={styles.cell}>
@@ -214,11 +321,44 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
+  filtersWrap: {
+    backgroundColor: colors.background,
+    paddingTop: spacing.sm,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: spacing.sm,
+  },
+  chipRow: {
+    paddingHorizontal: spacing.lg,
+    gap: 8,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: radii.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  chipActive: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accent,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textSecondary,
+  },
+  chipTextActive: {
+    color: colors.accentDark,
+  },
   list: {
     flexGrow: 1,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.lg,
     paddingBottom: 40,
+    paddingTop: spacing.md,
   },
   strip: {
     flexDirection: "row",
@@ -230,6 +370,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textMuted,
     fontWeight: "600",
+    flexShrink: 1,
+    paddingRight: 8,
   },
   stripLink: {
     fontSize: 12,
@@ -246,6 +388,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textSecondary,
     marginTop: 40,
+    paddingHorizontal: spacing.lg,
+    lineHeight: 20,
   },
   footerLoader: {
     paddingVertical: 16,
