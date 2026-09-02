@@ -1,7 +1,16 @@
 import { API_BASE_URL } from "../config/api";
 
 export async function apiGet(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const url = `${API_BASE_URL}${path}`;
+
+  let response;
+  try {
+    response = await fetch(url);
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_BASE_URL}. Is the backend running on port 5000?`
+    );
+  }
 
   let body;
   try {

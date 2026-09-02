@@ -20,6 +20,8 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api", catalogRoutes);
 
-app.listen(PORT, () => {
+// 0.0.0.0 = reachable from phone on same Wi‑Fi (not only this PC)
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Phone / Expo Go: use http://<YOUR_PC_IP>:${PORT}`);
 });
