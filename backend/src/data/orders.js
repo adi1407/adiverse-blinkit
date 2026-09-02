@@ -6,7 +6,7 @@ function makeId() {
   return `ord_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function createOrder({ name, phone, items }) {
+export function createOrder({ name, phone, items, address }) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanName = String(name || "").trim() || "Blinkit User";
   const cartItems = Array.isArray(items) ? items : [];
@@ -41,10 +41,19 @@ export function createOrder({ name, phone, items }) {
   const deliveryFee = itemTotal >= 199 ? 0 : 25;
   const grandTotal = itemTotal + deliveryFee;
 
+  const deliveryAddress = address
+    ? {
+        label: String(address.label || "Home").trim() || "Home",
+        line1: String(address.line1 || "").trim(),
+        line2: String(address.line2 || "").trim(),
+      }
+    : null;
+
   const order = {
     id: makeId(),
     name: cleanName,
     phone: cleanPhone,
+    address: deliveryAddress,
     items: normalized,
     itemTotal,
     deliveryFee,

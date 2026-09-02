@@ -55,6 +55,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Search" component={SearchScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Orders" component={OrdersScreen} />
+      <Stack.Screen name="Addresses" component={AddressesScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Account" component={AccountScreen} />
     </Stack.Navigator>

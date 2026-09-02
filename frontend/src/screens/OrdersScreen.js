@@ -68,9 +68,15 @@ function OrderCard({ order }) {
       <View style={styles.cardBottom}>
         <Text style={styles.itemCount}>
           {order.items.reduce((n, i) => n + i.qty, 0)} items
+          {order.address?.label ? ` · ${order.address.label}` : ""}
         </Text>
         <Text style={styles.total}>₹{order.grandTotal}</Text>
       </View>
+      {order.address?.line1 ? (
+        <Text style={styles.shipTo} numberOfLines={1}>
+          {order.address.line1}
+        </Text>
+      ) : null}
     </View>
   );
 }
