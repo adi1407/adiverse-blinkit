@@ -53,13 +53,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "900",
     color: colors.text,
+    letterSpacing: -0.3,
   },
   subtitle: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textSecondary,
     textAlign: "center",
+    fontWeight: "500",
   },
 });

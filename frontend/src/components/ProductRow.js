@@ -1,15 +1,27 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import ProductCard from "./ProductCard";
 import { colors, spacing } from "../theme/colors";
 
-export default function ProductRow({ title, products }) {
+export default function ProductRow({ title, products, onSeeAll }) {
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.header}>
+        <View style={styles.titleBlock}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.subtitle}>{products.length} products</Text>
+        </View>
+        <Pressable style={styles.seeAll} onPress={onSeeAll}>
+          <Text style={styles.seeAllText}>See all</Text>
+          <Ionicons name="chevron-forward" size={14} color={colors.accent} />
+        </Pressable>
+      </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.list}
+        decelerationRate="fast"
       >
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -25,12 +37,39 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
     backgroundColor: colors.background,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
+  header: {
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+  },
+  titleBlock: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
+  title: {
+    fontSize: 17,
+    fontWeight: "900",
+    color: colors.text,
+    letterSpacing: -0.2,
+  },
+  subtitle: {
+    marginTop: 2,
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  seeAll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingBottom: 2,
+  },
+  seeAllText: {
+    color: colors.accent,
+    fontWeight: "800",
+    fontSize: 12,
   },
   list: {
     paddingHorizontal: spacing.lg,

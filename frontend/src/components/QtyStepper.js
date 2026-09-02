@@ -1,15 +1,15 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors, spacing, radii } from "../theme/colors";
 
-// Shared + / qty / − control used on cards and cart rows.
-
 export default function QtyStepper({ qty, onIncrease, onDecrease, compact }) {
   return (
     <View style={[styles.wrap, compact && styles.compact]}>
       <Pressable onPress={onDecrease} style={styles.btn} hitSlop={8}>
         <Text style={styles.btnText}>−</Text>
       </Pressable>
-      <Text style={styles.qty}>{qty}</Text>
+      <View style={styles.qtyWrap}>
+        <Text style={styles.qty}>{qty}</Text>
+      </View>
       <Pressable onPress={onIncrease} style={styles.btn} hitSlop={8}>
         <Text style={styles.btnText}>+</Text>
       </Pressable>
@@ -21,30 +21,33 @@ const styles = StyleSheet.create({
   wrap: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.accent,
     borderRadius: radii.sm,
     backgroundColor: colors.accentSoft,
     overflow: "hidden",
   },
   compact: {
-    minWidth: 88,
+    minWidth: 86,
   },
   btn: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 8,
     paddingVertical: 5,
   },
   btnText: {
     color: colors.accent,
-    fontWeight: "800",
+    fontWeight: "900",
     fontSize: 16,
     lineHeight: 18,
   },
-  qty: {
+  qtyWrap: {
     minWidth: 22,
+    alignItems: "center",
+  },
+  qty: {
     textAlign: "center",
     color: colors.accent,
-    fontWeight: "800",
+    fontWeight: "900",
     fontSize: 13,
   },
 });

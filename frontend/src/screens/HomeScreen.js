@@ -1,9 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, StatusBar, Platform } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  View,
+} from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import HomeHeader from "../components/HomeHeader";
 import SearchBar from "../components/SearchBar";
+import PromoBanner from "../components/PromoBanner";
 import CategoryGrid from "../components/CategoryGrid";
 import ProductRow from "../components/ProductRow";
 import LoadingState from "../components/LoadingState";
@@ -62,18 +70,30 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <HomeHeader
-          minutes={data.deliveryInfo.minutes}
-          addressLabel={data.deliveryInfo.addressLabel}
-          address={data.deliveryInfo.address}
-        />
-        <SearchBar />
+        <View style={styles.hero}>
+          <HomeHeader
+            minutes={data.deliveryInfo.minutes}
+            addressLabel={data.deliveryInfo.addressLabel}
+            address={data.deliveryInfo.address}
+          />
+          <SearchBar />
+          <View style={styles.heroCurve} />
+        </View>
+
+        <PromoBanner />
+
         <CategoryGrid
           categories={data.categories}
           onSelectCategory={openCategory}
         />
+
         {data.featuredRows.map((row) => (
-          <ProductRow key={row.id} title={row.title} products={row.products} />
+          <ProductRow
+            key={row.id}
+            title={row.title}
+            products={row.products}
+            onSeeAll={() => navigation.navigate("Categories")}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -91,6 +111,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingBottom: 110,
+    paddingBottom: 120,
+  },
+  hero: {
+    backgroundColor: colors.primary,
+    position: "relative",
+  },
+  heroCurve: {
+    height: 14,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    marginTop: -2,
   },
 });
