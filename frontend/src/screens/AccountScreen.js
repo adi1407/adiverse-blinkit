@@ -1,13 +1,20 @@
 import { SafeAreaView, View, Text, StyleSheet, StatusBar, Platform, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Package,
+  MapPin,
+  MessageCircle,
+  Info,
+  ChevronRight,
+  UserRound,
+} from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
-import { colors, spacing, radii } from "../theme/colors";
+import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
-  { id: "orders", label: "Your orders", icon: "receipt-outline" },
-  { id: "address", label: "Saved addresses", icon: "location-outline" },
-  { id: "support", label: "Support", icon: "chatbubble-ellipses-outline" },
-  { id: "about", label: "About Blinkit Clone", icon: "information-circle-outline" },
+  { id: "orders", label: "Your orders", hint: "Track & reorder", Icon: Package },
+  { id: "address", label: "Saved addresses", hint: "Home, work & more", Icon: MapPin },
+  { id: "support", label: "Support", hint: "Chat with us", Icon: MessageCircle },
+  { id: "about", label: "About Blinkit Clone", hint: "App version 1.0", Icon: Info },
 ];
 
 export default function AccountScreen() {
@@ -16,26 +23,47 @@ export default function AccountScreen() {
       <ScreenHeader
         showBack
         title="Account"
-        subtitle="Profile & settings (UI only)"
+        subtitle="Profile & preferences"
       />
+      <View style={styles.curve} />
+
       <View style={styles.body}>
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, shadows.soft]}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>A</Text>
+            <UserRound size={28} color={colors.text} strokeWidth={2} />
           </View>
           <View style={styles.profileText}>
             <Text style={styles.name}>Guest User</Text>
-            <Text style={styles.phone}>Login coming in a later chunk</Text>
+            <Text style={styles.phone}>Login to sync orders & addresses</Text>
           </View>
+          <Pressable style={styles.loginBtn}>
+            <Text style={styles.loginText}>Login</Text>
+          </Pressable>
         </View>
 
-        {MENU.map((item) => (
-          <Pressable key={item.id} style={styles.menuRow}>
-            <Ionicons name={item.icon} size={22} color={colors.text} />
-            <Text style={styles.menuLabel}>{item.label}</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Pressable>
-        ))}
+        <View style={[styles.menuCard, shadows.soft]}>
+          {MENU.map((item, index) => {
+            const Icon = item.Icon;
+            return (
+              <Pressable
+                key={item.id}
+                style={[
+                  styles.menuRow,
+                  index === MENU.length - 1 && styles.menuRowLast,
+                ]}
+              >
+                <View style={styles.menuIcon}>
+                  <Icon size={18} color={colors.accent} strokeWidth={2.2} />
+                </View>
+                <View style={styles.menuCopy}>
+                  <Text style={styles.menuLabel}>{item.label}</Text>
+                  <Text style={styles.menuHint}>{item.hint}</Text>
+                </View>
+                <ChevronRight size={18} color={colors.textMuted} />
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -47,6 +75,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
+  curve: {
+    height: 14,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
   body: {
     flex: 1,
     backgroundColor: colors.background,
@@ -55,23 +89,20 @@ const styles = StyleSheet.create({
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
     borderRadius: radii.lg,
     padding: spacing.lg,
     marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
-  },
-  avatarText: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: colors.text,
   },
   profileText: {
     marginLeft: spacing.md,
@@ -79,26 +110,65 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 17,
-    fontWeight: "700",
+    fontWeight: "900",
     color: colors.text,
   },
   phone: {
     marginTop: 2,
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textSecondary,
+    fontWeight: "500",
+  },
+  loginBtn: {
+    backgroundColor: colors.accent,
+    borderRadius: radii.sm,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  loginText: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 12,
+  },
+  menuCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: "hidden",
   },
   menuRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     gap: spacing.md,
   },
-  menuLabel: {
+  menuRowLast: {
+    borderBottomWidth: 0,
+  },
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuCopy: {
     flex: 1,
+  },
+  menuLabel: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: "700",
     color: colors.text,
+  },
+  menuHint: {
+    marginTop: 2,
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: "500",
   },
 });

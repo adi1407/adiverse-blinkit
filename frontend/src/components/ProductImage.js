@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Image, StyleSheet, ActivityIndicator } from "react-native";
-import { Package } from "lucide-react-native";
+import { Package } from "../utils/lucideIcons";
 import { colors } from "../theme/colors";
 
 export default function ProductImage({ uri, style, iconSize = 28 }) {

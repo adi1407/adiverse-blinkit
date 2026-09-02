@@ -17,7 +17,7 @@ import {
   Cross,
   Pill,
   ShoppingBag,
-} from "lucide-react-native";
+} from "./lucideIcons";
 
 const MAP = {
   Salad,

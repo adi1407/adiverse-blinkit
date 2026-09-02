@@ -8,18 +8,18 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import { ShoppingCart } from "lucide-react-native";
+import { ShoppingCart, Trash2, ShieldCheck, Bike } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
 import ProductImage from "../components/ProductImage";
 import { useCart } from "../context/CartContext";
-import { colors, spacing, radii } from "../theme/colors";
+import { colors, spacing, radii, shadows } from "../theme/colors";
 
 function CartRow({ item }) {
   const { increaseQty, decreaseQty, removeItem } = useCart();
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, shadows.soft]}>
       <ProductImage uri={item.image} style={styles.thumb} iconSize={22} />
 
       <View style={styles.info}>
@@ -36,8 +36,8 @@ function CartRow({ item }) {
           onIncrease={() => increaseQty(item.id)}
           onDecrease={() => decreaseQty(item.id)}
         />
-        <Pressable onPress={() => removeItem(item.id)} hitSlop={8}>
-          <Text style={styles.remove}>Remove</Text>
+        <Pressable onPress={() => removeItem(item.id)} hitSlop={8} style={styles.trash}>
+          <Trash2 size={14} color={colors.danger} strokeWidth={2.2} />
         </Pressable>
       </View>
     </View>
@@ -47,6 +47,8 @@ function CartRow({ item }) {
 export default function CartScreen() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
   const isEmpty = items.length === 0;
+  const deliveryFee = totalPrice >= 199 ? 0 : 25;
+  const grandTotal = totalPrice + deliveryFee;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -55,18 +57,21 @@ export default function CartScreen() {
         title="Cart"
         subtitle={
           isEmpty
-            ? "Add products from Home or Categories"
-            : `${totalItems} item${totalItems === 1 ? "" : "s"} in your cart`
+            ? "Your bag is waiting to be filled"
+            : `${totalItems} item${totalItems === 1 ? "" : "s"} · almost yours`
         }
       />
+      <View style={styles.curve} />
 
       {isEmpty ? (
         <View style={styles.body}>
-          <View style={styles.emptyBox}>
-            <ShoppingCart size={56} color={colors.textMuted} strokeWidth={1.6} />
+          <View style={[styles.emptyBox, shadows.soft]}>
+            <View style={styles.emptyIcon}>
+              <ShoppingCart size={34} color={colors.accent} strokeWidth={1.8} />
+            </View>
             <Text style={styles.emptyTitle}>Your cart is empty</Text>
             <Text style={styles.emptyText}>
-              Tap ADD on any product. Come back here to change quantity.
+              Add groceries from Home. Your items and bill will show up here.
             </Text>
           </View>
         </View>
@@ -77,18 +82,54 @@ export default function CartScreen() {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
             renderItem={({ item }) => <CartRow item={item} />}
+            ListFooterComponent={
+              <View style={[styles.bill, shadows.soft]}>
+                <Text style={styles.billTitle}>Bill details</Text>
+                <View style={styles.billRow}>
+                  <Text style={styles.billLabel}>Item total</Text>
+                  <Text style={styles.billValue}>₹{totalPrice}</Text>
+                </View>
+                <View style={styles.billRow}>
+                  <View style={styles.billLabelRow}>
+                    <Bike size={14} color={colors.textSecondary} />
+                    <Text style={styles.billLabel}>Delivery partner fee</Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.billValue,
+                      deliveryFee === 0 && styles.free,
+                    ]}
+                  >
+                    {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
+                  </Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.billRow}>
+                  <Text style={styles.grandLabel}>Grand total</Text>
+                  <Text style={styles.grandValue}>₹{grandTotal}</Text>
+                </View>
+                <View style={styles.secure}>
+                  <ShieldCheck size={14} color={colors.accent} />
+                  <Text style={styles.secureText}>
+                    {deliveryFee === 0
+                      ? "Free delivery unlocked"
+                      : "Add ₹" + (199 - totalPrice) + " more for free delivery"}
+                  </Text>
+                </View>
+              </View>
+            }
           />
 
           <View style={styles.footer}>
-            <View>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalPrice}>₹{totalPrice}</Text>
-            </View>
             <Pressable style={styles.clearBtn} onPress={clearCart}>
               <Text style={styles.clearText}>Clear</Text>
             </Pressable>
             <Pressable style={styles.checkoutBtn}>
-              <Text style={styles.checkoutText}>Checkout</Text>
+              <View>
+                <Text style={styles.checkoutPrice}>₹{grandTotal}</Text>
+                <Text style={styles.checkoutSub}>TOTAL</Text>
+              </View>
+              <Text style={styles.checkoutText}>Proceed →</Text>
             </Pressable>
           </View>
         </View>
@@ -103,6 +144,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
+  curve: {
+    height: 14,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
   body: {
     flex: 1,
     backgroundColor: colors.background,
@@ -111,14 +158,24 @@ const styles = StyleSheet.create({
   },
   emptyBox: {
     alignItems: "center",
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
     borderRadius: radii.lg,
     padding: spacing.xxl,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyTitle: {
     marginTop: spacing.md,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "900",
     color: colors.text,
   },
   emptyText: {
@@ -147,8 +204,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   thumb: {
-    width: 56,
-    height: 56,
+    width: 60,
+    height: 60,
     borderRadius: radii.sm,
     overflow: "hidden",
   },
@@ -158,28 +215,96 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.text,
   },
   unit: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
+    fontWeight: "600",
   },
   price: {
     marginTop: 4,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "900",
     color: colors.text,
   },
   actions: {
     alignItems: "flex-end",
     gap: spacing.sm,
   },
-  remove: {
-    fontSize: 12,
-    color: colors.danger,
+  trash: {
+    padding: 4,
+  },
+  bill: {
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginTop: spacing.sm,
+  },
+  billTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  billRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
+  },
+  billLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  billLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
     fontWeight: "600",
+  },
+  billValue: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  free: {
+    color: colors.accent,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: spacing.sm,
+  },
+  grandLabel: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  grandValue: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  secure: {
+    marginTop: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  secureText: {
+    flex: 1,
+    fontSize: 12,
+    color: colors.accentDark,
+    fontWeight: "700",
   },
   footer: {
     flexDirection: "row",
@@ -191,33 +316,37 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.sm,
   },
-  totalLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: colors.text,
-  },
   clearBtn: {
-    marginLeft: "auto",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   clearText: {
     color: colors.textSecondary,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   checkoutBtn: {
+    flex: 1,
     backgroundColor: colors.accent,
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  checkoutPrice: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  checkoutSub: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 10,
+    fontWeight: "700",
   },
   checkoutText: {
     color: colors.white,
-    fontWeight: "800",
-    fontSize: 14,
+    fontWeight: "900",
+    fontSize: 15,
   },
 });

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Zap } from "lucide-react-native";
+import { Zap } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { useCart } from "../context/CartContext";
 import QtyStepper from "./QtyStepper";

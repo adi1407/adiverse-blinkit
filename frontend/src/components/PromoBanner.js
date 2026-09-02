@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { ArrowRight, Zap, Percent, Pill } from "lucide-react-native";
+import { ArrowRight, Zap, Percent, Pill } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const OFFERS = [

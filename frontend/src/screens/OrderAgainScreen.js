@@ -8,12 +8,13 @@ import {
   View,
   Text,
 } from "react-native";
+import { RotateCcw } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import ProductRow from "../components/ProductRow";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchHomeData } from "../api/catalogApi";
-import { colors, spacing } from "../theme/colors";
+import { colors, spacing, radii, shadows } from "../theme/colors";
 
 export default function OrderAgainScreen() {
   const [rows, setRows] = useState([]);
@@ -41,8 +42,9 @@ export default function OrderAgainScreen() {
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
         title="Order Again"
-        subtitle="Your previous picks & bestsellers"
+        subtitle="Reorder favorites in one tap"
       />
+      <View style={styles.curve} />
 
       {loading ? (
         <LoadingState message="Loading suggestions..." />
@@ -54,12 +56,17 @@ export default function OrderAgainScreen() {
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.banner}>
-            <Text style={styles.bannerTitle}>No past orders yet</Text>
-            <Text style={styles.bannerText}>
-              After your first order, reorder will show here. Till then, try these
-              bestsellers.
-            </Text>
+          <View style={[styles.banner, shadows.soft]}>
+            <View style={styles.bannerIcon}>
+              <RotateCcw size={20} color={colors.accent} strokeWidth={2.3} />
+            </View>
+            <View style={styles.bannerCopy}>
+              <Text style={styles.bannerTitle}>No past orders yet</Text>
+              <Text style={styles.bannerText}>
+                After checkout, your previous baskets appear here. Browse
+                bestsellers meanwhile.
+              </Text>
+            </View>
           </View>
           {rows.map((row) => (
             <ProductRow key={row.id} title={row.title} products={row.products} />
@@ -76,28 +83,50 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
+  curve: {
+    height: 14,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
   scroll: {
     flex: 1,
     backgroundColor: colors.background,
   },
   content: {
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
   banner: {
     margin: spacing.lg,
     padding: spacing.lg,
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  bannerIcon: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bannerCopy: {
+    flex: 1,
   },
   bannerTitle: {
-    fontSize: 16,
-    fontWeight: "800",
+    fontSize: 15,
+    fontWeight: "900",
     color: colors.text,
     marginBottom: 4,
   },
   bannerText: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textSecondary,
-    lineHeight: 18,
+    lineHeight: 17,
+    fontWeight: "500",
   },
 });

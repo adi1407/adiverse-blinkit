@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight } from "../utils/lucideIcons";
 import ProductCard from "./ProductCard";
 import { colors, spacing } from "../theme/colors";
 

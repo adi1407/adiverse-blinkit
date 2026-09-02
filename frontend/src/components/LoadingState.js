@@ -4,7 +4,9 @@ import { colors, spacing } from "../theme/colors";
 export default function LoadingState({ message = "Loading..." }) {
   return (
     <View style={styles.wrap}>
-      <ActivityIndicator size="large" color={colors.accent} />
+      <View style={styles.badge}>
+        <ActivityIndicator size="large" color={colors.accent} />
+      </View>
       <Text style={styles.text}>{message}</Text>
     </View>
   );
@@ -18,9 +20,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: spacing.lg,
   },
+  badge: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   text: {
     marginTop: spacing.md,
     color: colors.textSecondary,
     fontSize: 14,
+    fontWeight: "600",
   },
 });

@@ -9,13 +9,14 @@ import {
   Platform,
   Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ChevronLeft, Search } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchCategoryProducts } from "../api/catalogApi";
 import { categoryTitle } from "../utils/category";
-import { colors, spacing } from "../theme/colors";
+import { getLucideIcon } from "../utils/icons";
+import { colors, spacing, radii, shadows } from "../theme/colors";
 
 export default function CategoryProductsScreen({ navigation, route }) {
   const { categoryId } = route.params;
@@ -43,18 +44,37 @@ export default function CategoryProductsScreen({ navigation, route }) {
   }, [loadProducts]);
 
   const title = category ? categoryTitle(category) : "Products";
+  const Icon = getLucideIcon(category?.icon);
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        <Pressable onPress={() => navigation.goBack()} style={styles.iconBtn}>
+          <ChevronLeft size={24} color={colors.text} strokeWidth={2.4} />
         </Pressable>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-        <View style={styles.backBtn} />
+
+        <View style={styles.titleBlock}>
+          <View style={styles.titleRow}>
+            {category ? (
+              <View style={[styles.catChip, { backgroundColor: category.bg || colors.surface }]}>
+                <Icon size={14} color={category.color || colors.accent} strokeWidth={2.2} />
+              </View>
+            ) : null}
+            <Text style={styles.title} numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
+          {!loading && !error ? (
+            <Text style={styles.count}>{products.length} items · delivery in 8 mins</Text>
+          ) : null}
+        </View>
+
+        <Pressable style={styles.iconBtn}>
+          <Search size={20} color={colors.text} strokeWidth={2.2} />
+        </Pressable>
       </View>
+
+      <View style={styles.curve} />
 
       {loading ? (
         <LoadingState message="Loading products..." />
@@ -68,6 +88,12 @@ export default function CategoryProductsScreen({ navigation, route }) {
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <View style={styles.strip}>
+              <Text style={styles.stripText}>Sorted by relevance</Text>
+              <Text style={styles.stripLink}>Filters</Text>
+            </View>
+          }
           ListEmptyComponent={
             <Text style={styles.empty}>No products in this category yet.</Text>
           }
@@ -93,27 +119,71 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm,
   },
-  backBtn: {
+  iconBtn: {
     width: 40,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
   },
-  title: {
+  titleBlock: {
     flex: 1,
-    textAlign: "center",
+    alignItems: "center",
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    maxWidth: "92%",
+  },
+  catChip: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "900",
     color: colors.text,
+    letterSpacing: -0.2,
+    flexShrink: 1,
+  },
+  count: {
+    marginTop: 2,
+    fontSize: 11,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
+  curve: {
+    height: 14,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
   },
   list: {
     flexGrow: 1,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: 32,
+    paddingBottom: 40,
+  },
+  strip: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.md,
+  },
+  stripText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  stripLink: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: "800",
   },
   row: {
     gap: spacing.md,

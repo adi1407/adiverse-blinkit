@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowRight } from "lucide-react-native";
+import { ArrowRight } from "../utils/lucideIcons";
 import { useCart } from "../context/CartContext";
 import { colors, spacing } from "../theme/colors";
 import { TAB_BAR_BASE_HEIGHT } from "./BlinkitTabBar";
