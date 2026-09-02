@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Zap } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { useCart } from "../context/CartContext";
@@ -6,6 +7,7 @@ import QtyStepper from "./QtyStepper";
 import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product, variant = "carousel" }) {
+  const navigation = useNavigation();
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
   const qty = getQty(product.id);
   const showMrp = product.mrp > product.price;
@@ -14,8 +16,15 @@ export default function ProductCard({ product, variant = "carousel" }) {
     : 0;
   const isGrid = variant === "grid";
 
+  function openDetail() {
+    navigation.push("ProductDetail", { productId: product.id });
+  }
+
   return (
-    <View style={[styles.card, isGrid && styles.cardGrid, shadows.soft]}>
+    <Pressable
+      onPress={openDetail}
+      style={[styles.card, isGrid && styles.cardGrid, shadows.soft]}
+    >
       <View style={styles.imageBox}>
         {discountPct > 0 ? (
           <View style={styles.discountBadge}>
@@ -50,12 +59,18 @@ export default function ProductCard({ product, variant = "carousel" }) {
             onDecrease={() => decreaseQty(product.id)}
           />
         ) : (
-          <Pressable style={styles.addBtn} onPress={() => addItem(product)}>
+          <Pressable
+            style={styles.addBtn}
+            onPress={(e) => {
+              e?.stopPropagation?.();
+              addItem(product);
+            }}
+          >
             <Text style={styles.addText}>ADD</Text>
           </Pressable>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 

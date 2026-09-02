@@ -12,6 +12,7 @@ import SearchScreen from "../screens/SearchScreen";
 import LoginScreen from "../screens/LoginScreen";
 import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
+import ProductDetailScreen from "../screens/ProductDetailScreen";
 import AddressesScreen from "../screens/AddressesScreen";
 import BlinkitTabBar from "../components/BlinkitTabBar";
 import FloatingCartBar from "../components/FloatingCartBar";
@@ -53,6 +54,7 @@ export default function AppNavigator() {
     >
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
       <Stack.Screen name="Search" component={SearchScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Orders" component={OrdersScreen} />

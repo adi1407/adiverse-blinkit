@@ -11,10 +11,12 @@ export default function ProductRow({ title, products, onSeeAll }) {
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{products.length} products</Text>
         </View>
-        <Pressable style={styles.seeAll} onPress={onSeeAll}>
-          <Text style={styles.seeAllText}>See all</Text>
-          <ChevronRight size={14} color={colors.accent} strokeWidth={2.6} />
-        </Pressable>
+        {onSeeAll ? (
+          <Pressable style={styles.seeAll} onPress={onSeeAll}>
+            <Text style={styles.seeAllText}>See all</Text>
+            <ChevronRight size={14} color={colors.accent} strokeWidth={2.6} />
+          </Pressable>
+        ) : null}
       </View>
 
       <ScrollView
