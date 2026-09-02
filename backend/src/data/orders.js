@@ -1,5 +1,5 @@
 // Orders store backed by a JSON file (survives backend restarts).
-// Status auto-advances over time for demo tracking.
+// Status auto-advances over time for demo tracking (unless cancelled).
 
 import fs from "fs";
 import path from "path";
@@ -55,6 +55,21 @@ function statusForAge(ageSec) {
 function withTimeline(order) {
   const created = new Date(order.createdAt).getTime();
   const ageSec = Math.max(0, Math.floor((Date.now() - created) / 1000));
+
+  if (order.status === "cancelled") {
+    return {
+      ...order,
+      status: "cancelled",
+      canCancel: false,
+      ageSec,
+      timeline: STATUS_STEPS.map((step) => ({
+        ...step,
+        done: false,
+        active: false,
+      })),
+    };
+  }
+
   const status = statusForAge(ageSec);
   const stepIndex = STATUS_STEPS.findIndex((s) => s.key === status);
 
@@ -62,6 +77,7 @@ function withTimeline(order) {
     ...order,
     status,
     statusUpdatedAt: order.statusUpdatedAt || order.createdAt,
+    canCancel: status === "confirmed",
     timeline: STATUS_STEPS.map((step, index) => ({
       ...step,
       done: index <= stepIndex,
@@ -74,6 +90,8 @@ function withTimeline(order) {
 function refreshAllStatuses() {
   let changed = false;
   orders = orders.map((order) => {
+    if (order.status === "cancelled") return order;
+
     const next = withTimeline(order);
     if (next.status !== order.status) {
       changed = true;
@@ -151,6 +169,53 @@ export function createOrder({ name, phone, items, address }) {
   return withTimeline(order);
 }
 
+export function cancelOrder({ orderId, phone }) {
+  refreshAllStatuses();
+
+  const cleanPhone = String(phone || "").replace(/\D/g, "");
+  const index = orders.findIndex((o) => o.id === orderId);
+
+  if (index < 0) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+
+  const existing = orders[index];
+  if (existing.phone !== cleanPhone) {
+    const err = new Error("Order does not belong to this phone");
+    err.status = 403;
+    throw err;
+  }
+
+  if (existing.status === "cancelled") {
+    const err = new Error("Order is already cancelled");
+    err.status = 400;
+    throw err;
+  }
+
+  const live = withTimeline(existing);
+  if (!live.canCancel) {
+    const err = new Error(
+      "Too late to cancel — order is already being packed or out for delivery"
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const now = new Date().toISOString();
+  const cancelled = {
+    ...existing,
+    status: "cancelled",
+    statusUpdatedAt: now,
+    cancelledAt: now,
+  };
+
+  orders[index] = cancelled;
+  saveOrders(orders);
+  return withTimeline(cancelled);
+}
+
 export function getOrdersByPhone(phone) {
   refreshAllStatuses();
   const cleanPhone = String(phone || "").replace(/\D/g, "");
@@ -171,6 +236,8 @@ export function getReorderProducts(phone) {
   const products = [];
 
   for (const order of getOrdersByPhone(phone)) {
+    if (order.status === "cancelled") continue;
+
     for (const item of order.items) {
       if (seen.has(item.id)) continue;
       seen.add(item.id);

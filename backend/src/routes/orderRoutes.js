@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  cancelOrder,
   createOrder,
   getOrderById,
   getOrdersByPhone,
@@ -18,6 +19,20 @@ router.post("/orders", (req, res) => {
     res.status(err.status || 500).json({
       success: false,
       message: err.message || "Could not place order",
+    });
+  }
+});
+
+// POST /api/orders/:id/cancel
+router.post("/orders/:id/cancel", (req, res) => {
+  try {
+    const phone = req.body?.phone;
+    const order = cancelOrder({ orderId: req.params.id, phone });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Could not cancel order",
     });
   }
 });

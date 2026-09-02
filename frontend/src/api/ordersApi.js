@@ -12,6 +12,10 @@ export function fetchOrderById(orderId) {
   return apiGet(`/api/orders/${encodeURIComponent(orderId)}`);
 }
 
+export function cancelOrder({ orderId, phone }) {
+  return apiPost(`/api/orders/${encodeURIComponent(orderId)}/cancel`, { phone });
+}
+
 export function fetchReorderProducts(phone) {
   return apiGet(`/api/orders/reorder?phone=${encodeURIComponent(phone)}`);
 }
