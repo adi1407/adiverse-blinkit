@@ -7,6 +7,10 @@ import { CartProvider, useCart } from "./src/context/CartContext";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { AddressProvider, useAddress } from "./src/context/AddressContext";
 import { WishlistProvider, useWishlist } from "./src/context/WishlistContext";
+import {
+  RecentlyViewedProvider,
+  useRecentlyViewed,
+} from "./src/context/RecentlyViewedContext";
 import AnimatedSplash from "./src/components/AnimatedSplash";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { colors } from "./src/theme/colors";
@@ -18,7 +22,9 @@ function Root() {
   const { ready: addressReady } = useAddress();
   const { ready: cartReady } = useCart();
   const { ready: wishlistReady } = useWishlist();
-  const ready = authReady && addressReady && cartReady && wishlistReady;
+  const { ready: recentReady } = useRecentlyViewed();
+  const ready =
+    authReady && addressReady && cartReady && wishlistReady && recentReady;
 
   return (
     <AnimatedSplash ready={ready}>
@@ -41,7 +47,9 @@ export default function App() {
         <AddressProvider>
           <CartProvider>
             <WishlistProvider>
-              <Root />
+              <RecentlyViewedProvider>
+                <Root />
+              </RecentlyViewedProvider>
             </WishlistProvider>
           </CartProvider>
         </AddressProvider>

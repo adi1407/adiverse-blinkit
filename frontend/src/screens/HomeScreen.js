@@ -17,10 +17,12 @@ import ProductRow from "../components/ProductRow";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchHomeData } from "../api/catalogApi";
+import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import { colors } from "../theme/colors";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { items: recentItems } = useRecentlyViewed();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,6 +84,10 @@ export default function HomeScreen() {
           categories={data.categories}
           onSelectCategory={openCategory}
         />
+
+        {recentItems.length > 0 ? (
+          <ProductRow title="Recently viewed" products={recentItems} />
+        ) : null}
 
         {data.featuredRows.map((row) => (
           <ProductRow

@@ -24,6 +24,7 @@ import ErrorState from "../components/ErrorState";
 import { fetchProduct } from "../api/catalogApi";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import { categoryTitle } from "../utils/category";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
@@ -31,6 +32,7 @@ export default function ProductDetailScreen({ navigation, route }) {
   const { productId } = route.params;
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
   const { isSaved, toggleItem } = useWishlist();
+  const { trackView } = useRecentlyViewed();
 
   const [product, setProduct] = useState(null);
   const [category, setCategory] = useState(null);
@@ -56,6 +58,10 @@ export default function ProductDetailScreen({ navigation, route }) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (product?.id) trackView(product);
+  }, [product?.id, trackView]);
 
   if (loading && !product) {
     return (

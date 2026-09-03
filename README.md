@@ -70,7 +70,7 @@ Scan the QR with Expo Go. Keep the backend running.
 
 | Area | Features |
 |------|----------|
-| **Home** | Yellow header, search, categories, featured rows, splash |
+| **Home** | Yellow header, search, categories, featured rows, recently viewed, splash |
 | **Catalog** | 12 categories, mega snack/drink pack, pagination, brand chips + price sort |
 | **Product** | Product detail page, similar items, ADD / qty |
 | **Search** | Debounced live search |
@@ -185,6 +185,7 @@ scripts/
 20. Payment mock at checkout  
 21. App icon / splash branding  
 22. Rate delivered orders  
+23. Recently viewed products  
 
 ---
 
