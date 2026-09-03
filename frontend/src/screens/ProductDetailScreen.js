@@ -14,6 +14,7 @@ import {
   Zap,
   ShieldCheck,
   Bike,
+  Heart,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
 import ProductRow from "../components/ProductRow";
@@ -22,12 +23,14 @@ import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchProduct } from "../api/catalogApi";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import { categoryTitle } from "../utils/category";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 export default function ProductDetailScreen({ navigation, route }) {
   const { productId } = route.params;
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
+  const { isSaved, toggleItem } = useWishlist();
 
   const [product, setProduct] = useState(null);
   const [category, setCategory] = useState(null);
@@ -73,6 +76,7 @@ export default function ProductDetailScreen({ navigation, route }) {
   if (!product) return null;
 
   const qty = getQty(product.id);
+  const saved = isSaved(product.id);
   const showMrp = product.mrp > product.price;
   const discountPct = showMrp
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
@@ -93,7 +97,18 @@ export default function ProductDetailScreen({ navigation, route }) {
         <Text style={styles.topTitle} numberOfLines={1}>
           {catLabel}
         </Text>
-        <View style={styles.backBtn} />
+        <Pressable
+          onPress={() => toggleItem(product)}
+          style={styles.backBtn}
+          hitSlop={8}
+        >
+          <Heart
+            size={22}
+            color={saved ? colors.danger : colors.text}
+            fill={saved ? colors.danger : "transparent"}
+            strokeWidth={2.2}
+          />
+        </Pressable>
       </View>
 
       <ScrollView

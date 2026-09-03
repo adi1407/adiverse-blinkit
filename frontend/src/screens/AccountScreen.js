@@ -8,13 +8,16 @@ import {
   UserRound,
   LogOut,
   Printer,
+  Heart,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
   { id: "orders", label: "Your orders", hint: "Track & reorder", Icon: Package },
+  { id: "wishlist", label: "Wishlist", hint: "Saved for later", Icon: Heart },
   { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
   { id: "address", label: "Saved addresses", hint: "Home, work & more", Icon: MapPin },
   { id: "support", label: "Support", hint: "Chat with us", Icon: MessageCircle },
@@ -28,6 +31,7 @@ function formatPhone(phone) {
 
 export default function AccountScreen({ navigation }) {
   const { user, isLoggedIn, logout } = useAuth();
+  const { count: wishlistCount } = useWishlist();
 
   function onLogin() {
     navigation.navigate("Login");
@@ -49,6 +53,10 @@ export default function AccountScreen({ navigation }) {
   function onMenuPress(id) {
     if (id === "orders") {
       navigation.navigate("Orders");
+      return;
+    }
+    if (id === "wishlist") {
+      navigation.navigate("Wishlist");
       return;
     }
     if (id === "print") {
@@ -119,7 +127,13 @@ export default function AccountScreen({ navigation }) {
                 </View>
                 <View style={styles.menuCopy}>
                   <Text style={styles.menuLabel}>{item.label}</Text>
-                  <Text style={styles.menuHint}>{item.hint}</Text>
+                  <Text style={styles.menuHint}>
+                    {item.id === "wishlist"
+                      ? wishlistCount
+                        ? `${wishlistCount} saved`
+                        : "Saved for later"
+                      : item.hint}
+                  </Text>
                 </View>
                 <ChevronRight size={18} color={colors.textMuted} />
               </Pressable>

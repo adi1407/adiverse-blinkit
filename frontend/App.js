@@ -6,6 +6,7 @@ import * as NativeSplash from "expo-splash-screen";
 import { CartProvider, useCart } from "./src/context/CartContext";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { AddressProvider, useAddress } from "./src/context/AddressContext";
+import { WishlistProvider, useWishlist } from "./src/context/WishlistContext";
 import AnimatedSplash from "./src/components/AnimatedSplash";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { colors } from "./src/theme/colors";
@@ -16,7 +17,8 @@ function Root() {
   const { ready: authReady } = useAuth();
   const { ready: addressReady } = useAddress();
   const { ready: cartReady } = useCart();
-  const ready = authReady && addressReady && cartReady;
+  const { ready: wishlistReady } = useWishlist();
+  const ready = authReady && addressReady && cartReady && wishlistReady;
 
   return (
     <AnimatedSplash ready={ready}>
@@ -38,7 +40,9 @@ export default function App() {
       <AuthProvider>
         <AddressProvider>
           <CartProvider>
-            <Root />
+            <WishlistProvider>
+              <Root />
+            </WishlistProvider>
           </CartProvider>
         </AddressProvider>
       </AuthProvider>

@@ -1,15 +1,18 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Zap } from "../utils/lucideIcons";
+import { Zap, Heart } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import QtyStepper from "./QtyStepper";
 import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product, variant = "carousel" }) {
   const navigation = useNavigation();
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
+  const { isSaved, toggleItem } = useWishlist();
   const qty = getQty(product.id);
+  const saved = isSaved(product.id);
   const showMrp = product.mrp > product.price;
   const discountPct = showMrp
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
@@ -31,6 +34,22 @@ export default function ProductCard({ product, variant = "carousel" }) {
             <Text style={styles.discountText}>{discountPct}% OFF</Text>
           </View>
         ) : null}
+
+        <Pressable
+          style={styles.heartBtn}
+          hitSlop={8}
+          onPress={(e) => {
+            e?.stopPropagation?.();
+            toggleItem(product);
+          }}
+        >
+          <Heart
+            size={15}
+            color={saved ? colors.danger : colors.textMuted}
+            fill={saved ? colors.danger : "transparent"}
+            strokeWidth={2.2}
+          />
+        </Pressable>
 
         <ProductImage uri={product.image} style={styles.image} iconSize={32} />
 
@@ -115,6 +134,20 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 9,
     fontWeight: "900",
+  },
+  heartBtn: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    zIndex: 3,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   etaChip: {
     position: "absolute",

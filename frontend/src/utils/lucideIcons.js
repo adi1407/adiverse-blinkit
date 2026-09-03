@@ -16,6 +16,7 @@ export { default as Drumstick } from "lucide-react-native/icons/drumstick";
 export { default as FileText } from "lucide-react-native/icons/file-text";
 export { default as Flame } from "lucide-react-native/icons/flame";
 export { default as House } from "lucide-react-native/icons/house";
+export { default as Heart } from "lucide-react-native/icons/heart";
 export { default as Image } from "lucide-react-native/icons/image";
 export { default as Info } from "lucide-react-native/icons/info";
 export { default as LayoutGrid } from "lucide-react-native/icons/layout-grid";
