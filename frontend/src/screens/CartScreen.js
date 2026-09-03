@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,8 +9,17 @@ import {
   FlatList,
   Pressable,
   Alert,
+  ScrollView,
 } from "react-native";
-import { ShoppingCart, Trash2, ShieldCheck, Bike, MapPin } from "../utils/lucideIcons";
+import {
+  ShoppingCart,
+  Trash2,
+  ShieldCheck,
+  Bike,
+  MapPin,
+  Percent,
+  X,
+} from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
 import ProductImage from "../components/ProductImage";
@@ -18,6 +27,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
 import { placeOrder } from "../api/ordersApi";
+import { COUPONS, evaluateCoupon } from "../data/coupons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 function CartRow({ item }) {
@@ -54,9 +64,52 @@ export default function CartScreen({ navigation }) {
   const { isLoggedIn, user } = useAuth();
   const { selectedAddress } = useAddress();
   const isEmpty = items.length === 0;
-  const deliveryFee = totalPrice >= 199 ? 0 : 25;
-  const grandTotal = totalPrice + deliveryFee;
   const [placing, setPlacing] = useState(false);
+  const [couponCode, setCouponCode] = useState(null);
+
+  const baseDeliveryFee = totalPrice >= 199 ? 0 : 25;
+
+  const couponResult = useMemo(() => {
+    if (!couponCode) {
+      return {
+        ok: true,
+        coupon: null,
+        discount: 0,
+        deliveryFee: baseDeliveryFee,
+      };
+    }
+    return evaluateCoupon(couponCode, totalPrice, baseDeliveryFee);
+  }, [couponCode, totalPrice, baseDeliveryFee]);
+
+  // Drop coupon if cart emptied or code no longer qualifies after qty change
+  useEffect(() => {
+    if (isEmpty && couponCode) setCouponCode(null);
+  }, [isEmpty, couponCode]);
+
+  useEffect(() => {
+    if (couponCode && !couponResult.ok) setCouponCode(null);
+  }, [couponCode, couponResult.ok]);
+
+  const applied = couponCode && couponResult.ok ? couponResult : null;
+  const deliveryFee = applied ? applied.deliveryFee : baseDeliveryFee;
+  const couponDiscount = applied ? applied.discount : 0;
+  const itemOff =
+    applied?.coupon?.type === "free_delivery" ? 0 : couponDiscount;
+  const grandTotal = Math.max(0, totalPrice - itemOff + deliveryFee);
+
+  function onSelectCoupon(code) {
+    if (couponCode === code) {
+      setCouponCode(null);
+      return;
+    }
+
+    const result = evaluateCoupon(code, totalPrice, baseDeliveryFee);
+    if (!result.ok) {
+      Alert.alert("Coupon locked", result.message || "Not applicable yet");
+      return;
+    }
+    setCouponCode(code);
+  }
 
   async function onProceed() {
     if (!isLoggedIn) {
@@ -92,6 +145,7 @@ export default function CartScreen({ navigation }) {
           line1: selectedAddress.line1,
           line2: selectedAddress.line2 || "",
         },
+        couponCode: applied?.coupon?.code || undefined,
         items: items.map((item) => ({
           id: item.id,
           name: item.name,
@@ -103,6 +157,7 @@ export default function CartScreen({ navigation }) {
       });
 
       clearCart();
+      setCouponCode(null);
       Alert.alert(
         "Order placed!",
         `Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
@@ -181,46 +236,140 @@ export default function CartScreen({ navigation }) {
                   <Text style={styles.changeText}>Change</Text>
                 </Pressable>
 
-                <View style={[styles.bill, shadows.soft]}>
-                <Text style={styles.billTitle}>Bill details</Text>
-                <View style={styles.billRow}>
-                  <Text style={styles.billLabel}>Item total</Text>
-                  <Text style={styles.billValue}>₹{totalPrice}</Text>
-                </View>
-                <View style={styles.billRow}>
-                  <View style={styles.billLabelRow}>
-                    <Bike size={14} color={colors.textSecondary} />
-                    <Text style={styles.billLabel}>Delivery partner fee</Text>
+                <View style={[styles.couponCard, shadows.soft]}>
+                  <View style={styles.couponHeader}>
+                    <View style={styles.couponTitleRow}>
+                      <Percent size={16} color={colors.accent} strokeWidth={2.3} />
+                      <Text style={styles.couponTitle}>Apply coupon</Text>
+                    </View>
+                    {applied ? (
+                      <Pressable
+                        onPress={() => setCouponCode(null)}
+                        hitSlop={8}
+                        style={styles.removeCoupon}
+                      >
+                        <X size={14} color={colors.textMuted} strokeWidth={2.4} />
+                        <Text style={styles.removeCouponText}>Remove</Text>
+                      </Pressable>
+                    ) : null}
                   </View>
-                  <Text
-                    style={[
-                      styles.billValue,
-                      deliveryFee === 0 && styles.free,
-                    ]}
+
+                  {applied ? (
+                    <View style={styles.appliedBanner}>
+                      <Text style={styles.appliedCode}>{applied.coupon.code}</Text>
+                      <Text style={styles.appliedSave}>
+                        You save ₹{couponDiscount}
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.couponChips}
                   >
-                    {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
-                  </Text>
+                    {COUPONS.map((coupon) => {
+                      const preview = evaluateCoupon(
+                        coupon.code,
+                        totalPrice,
+                        baseDeliveryFee
+                      );
+                      const selected = couponCode === coupon.code;
+                      const locked = !preview.ok;
+
+                      return (
+                        <Pressable
+                          key={coupon.code}
+                          onPress={() => onSelectCoupon(coupon.code)}
+                          style={[
+                            styles.couponChip,
+                            selected && styles.couponChipOn,
+                            locked && styles.couponChipLocked,
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.couponCode,
+                              selected && styles.couponCodeOn,
+                            ]}
+                          >
+                            {coupon.code}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.couponHint,
+                              selected && styles.couponHintOn,
+                            ]}
+                            numberOfLines={2}
+                          >
+                            {locked ? preview.message : coupon.description}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
                 </View>
-                <View style={styles.divider} />
-                <View style={styles.billRow}>
-                  <Text style={styles.grandLabel}>Grand total</Text>
-                  <Text style={styles.grandValue}>₹{grandTotal}</Text>
+
+                <View style={[styles.bill, shadows.soft]}>
+                  <Text style={styles.billTitle}>Bill details</Text>
+                  <View style={styles.billRow}>
+                    <Text style={styles.billLabel}>Item total</Text>
+                    <Text style={styles.billValue}>₹{totalPrice}</Text>
+                  </View>
+                  <View style={styles.billRow}>
+                    <View style={styles.billLabelRow}>
+                      <Bike size={14} color={colors.textSecondary} />
+                      <Text style={styles.billLabel}>Delivery partner fee</Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.billValue,
+                        deliveryFee === 0 && styles.free,
+                      ]}
+                    >
+                      {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
+                    </Text>
+                  </View>
+                  {couponDiscount > 0 ? (
+                    <View style={styles.billRow}>
+                      <Text style={styles.billLabel}>
+                        Coupon ({applied.coupon.code})
+                      </Text>
+                      <Text style={[styles.billValue, styles.free]}>
+                        −₹{couponDiscount}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.divider} />
+                  <View style={styles.billRow}>
+                    <Text style={styles.grandLabel}>Grand total</Text>
+                    <Text style={styles.grandValue}>₹{grandTotal}</Text>
+                  </View>
+                  <View style={styles.secure}>
+                    <ShieldCheck size={14} color={colors.accent} />
+                    <Text style={styles.secureText}>
+                      {couponDiscount > 0
+                        ? `Coupon saved you ₹${couponDiscount}`
+                        : deliveryFee === 0
+                          ? "Free delivery unlocked"
+                          : "Add ₹" +
+                            (199 - totalPrice) +
+                            " more for free delivery"}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.secure}>
-                  <ShieldCheck size={14} color={colors.accent} />
-                  <Text style={styles.secureText}>
-                    {deliveryFee === 0
-                      ? "Free delivery unlocked"
-                      : "Add ₹" + (199 - totalPrice) + " more for free delivery"}
-                  </Text>
-                </View>
-              </View>
               </View>
             }
           />
 
           <View style={styles.footer}>
-            <Pressable style={styles.clearBtn} onPress={clearCart}>
+            <Pressable
+              style={styles.clearBtn}
+              onPress={() => {
+                clearCart();
+                setCouponCode(null);
+              }}
+            >
               <Text style={styles.clearText}>Clear</Text>
             </Pressable>
             <Pressable
@@ -391,6 +540,101 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     color: colors.accent,
+  },
+  couponCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  couponHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.md,
+  },
+  couponTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  couponTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  removeCoupon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  removeCouponText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  appliedBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.accentSoft,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  appliedCode: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: colors.accentDark,
+    letterSpacing: 0.3,
+  },
+  appliedSave: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.accent,
+  },
+  couponChips: {
+    gap: spacing.sm,
+    paddingRight: spacing.sm,
+  },
+  couponChip: {
+    width: 148,
+    borderWidth: 1.2,
+    borderColor: colors.borderStrong,
+    borderStyle: "dashed",
+    borderRadius: radii.md,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  couponChipOn: {
+    borderColor: colors.accent,
+    borderStyle: "solid",
+    backgroundColor: colors.accentSoft,
+  },
+  couponChipLocked: {
+    opacity: 0.72,
+  },
+  couponCode: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: colors.text,
+    letterSpacing: 0.4,
+  },
+  couponCodeOn: {
+    color: colors.accentDark,
+  },
+  couponHint: {
+    marginTop: 6,
+    fontSize: 11,
+    lineHeight: 15,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  couponHintOn: {
+    color: colors.accentDark,
   },
   billTitle: {
     fontSize: 15,

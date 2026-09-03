@@ -259,6 +259,16 @@ export default function OrderDetailScreen({ navigation, route }) {
                 {order.deliveryFee === 0 ? "FREE" : `₹${order.deliveryFee}`}
               </Text>
             </View>
+            {order.couponDiscount > 0 ? (
+              <View style={styles.billRow}>
+                <Text style={styles.billLabel}>
+                  Coupon ({order.coupon?.code || "promo"})
+                </Text>
+                <Text style={[styles.billValue, { color: colors.accent }]}>
+                  −₹{order.couponDiscount}
+                </Text>
+              </View>
+            ) : null}
             <View style={styles.billRow}>
               <Text style={styles.grandLabel}>Grand total</Text>
               <Text style={styles.grandValue}>₹{order.grandTotal}</Text>
