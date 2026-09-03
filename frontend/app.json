@@ -1,24 +1,32 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Blinkit Clone",
+    "slug": "blinkit-clone",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F8CB46"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.adiverse.blinkitclone"
     },
     "android": {
+      "package": "com.adiverse.blinkitclone",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F8CB46",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Blinkit Clone",
+      "shortName": "Blinkit"
     },
     "plugins": [
       "expo-font",
@@ -26,8 +34,11 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F8CB46",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
           "dark": {
-            "backgroundColor": "#F8CB46"
+            "backgroundColor": "#F8CB46",
+            "image": "./assets/splash-icon.png"
           }
         }
       ]

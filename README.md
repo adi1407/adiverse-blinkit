@@ -80,7 +80,7 @@ Scan the QR with Expo Go. Keep the backend running.
 | **Orders** | Place order, history, live timeline, cancel while confirmed, Order Again |
 | **Print** | Pick docs/photos, quote, place print job, job list |
 | **Wishlist** | Heart on cards / PDP, saved list, add all to cart |
-| **UI** | Custom Blinkit tab bar (Lucide), floating cart bar |
+| **UI** | Custom Blinkit tab bar (Lucide), floating cart bar, branded yellow icon/splash |
 
 ---
 
@@ -182,6 +182,7 @@ scripts/
 18. Wishlist  
 19. Project README  
 20. Payment mock at checkout  
+21. App icon / splash branding  
 
 ---
 

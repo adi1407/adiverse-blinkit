@@ -21,7 +21,7 @@ const MENU = [
   { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
   { id: "address", label: "Saved addresses", hint: "Home, work & more", Icon: MapPin },
   { id: "support", label: "Support", hint: "Chat with us", Icon: MessageCircle },
-  { id: "about", label: "About Blinkit Clone", hint: "App version 1.0", Icon: Info },
+  { id: "about", label: "About Blinkit Clone", hint: "v1.0 · Expo SDK 54", Icon: Info },
 ];
 
 function formatPhone(phone) {
@@ -69,6 +69,22 @@ export default function AccountScreen({ navigation }) {
     }
     if (id === "address") {
       navigation.navigate("Addresses");
+      return;
+    }
+    if (id === "about") {
+      Alert.alert(
+        "Blinkit Clone",
+        "A teach-as-we-build grocery delivery demo.\n\nVersion 1.0.0 · Expo SDK 54\nCatalog · Cart · Orders · Print · Wishlist",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+    if (id === "support") {
+      Alert.alert(
+        "Support",
+        "This is a learning clone — no real support chat yet.\n\nFor bugs, check the README or restart backend + Expo.",
+        [{ text: "OK" }]
+      );
       return;
     }
     Alert.alert("Coming soon", "This section is UI-only for now.");
