@@ -80,6 +80,9 @@ export default function CartScreen({ navigation }) {
   const [placing, setPlacing] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [tipAmount, setTipAmount] = useState(0);
+
+  const TIP_OPTIONS = [0, 10, 20, 30, 50];
 
   const baseDeliveryFee = totalPrice >= 199 ? 0 : 25;
 
@@ -95,10 +98,10 @@ export default function CartScreen({ navigation }) {
     return evaluateCoupon(couponCode, totalPrice, baseDeliveryFee);
   }, [couponCode, totalPrice, baseDeliveryFee]);
 
-  // Drop coupon if cart emptied or code no longer qualifies after qty change
   useEffect(() => {
     if (isEmpty && couponCode) setCouponCode(null);
-  }, [isEmpty, couponCode]);
+    if (isEmpty && tipAmount) setTipAmount(0);
+  }, [isEmpty, couponCode, tipAmount]);
 
   useEffect(() => {
     if (couponCode && !couponResult.ok) setCouponCode(null);
@@ -109,7 +112,7 @@ export default function CartScreen({ navigation }) {
   const couponDiscount = applied ? applied.discount : 0;
   const itemOff =
     applied?.coupon?.type === "free_delivery" ? 0 : couponDiscount;
-  const grandTotal = Math.max(0, totalPrice - itemOff + deliveryFee);
+  const grandTotal = Math.max(0, totalPrice - itemOff + deliveryFee + tipAmount);
 
   function onSelectCoupon(code) {
     if (couponCode === code) {
@@ -166,6 +169,7 @@ export default function CartScreen({ navigation }) {
         },
         couponCode: applied?.coupon?.code || undefined,
         paymentMethod,
+        tipAmount,
         items: items.map((item) => ({
           id: item.id,
           name: item.name,
@@ -178,6 +182,7 @@ export default function CartScreen({ navigation }) {
 
       clearCart();
       setCouponCode(null);
+      setTipAmount(0);
       const payLabel = order.payment?.label || paymentMethod;
       Alert.alert(
         "Order placed!",
@@ -364,6 +369,31 @@ export default function CartScreen({ navigation }) {
                   })}
                 </View>
 
+                <View style={[styles.tipCard, shadows.soft]}>
+                  <Text style={styles.tipTitle}>Tip your delivery partner</Text>
+                  <Text style={styles.tipSubtitle}>
+                    100% goes to the partner · optional
+                  </Text>
+                  <View style={styles.tipRow}>
+                    {TIP_OPTIONS.map((amount) => {
+                      const selected = tipAmount === amount;
+                      return (
+                        <Pressable
+                          key={amount}
+                          style={[styles.tipChip, selected && styles.tipChipOn]}
+                          onPress={() => setTipAmount(amount)}
+                        >
+                          <Text
+                            style={[styles.tipChipText, selected && styles.tipChipTextOn]}
+                          >
+                            {amount === 0 ? "No tip" : `₹${amount}`}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+
                 <View style={[styles.bill, shadows.soft]}>
                   <Text style={styles.billTitle}>Bill details</Text>
                   <View style={styles.billRow}>
@@ -394,6 +424,12 @@ export default function CartScreen({ navigation }) {
                       </Text>
                     </View>
                   ) : null}
+                  {tipAmount > 0 ? (
+                    <View style={styles.billRow}>
+                      <Text style={styles.billLabel}>Delivery tip</Text>
+                      <Text style={styles.billValue}>₹{tipAmount}</Text>
+                    </View>
+                  ) : null}
                   <View style={styles.divider} />
                   <View style={styles.billRow}>
                     <Text style={styles.grandLabel}>Grand total</Text>
@@ -422,6 +458,7 @@ export default function CartScreen({ navigation }) {
               onPress={() => {
                 clearCart();
                 setCouponCode(null);
+                setTipAmount(0);
               }}
             >
               <Text style={styles.clearText}>Clear</Text>
@@ -618,6 +655,51 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "600",
     color: colors.textMuted,
+  },
+  tipCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  tipTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  tipSubtitle: {
+    marginTop: 2,
+    marginBottom: spacing.md,
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  tipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  tipChip: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radii.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: colors.surface,
+  },
+  tipChipOn: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+  },
+  tipChipText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: colors.textSecondary,
+  },
+  tipChipTextOn: {
+    color: colors.accentDark,
   },
   payRow: {
     flexDirection: "row",

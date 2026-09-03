@@ -111,11 +111,20 @@ function refreshAllStatuses() {
   if (changed) saveOrders(orders);
 }
 
-export function createOrder({ name, phone, items, address, couponCode, paymentMethod }) {
+export function createOrder({
+  name,
+  phone,
+  items,
+  address,
+  couponCode,
+  paymentMethod,
+  tipAmount,
+}) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanName = String(name || "").trim() || "Blinkit User";
   const cartItems = Array.isArray(items) ? items : [];
   const payment = normalizePaymentMethod(paymentMethod);
+  const tip = Math.max(0, Math.min(500, Math.round(Number(tipAmount) || 0)));
 
   if (cleanPhone.length !== 10) {
     const err = new Error("Valid 10-digit phone is required");
@@ -170,7 +179,7 @@ export function createOrder({ name, phone, items, address, couponCode, paymentMe
   }
 
   const itemOff = coupon?.type === "free_delivery" ? 0 : couponDiscount;
-  const grandTotal = Math.max(0, itemTotal - itemOff + deliveryFee);
+  const grandTotal = Math.max(0, itemTotal - itemOff + deliveryFee + tip);
 
   const deliveryAddress = address
     ? {
@@ -189,6 +198,7 @@ export function createOrder({ name, phone, items, address, couponCode, paymentMe
     items: normalized,
     itemTotal,
     deliveryFee,
+    tipAmount: tip,
     coupon,
     couponDiscount,
     payment,

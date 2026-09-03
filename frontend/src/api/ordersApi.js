@@ -1,6 +1,14 @@
 import { apiGet, apiPost } from "./client";
 
-export function placeOrder({ name, phone, items, address, couponCode, paymentMethod }) {
+export function placeOrder({
+  name,
+  phone,
+  items,
+  address,
+  couponCode,
+  paymentMethod,
+  tipAmount,
+}) {
   return apiPost("/api/orders", {
     name,
     phone,
@@ -8,6 +16,7 @@ export function placeOrder({ name, phone, items, address, couponCode, paymentMet
     address,
     couponCode,
     paymentMethod,
+    tipAmount,
   });
 }
 

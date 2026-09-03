@@ -188,6 +188,7 @@ scripts/
 23. Recently viewed products  
 24. Pull-to-refresh on main screens  
 25. Help & FAQ screen  
+26. Delivery partner tip at checkout  
 
 ---
 
