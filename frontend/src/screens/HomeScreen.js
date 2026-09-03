@@ -6,6 +6,7 @@ import {
   StatusBar,
   Platform,
   View,
+  RefreshControl,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
@@ -25,10 +26,12 @@ export default function HomeScreen() {
   const { items: recentItems } = useRecentlyViewed();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const loadHome = useCallback(async () => {
-    setLoading(true);
+  const loadHome = useCallback(async ({ silent = false } = {}) => {
+    if (silent) setRefreshing(true);
+    else setLoading(true);
     setError("");
     try {
       const homeData = await fetchHomeData();
@@ -37,6 +40,7 @@ export default function HomeScreen() {
       setError(err.message || "Failed to load home data");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -48,7 +52,7 @@ export default function HomeScreen() {
     navigation.navigate("CategoryProducts", { categoryId: cat.id });
   }
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <SafeAreaView style={styles.safe}>
         <LoadingState message="Loading home..." />
@@ -56,10 +60,10 @@ export default function HomeScreen() {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <SafeAreaView style={styles.safe}>
-        <ErrorState message={error} onRetry={loadHome} />
+        <ErrorState message={error} onRetry={() => loadHome()} />
       </SafeAreaView>
     );
   }
@@ -71,6 +75,15 @@ export default function HomeScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => loadHome({ silent: true })}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.white}
+          />
+        }
       >
         <View style={styles.hero}>
           <HomeHeader minutes={data.deliveryInfo.minutes} />

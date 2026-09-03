@@ -8,6 +8,7 @@ import {
   View,
   Text,
   Pressable,
+  RefreshControl,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RotateCcw } from "../utils/lucideIcons";
@@ -26,27 +27,34 @@ export default function OrderAgainScreen() {
   const [pastProducts, setPastProducts] = useState([]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const hasContent = pastProducts.length > 0 || rows.length > 0;
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const home = await fetchHomeData();
-      setRows(home.featuredRows || []);
+  const load = useCallback(
+    async ({ silent = false } = {}) => {
+      if (silent) setRefreshing(true);
+      else setLoading(true);
+      setError("");
+      try {
+        const home = await fetchHomeData();
+        setRows(home.featuredRows || []);
 
-      if (isLoggedIn) {
-        const data = await fetchReorderProducts(user.phone);
-        setPastProducts(data.products || []);
-      } else {
-        setPastProducts([]);
+        if (isLoggedIn) {
+          const data = await fetchReorderProducts(user.phone);
+          setPastProducts(data.products || []);
+        } else {
+          setPastProducts([]);
+        }
+      } catch (err) {
+        setError(err.message || "Failed to load");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (err) {
-      setError(err.message || "Failed to load");
-    } finally {
-      setLoading(false);
-    }
-  }, [isLoggedIn, user?.phone]);
+    },
+    [isLoggedIn, user?.phone]
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -64,15 +72,24 @@ export default function OrderAgainScreen() {
       />
       <View style={styles.curve} />
 
-      {loading ? (
+      {loading && !hasContent ? (
         <LoadingState message="Loading suggestions..." />
-      ) : error ? (
-        <ErrorState message={error} onRetry={load} />
+      ) : error && !hasContent ? (
+        <ErrorState message={error} onRetry={() => load()} />
       ) : (
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => load({ silent: true })}
+              tintColor={colors.accent}
+              colors={[colors.accent]}
+              progressBackgroundColor={colors.white}
+            />
+          }
         >
           <View style={[styles.banner, shadows.soft]}>
             <View style={styles.bannerIcon}>

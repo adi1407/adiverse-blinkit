@@ -7,6 +7,7 @@ import {
   Platform,
   View,
   Text,
+  RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ScreenHeader from "../components/ScreenHeader";
@@ -20,10 +21,12 @@ export default function CategoriesScreen() {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const loadCategories = useCallback(async () => {
-    setLoading(true);
+  const loadCategories = useCallback(async ({ silent = false } = {}) => {
+    if (silent) setRefreshing(true);
+    else setLoading(true);
     setError("");
     try {
       const data = await fetchCategories();
@@ -32,6 +35,7 @@ export default function CategoriesScreen() {
       setError(err.message || "Failed to load categories");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -51,15 +55,24 @@ export default function CategoriesScreen() {
       />
       <View style={styles.curve} />
 
-      {loading ? (
+      {loading && categories.length === 0 ? (
         <LoadingState message="Loading categories..." />
-      ) : error ? (
-        <ErrorState message={error} onRetry={loadCategories} />
+      ) : error && categories.length === 0 ? (
+        <ErrorState message={error} onRetry={() => loadCategories()} />
       ) : (
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadCategories({ silent: true })}
+              tintColor={colors.accent}
+              colors={[colors.accent]}
+              progressBackgroundColor={colors.white}
+            />
+          }
         >
           <View style={styles.note}>
             <Text style={styles.noteTitle}>{categories.length} categories</Text>

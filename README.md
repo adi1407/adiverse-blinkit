@@ -186,6 +186,7 @@ scripts/
 21. App icon / splash branding  
 22. Rate delivered orders  
 23. Recently viewed products  
+24. Pull-to-refresh on main screens  
 
 ---
 

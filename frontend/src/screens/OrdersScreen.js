@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
   Pressable,
+  RefreshControl,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Package, ChevronRight, Star } from "../utils/lucideIcons";
@@ -117,27 +118,34 @@ export default function OrdersScreen({ navigation }) {
   const { user, isLoggedIn } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const load = useCallback(async () => {
-    if (!isLoggedIn) {
-      setOrders([]);
-      setLoading(false);
-      setError("");
-      return;
-    }
+  const load = useCallback(
+    async ({ silent = false } = {}) => {
+      if (!isLoggedIn) {
+        setOrders([]);
+        setLoading(false);
+        setRefreshing(false);
+        setError("");
+        return;
+      }
 
-    setLoading(true);
-    setError("");
-    try {
-      const data = await fetchOrders(user.phone);
-      setOrders(data.orders || []);
-    } catch (err) {
-      setError(err.message || "Failed to load orders");
-    } finally {
-      setLoading(false);
-    }
-  }, [isLoggedIn, user?.phone]);
+      if (silent) setRefreshing(true);
+      else setLoading(true);
+      setError("");
+      try {
+        const data = await fetchOrders(user.phone);
+        setOrders(data.orders || []);
+      } catch (err) {
+        setError(err.message || "Failed to load orders");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [isLoggedIn, user?.phone]
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -167,15 +175,24 @@ export default function OrdersScreen({ navigation }) {
             </Pressable>
           </View>
         </View>
-      ) : loading ? (
+      ) : loading && orders.length === 0 ? (
         <LoadingState message="Loading orders..." />
-      ) : error ? (
-        <ErrorState message={error} onRetry={load} />
+      ) : error && orders.length === 0 ? (
+        <ErrorState message={error} onRetry={() => load()} />
       ) : (
         <FlatList
           data={orders}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => load({ silent: true })}
+              tintColor={colors.accent}
+              colors={[colors.accent]}
+              progressBackgroundColor={colors.white}
+            />
+          }
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Package size={32} color={colors.accent} strokeWidth={1.8} />
