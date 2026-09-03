@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import catalogRoutes from "./routes/catalogRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import printRoutes from "./routes/printRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api", catalogRoutes);
 app.use("/api", orderRoutes);
+app.use("/api", printRoutes);
 
 // 0.0.0.0 = reachable from phone on same Wi‑Fi (not only this PC)
 app.listen(PORT, "0.0.0.0", () => {

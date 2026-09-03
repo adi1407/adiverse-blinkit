@@ -14,6 +14,7 @@ import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import AddressesScreen from "../screens/AddressesScreen";
+import PrintJobsScreen from "../screens/PrintJobsScreen";
 import BlinkitTabBar from "../components/BlinkitTabBar";
 import FloatingCartBar from "../components/FloatingCartBar";
 import { colors } from "../theme/colors";
@@ -60,6 +61,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Orders" component={OrdersScreen} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
       <Stack.Screen name="Addresses" component={AddressesScreen} />
+      <Stack.Screen name="PrintJobs" component={PrintJobsScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Account" component={AccountScreen} />
     </Stack.Navigator>

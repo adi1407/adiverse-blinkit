@@ -7,6 +7,7 @@ import {
   ChevronRight,
   UserRound,
   LogOut,
+  Printer,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
@@ -14,6 +15,7 @@ import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
   { id: "orders", label: "Your orders", hint: "Track & reorder", Icon: Package },
+  { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
   { id: "address", label: "Saved addresses", hint: "Home, work & more", Icon: MapPin },
   { id: "support", label: "Support", hint: "Chat with us", Icon: MessageCircle },
   { id: "about", label: "About Blinkit Clone", hint: "App version 1.0", Icon: Info },
@@ -47,6 +49,14 @@ export default function AccountScreen({ navigation }) {
   function onMenuPress(id) {
     if (id === "orders") {
       navigation.navigate("Orders");
+      return;
+    }
+    if (id === "print") {
+      if (!isLoggedIn) {
+        navigation.navigate("Login");
+        return;
+      }
+      navigation.navigate("PrintJobs");
       return;
     }
     if (id === "address") {

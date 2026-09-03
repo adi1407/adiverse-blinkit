@@ -4,3 +4,5 @@ node_modules/
 *.log
 src/data/orders.store.json
 src/data/orders.store.json.tmp
+src/data/print.store.json
+src/data/print.store.json.tmp
