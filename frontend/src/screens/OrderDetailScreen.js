@@ -18,11 +18,12 @@ import {
   Truck,
   MapPin,
   RefreshCw,
+  Star,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
-import { cancelOrder, fetchOrderById } from "../api/ordersApi";
+import { cancelOrder, fetchOrderById, rateOrder } from "../api/ordersApi";
 import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
 import { colors, spacing, radii, shadows } from "../theme/colors";
@@ -33,6 +34,8 @@ const STEP_ICON = {
   out_for_delivery: Truck,
   delivered: PackageCheck,
 };
+
+const REVIEW_CHIPS = ["On time", "Fresh items", "Good packing", "Polite partner"];
 
 function formatWhen(iso) {
   try {
@@ -47,12 +50,41 @@ function formatWhen(iso) {
   }
 }
 
+function StarsRow({ value, onChange, size = 28, interactive = true }) {
+  return (
+    <View style={styles.starsRow}>
+      {[1, 2, 3, 4, 5].map((n) => {
+        const on = n <= value;
+        const Comp = interactive ? Pressable : View;
+        return (
+          <Comp
+            key={n}
+            onPress={interactive ? () => onChange?.(n) : undefined}
+            hitSlop={6}
+            style={styles.starHit}
+          >
+            <Star
+              size={size}
+              color={on ? colors.primaryDark : colors.borderStrong}
+              fill={on ? colors.primary : "transparent"}
+              strokeWidth={2}
+            />
+          </Comp>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function OrderDetailScreen({ navigation, route }) {
   const { orderId } = route.params;
   const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [ratingStars, setRatingStars] = useState(0);
+  const [reviewChips, setReviewChips] = useState([]);
+  const [submittingRate, setSubmittingRate] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -61,6 +93,7 @@ export default function OrderDetailScreen({ navigation, route }) {
     try {
       const data = await fetchOrderById(orderId);
       setOrder(data);
+      if (data.rating?.stars) setRatingStars(data.rating.stars);
     } catch (err) {
       setError(err.message || "Failed to load order");
     } finally {
@@ -80,6 +113,36 @@ export default function OrderDetailScreen({ navigation, route }) {
     const id = setInterval(load, 8000);
     return () => clearInterval(id);
   }, [order?.status, load]);
+
+  function toggleChip(chip) {
+    setReviewChips((prev) =>
+      prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
+    );
+  }
+
+  async function onSubmitRating() {
+    if (!user?.phone || submittingRate) return;
+    if (ratingStars < 1) {
+      Alert.alert("Pick stars", "Tap 1–5 stars before submitting.");
+      return;
+    }
+
+    setSubmittingRate(true);
+    try {
+      const data = await rateOrder({
+        orderId,
+        phone: user.phone,
+        stars: ratingStars,
+        review: reviewChips.join(" · "),
+      });
+      setOrder(data);
+      Alert.alert("Thanks!", "Your rating was saved.");
+    } catch (err) {
+      Alert.alert("Could not rate", err.message || "Try again");
+    } finally {
+      setSubmittingRate(false);
+    }
+  }
 
   function onCancel() {
     Alert.alert(
@@ -113,6 +176,8 @@ export default function OrderDetailScreen({ navigation, route }) {
   }
 
   const cancelled = order?.status === "cancelled";
+  const delivered = order?.status === "delivered";
+  const alreadyRated = Boolean(order?.rating?.stars);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -161,6 +226,58 @@ export default function OrderDetailScreen({ navigation, route }) {
                 {cancelling ? "Cancelling…" : "Cancel order"}
               </Text>
             </Pressable>
+          ) : null}
+
+          {delivered ? (
+            <View style={[styles.rateCard, shadows.soft]}>
+              <Text style={styles.rateTitle}>
+                {alreadyRated ? "Your rating" : "Rate this order"}
+              </Text>
+              <Text style={styles.rateHint}>
+                {alreadyRated
+                  ? "Thanks for the feedback"
+                  : "How was delivery & product quality?"}
+              </Text>
+              <StarsRow
+                value={alreadyRated ? order.rating.stars : ratingStars}
+                onChange={setRatingStars}
+                interactive={!alreadyRated}
+              />
+              {!alreadyRated ? (
+                <>
+                  <View style={styles.chipWrap}>
+                    {REVIEW_CHIPS.map((chip) => {
+                      const on = reviewChips.includes(chip);
+                      return (
+                        <Pressable
+                          key={chip}
+                          style={[styles.chip, on && styles.chipOn]}
+                          onPress={() => toggleChip(chip)}
+                        >
+                          <Text style={[styles.chipText, on && styles.chipTextOn]}>
+                            {chip}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  <Pressable
+                    style={[
+                      styles.rateBtn,
+                      (submittingRate || ratingStars < 1) && { opacity: 0.6 },
+                    ]}
+                    onPress={onSubmitRating}
+                    disabled={submittingRate || ratingStars < 1}
+                  >
+                    <Text style={styles.rateBtnText}>
+                      {submittingRate ? "Saving…" : "Submit rating"}
+                    </Text>
+                  </Pressable>
+                </>
+              ) : order.rating.review ? (
+                <Text style={styles.reviewText}>{order.rating.review}</Text>
+              ) : null}
+            </View>
           ) : null}
 
           {!cancelled ? (
@@ -374,6 +491,83 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontWeight: "900",
     fontSize: 14,
+  },
+  rateCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    alignItems: "center",
+  },
+  rateTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  rateHint: {
+    marginTop: 4,
+    marginBottom: spacing.md,
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  starsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  starHit: {
+    padding: 2,
+  },
+  chipWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: spacing.md,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: colors.surface,
+  },
+  chipOn: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textSecondary,
+  },
+  chipTextOn: {
+    color: colors.accentDark,
+  },
+  rateBtn: {
+    marginTop: spacing.lg,
+    alignSelf: "stretch",
+    backgroundColor: colors.accent,
+    borderRadius: radii.md,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  rateBtnText: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 14,
+  },
+  reviewText: {
+    marginTop: spacing.md,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textSecondary,
+    textAlign: "center",
   },
   cancelledNote: {
     backgroundColor: colors.white,

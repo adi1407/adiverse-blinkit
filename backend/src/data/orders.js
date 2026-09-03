@@ -63,6 +63,7 @@ function withTimeline(order) {
       ...order,
       status: "cancelled",
       canCancel: false,
+      canRate: false,
       ageSec,
       timeline: STATUS_STEPS.map((step) => ({
         ...step,
@@ -74,12 +75,14 @@ function withTimeline(order) {
 
   const status = statusForAge(ageSec);
   const stepIndex = STATUS_STEPS.findIndex((s) => s.key === status);
+  const hasRating = Boolean(order.rating?.stars);
 
   return {
     ...order,
     status,
     statusUpdatedAt: order.statusUpdatedAt || order.createdAt,
     canCancel: status === "confirmed",
+    canRate: status === "delivered" && !hasRating,
     timeline: STATUS_STEPS.map((step, index) => ({
       ...step,
       done: index <= stepIndex,
@@ -246,6 +249,64 @@ export function cancelOrder({ orderId, phone }) {
   orders[index] = cancelled;
   saveOrders(orders);
   return withTimeline(cancelled);
+}
+
+export function rateOrder({ orderId, phone, stars, review }) {
+  refreshAllStatuses();
+
+  const cleanPhone = String(phone || "").replace(/\D/g, "");
+  const index = orders.findIndex((o) => o.id === orderId);
+
+  if (index < 0) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+
+  const existing = orders[index];
+  if (existing.phone !== cleanPhone) {
+    const err = new Error("Order does not belong to this phone");
+    err.status = 403;
+    throw err;
+  }
+
+  const live = withTimeline(existing);
+  if (live.status !== "delivered") {
+    const err = new Error("You can rate only after delivery");
+    err.status = 400;
+    throw err;
+  }
+
+  if (existing.rating?.stars) {
+    const err = new Error("Order already rated");
+    err.status = 400;
+    throw err;
+  }
+
+  const score = Math.max(1, Math.min(5, Math.round(Number(stars) || 0)));
+  if (!score) {
+    const err = new Error("Pick a rating from 1 to 5 stars");
+    err.status = 400;
+    throw err;
+  }
+
+  const note = String(review || "")
+    .trim()
+    .slice(0, 280);
+
+  const rated = {
+    ...existing,
+    status: "delivered",
+    rating: {
+      stars: score,
+      review: note,
+      ratedAt: new Date().toISOString(),
+    },
+  };
+
+  orders[index] = rated;
+  saveOrders(orders);
+  return withTimeline(rated);
 }
 
 export function getOrdersByPhone(phone) {

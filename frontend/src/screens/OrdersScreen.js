@@ -10,7 +10,7 @@ import {
   Pressable,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { Package, ChevronRight } from "../utils/lucideIcons";
+import { Package, ChevronRight, Star } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import ProductImage from "../components/ProductImage";
 import LoadingState from "../components/LoadingState";
@@ -93,6 +93,21 @@ function OrderCard({ order, onPress }) {
         <Text style={styles.shipTo} numberOfLines={1}>
           {order.address.line1}
         </Text>
+      ) : null}
+      {order.rating?.stars ? (
+        <View style={styles.ratingRow}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Star
+              key={n}
+              size={12}
+              color={n <= order.rating.stars ? colors.primaryDark : colors.borderStrong}
+              fill={n <= order.rating.stars ? colors.primary : "transparent"}
+              strokeWidth={2}
+            />
+          ))}
+        </View>
+      ) : order.status === "delivered" ? (
+        <Text style={styles.rateCta}>Tap to rate this order</Text>
       ) : null}
     </Pressable>
   );
@@ -302,6 +317,17 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
     fontWeight: "600",
+  },
+  ratingRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    gap: 3,
+  },
+  rateCta: {
+    marginTop: 8,
+    fontSize: 11,
+    fontWeight: "800",
+    color: colors.accent,
   },
   emptyBox: {
     alignItems: "center",

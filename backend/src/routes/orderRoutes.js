@@ -5,6 +5,7 @@ import {
   getOrderById,
   getOrdersByPhone,
   getReorderProducts,
+  rateOrder,
 } from "../data/orders.js";
 
 const router = Router();
@@ -41,6 +42,25 @@ router.post("/orders/:id/cancel", (req, res) => {
     res.status(err.status || 500).json({
       success: false,
       message: err.message || "Could not cancel order",
+    });
+  }
+});
+
+// POST /api/orders/:id/rate
+router.post("/orders/:id/rate", (req, res) => {
+  try {
+    const { phone, stars, review } = req.body || {};
+    const order = rateOrder({
+      orderId: req.params.id,
+      phone,
+      stars,
+      review,
+    });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Could not save rating",
     });
   }
 });

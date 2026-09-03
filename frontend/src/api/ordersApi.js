@@ -23,6 +23,14 @@ export function cancelOrder({ orderId, phone }) {
   return apiPost(`/api/orders/${encodeURIComponent(orderId)}/cancel`, { phone });
 }
 
+export function rateOrder({ orderId, phone, stars, review }) {
+  return apiPost(`/api/orders/${encodeURIComponent(orderId)}/rate`, {
+    phone,
+    stars,
+    review,
+  });
+}
+
 export function fetchReorderProducts(phone) {
   return apiGet(`/api/orders/reorder?phone=${encodeURIComponent(phone)}`);
 }
