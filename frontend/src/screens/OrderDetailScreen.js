@@ -270,6 +270,13 @@ export default function OrderDetailScreen({ navigation, route }) {
               </View>
             ) : null}
             <View style={styles.billRow}>
+              <Text style={styles.billLabel}>Payment</Text>
+              <Text style={styles.billValue}>
+                {order.payment?.label || "Cash on delivery"}
+                {order.paymentStatus === "paid" ? " · Paid" : " · Pay on delivery"}
+              </Text>
+            </View>
+            <View style={styles.billRow}>
               <Text style={styles.grandLabel}>Grand total</Text>
               <Text style={styles.grandValue}>₹{order.grandTotal}</Text>
             </View>

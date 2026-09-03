@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { evaluateCoupon, getCouponByCode } from "./coupons.js";
+import { normalizePaymentMethod } from "./payments.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORE_PATH = path.join(__dirname, "orders.store.json");
@@ -107,10 +108,11 @@ function refreshAllStatuses() {
   if (changed) saveOrders(orders);
 }
 
-export function createOrder({ name, phone, items, address, couponCode }) {
+export function createOrder({ name, phone, items, address, couponCode, paymentMethod }) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanName = String(name || "").trim() || "Blinkit User";
   const cartItems = Array.isArray(items) ? items : [];
+  const payment = normalizePaymentMethod(paymentMethod);
 
   if (cleanPhone.length !== 10) {
     const err = new Error("Valid 10-digit phone is required");
@@ -186,6 +188,8 @@ export function createOrder({ name, phone, items, address, couponCode }) {
     deliveryFee,
     coupon,
     couponDiscount,
+    payment,
+    paymentStatus: payment.id === "cod" ? "pending" : "paid",
     grandTotal,
     status: "confirmed",
     statusUpdatedAt: now,

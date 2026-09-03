@@ -19,6 +19,11 @@ import {
   MapPin,
   Percent,
   X,
+  Smartphone,
+  CreditCard,
+  Wallet,
+  Banknote,
+  Check,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import QtyStepper from "../components/QtyStepper";
@@ -28,7 +33,15 @@ import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
 import { placeOrder } from "../api/ordersApi";
 import { COUPONS, evaluateCoupon } from "../data/coupons";
+import { PAYMENT_METHODS } from "../data/payments";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+
+const PAYMENT_ICONS = {
+  Smartphone,
+  CreditCard,
+  Wallet,
+  Banknote,
+};
 
 function CartRow({ item }) {
   const { increaseQty, decreaseQty, removeItem } = useCart();
@@ -66,6 +79,7 @@ export default function CartScreen({ navigation }) {
   const isEmpty = items.length === 0;
   const [placing, setPlacing] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("upi");
 
   const baseDeliveryFee = totalPrice >= 199 ? 0 : 25;
 
@@ -137,6 +151,11 @@ export default function CartScreen({ navigation }) {
     setPlacing(true);
 
     try {
+      // Demo "payment gateway" pause for online methods
+      if (paymentMethod !== "cod") {
+        await new Promise((resolve) => setTimeout(resolve, 900));
+      }
+
       const order = await placeOrder({
         name: user.name,
         phone: user.phone,
@@ -146,6 +165,7 @@ export default function CartScreen({ navigation }) {
           line2: selectedAddress.line2 || "",
         },
         couponCode: applied?.coupon?.code || undefined,
+        paymentMethod,
         items: items.map((item) => ({
           id: item.id,
           name: item.name,
@@ -158,9 +178,10 @@ export default function CartScreen({ navigation }) {
 
       clearCart();
       setCouponCode(null);
+      const payLabel = order.payment?.label || paymentMethod;
       Alert.alert(
         "Order placed!",
-        `Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
+        `Paid via ${payLabel}. Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
         [
           {
             text: "Track order",
@@ -310,6 +331,39 @@ export default function CartScreen({ navigation }) {
                   </ScrollView>
                 </View>
 
+                <View style={[styles.payCard, shadows.soft]}>
+                  <Text style={styles.payTitle}>Payment method</Text>
+                  <Text style={styles.paySubtitle}>Demo checkout — no real money</Text>
+                  {PAYMENT_METHODS.map((method) => {
+                    const Icon = PAYMENT_ICONS[method.icon] || Wallet;
+                    const selected = paymentMethod === method.id;
+                    return (
+                      <Pressable
+                        key={method.id}
+                        style={[styles.payRow, selected && styles.payRowOn]}
+                        onPress={() => setPaymentMethod(method.id)}
+                      >
+                        <View style={[styles.payIcon, selected && styles.payIconOn]}>
+                          <Icon
+                            size={18}
+                            color={selected ? colors.accent : colors.textSecondary}
+                            strokeWidth={2.2}
+                          />
+                        </View>
+                        <View style={styles.payCopy}>
+                          <Text style={styles.payLabel}>{method.label}</Text>
+                          <Text style={styles.payHint}>{method.hint}</Text>
+                        </View>
+                        <View style={[styles.radio, selected && styles.radioOn]}>
+                          {selected ? (
+                            <Check size={12} color={colors.white} strokeWidth={3} />
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
                 <View style={[styles.bill, shadows.soft]}>
                   <Text style={styles.billTitle}>Bill details</Text>
                   <View style={styles.billRow}>
@@ -383,9 +437,13 @@ export default function CartScreen({ navigation }) {
               </View>
               <Text style={styles.checkoutText}>
                 {placing
-                  ? "Placing…"
+                  ? paymentMethod === "cod"
+                    ? "Placing…"
+                    : "Paying…"
                   : isLoggedIn
-                    ? "Proceed →"
+                    ? paymentMethod === "cod"
+                      ? "Place order →"
+                      : "Pay & place →"
                     : "Login to proceed →"}
               </Text>
             </Pressable>
@@ -540,6 +598,83 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     color: colors.accent,
+  },
+  payCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  payTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  paySubtitle: {
+    marginTop: 2,
+    marginBottom: spacing.md,
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  payRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    paddingVertical: 10,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  payRowOn: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSoft,
+  },
+  payIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  payIconOn: {
+    borderColor: colors.accent,
+  },
+  payCopy: {
+    flex: 1,
+  },
+  payLabel: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  payHint: {
+    marginTop: 2,
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: colors.borderStrong,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.white,
+  },
+  radioOn: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accent,
   },
   couponCard: {
     backgroundColor: colors.white,

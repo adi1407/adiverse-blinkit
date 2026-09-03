@@ -4,12 +4,14 @@
  * and keeps the bundle from pulling ~1800 icons.
  */
 export { default as Briefcase } from "lucide-react-native/icons/briefcase";
+export { default as Banknote } from "lucide-react-native/icons/banknote";
 export { default as Check } from "lucide-react-native/icons/check";
 export { default as ChevronLeft } from "lucide-react-native/icons/chevron-left";
 export { default as ChevronRight } from "lucide-react-native/icons/chevron-right";
 export { default as CircleCheck } from "lucide-react-native/icons/circle-check";
 export { default as Clock } from "lucide-react-native/icons/clock";
 export { default as Cookie } from "lucide-react-native/icons/cookie";
+export { default as CreditCard } from "lucide-react-native/icons/credit-card";
 export { default as Cross } from "lucide-react-native/icons/cross";
 export { default as CupSoda } from "lucide-react-native/icons/cup-soda";
 export { default as Drumstick } from "lucide-react-native/icons/drumstick";
@@ -42,11 +44,13 @@ export { default as ShoppingCart } from "lucide-react-native/icons/shopping-cart
 export { default as Sparkle } from "lucide-react-native/icons/sparkle";
 export { default as Sparkles } from "lucide-react-native/icons/sparkles";
 export { default as SprayCan } from "lucide-react-native/icons/spray-can";
+export { default as Smartphone } from "lucide-react-native/icons/smartphone";
 export { default as Trash2 } from "lucide-react-native/icons/trash-2";
 export { default as TriangleAlert } from "lucide-react-native/icons/triangle-alert";
 export { default as Truck } from "lucide-react-native/icons/truck";
 export { default as Upload } from "lucide-react-native/icons/upload";
 export { default as UserRound } from "lucide-react-native/icons/user-round";
+export { default as Wallet } from "lucide-react-native/icons/wallet";
 export { default as Wheat } from "lucide-react-native/icons/wheat";
 export { default as X } from "lucide-react-native/icons/x";
 export { default as Zap } from "lucide-react-native/icons/zap";

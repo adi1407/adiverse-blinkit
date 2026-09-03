@@ -82,6 +82,7 @@ function OrderCard({ order, onPress }) {
         <Text style={styles.itemCount}>
           {order.items.reduce((n, i) => n + i.qty, 0)} items
           {order.address?.label ? ` · ${order.address.label}` : ""}
+          {order.payment?.label ? ` · ${order.payment.label}` : ""}
         </Text>
         <View style={styles.trackRow}>
           <Text style={styles.total}>₹{order.grandTotal}</Text>

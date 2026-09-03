@@ -180,13 +180,15 @@ scripts/
 16. Checkout coupons  
 17. Print tab  
 18. Wishlist  
-19. This README  
+19. Project README  
+20. Payment mock at checkout  
 
 ---
 
 ## Notes / limits (on purpose)
 
 - Login is **demo** (no real OTP).
+- Payment is **mock** (UPI / card / wallet / COD — no real money moves).
 - Print stores **file metadata only** (no upload to cloud).
 - Order/print status advances on a **demo timer**, not real riders.
 - Catalog images come from Unsplash / Open Food Facts style sources.
