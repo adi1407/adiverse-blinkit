@@ -9,6 +9,7 @@ import {
   LogOut,
   Printer,
   Heart,
+  Pencil,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +17,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
+  { id: "profile", label: "Edit profile", hint: "Change display name", Icon: Pencil },
   { id: "orders", label: "Your orders", hint: "Track & reorder", Icon: Package },
   { id: "wishlist", label: "Wishlist", hint: "Saved for later", Icon: Heart },
   { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
@@ -51,6 +53,14 @@ export default function AccountScreen({ navigation }) {
   }
 
   function onMenuPress(id) {
+    if (id === "profile") {
+      if (!isLoggedIn) {
+        navigation.navigate("Login", { returnTo: "EditProfile" });
+        return;
+      }
+      navigation.navigate("EditProfile");
+      return;
+    }
     if (id === "orders") {
       navigation.navigate("Orders");
       return;
@@ -96,7 +106,13 @@ export default function AccountScreen({ navigation }) {
       <View style={styles.curve} />
 
       <View style={styles.body}>
-        <View style={[styles.profileCard, shadows.soft]}>
+        <Pressable
+          style={[styles.profileCard, shadows.soft]}
+          onPress={() => {
+            if (isLoggedIn) navigation.navigate("EditProfile");
+            else onLogin();
+          }}
+        >
           <View style={styles.avatar}>
             <UserRound size={28} color={colors.text} strokeWidth={2} />
           </View>
@@ -109,18 +125,33 @@ export default function AccountScreen({ navigation }) {
                 ? formatPhone(user.phone)
                 : "Login to sync orders & addresses"}
             </Text>
+            {isLoggedIn ? (
+              <Text style={styles.editHint}>Tap to edit profile</Text>
+            ) : null}
           </View>
           {isLoggedIn ? (
-            <Pressable style={styles.logoutBtn} onPress={onLogout}>
+            <Pressable
+              style={styles.logoutBtn}
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                onLogout();
+              }}
+            >
               <LogOut size={14} color={colors.danger} strokeWidth={2.4} />
               <Text style={styles.logoutText}>Logout</Text>
             </Pressable>
           ) : (
-            <Pressable style={styles.loginBtn} onPress={onLogin}>
+            <Pressable
+              style={styles.loginBtn}
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                onLogin();
+              }}
+            >
               <Text style={styles.loginText}>Login</Text>
             </Pressable>
           )}
-        </View>
+        </Pressable>
 
         <View style={[styles.menuCard, shadows.soft]}>
           {MENU.map((item, index) => {
@@ -206,6 +237,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     fontWeight: "500",
+  },
+  editHint: {
+    marginTop: 4,
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.accent,
   },
   loginBtn: {
     backgroundColor: colors.accent,

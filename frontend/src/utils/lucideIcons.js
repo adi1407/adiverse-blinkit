@@ -32,8 +32,10 @@ export { default as PackageCheck } from "lucide-react-native/icons/package-check
 export { default as PawPrint } from "lucide-react-native/icons/paw-print";
 export { default as Percent } from "lucide-react-native/icons/percent";
 export { default as Phone } from "lucide-react-native/icons/phone";
+export { default as Pencil } from "lucide-react-native/icons/pencil";
 export { default as Pill } from "lucide-react-native/icons/pill";
 export { default as Plus } from "lucide-react-native/icons/plus";
+export { default as Lock } from "lucide-react-native/icons/lock";
 export { default as Popcorn } from "lucide-react-native/icons/popcorn";
 export { default as Printer } from "lucide-react-native/icons/printer";
 export { default as RefreshCw } from "lucide-react-native/icons/refresh-cw";

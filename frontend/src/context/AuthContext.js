@@ -55,6 +55,29 @@ export function AuthProvider({ children }) {
     await AsyncStorage.removeItem(STORAGE_KEY);
   }
 
+  async function updateProfile({ name }) {
+    if (!user?.phone) {
+      throw new Error("Login required to edit profile");
+    }
+
+    const cleanName = String(name || "").trim();
+    if (cleanName.length < 2) {
+      throw new Error("Enter a name with at least 2 characters");
+    }
+    if (cleanName.length > 40) {
+      throw new Error("Name is too long (max 40 characters)");
+    }
+
+    const nextUser = {
+      ...user,
+      name: cleanName,
+    };
+
+    setUser(nextUser);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+    return nextUser;
+  }
+
   const value = useMemo(
     () => ({
       user,
@@ -62,6 +85,7 @@ export function AuthProvider({ children }) {
       isLoggedIn: Boolean(user),
       login,
       logout,
+      updateProfile,
     }),
     [user, ready]
   );

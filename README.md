@@ -75,7 +75,7 @@ Scan the QR with Expo Go. Keep the backend running.
 | **Product** | Product detail page, similar items, ADD / qty |
 | **Search** | Debounced live search |
 | **Cart** | Shared context, AsyncStorage persist, bill, coupons, checkout |
-| **Auth** | Guest login (name + phone), session on device |
+| **Auth** | Guest login (name + phone), edit display name, session on device |
 | **Addresses** | Save / pick delivery address |
 | **Orders** | Place order, history, live timeline, cancel while confirmed, rate after delivery, Order Again |
 | **Print** | Pick docs/photos, quote, place print job, job list |
@@ -94,7 +94,7 @@ App.js
       Tabs: Home · Order Again · Categories · Print
       Stack: Search, ProductDetail, Cart, Account,
              Orders, OrderDetail, Addresses,
-             Wishlist, PrintJobs, Login, …
+             Wishlist, PrintJobs, EditProfile, Login, …
 ```
 
 **Data flow**
@@ -189,6 +189,7 @@ scripts/
 24. Pull-to-refresh on main screens  
 25. Help & FAQ screen  
 26. Delivery partner tip at checkout  
+27. Edit profile (display name)  
 
 ---
 
