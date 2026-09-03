@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { evaluateCoupon, getCouponByCode } from "./coupons.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORE_PATH = path.join(__dirname, "orders.store.json");
@@ -106,7 +107,7 @@ function refreshAllStatuses() {
   if (changed) saveOrders(orders);
 }
 
-export function createOrder({ name, phone, items, address }) {
+export function createOrder({ name, phone, items, address, couponCode }) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanName = String(name || "").trim() || "Blinkit User";
   const cartItems = Array.isArray(items) ? items : [];
@@ -138,8 +139,33 @@ export function createOrder({ name, phone, items, address }) {
   });
 
   const itemTotal = normalized.reduce((sum, item) => sum + item.lineTotal, 0);
-  const deliveryFee = itemTotal >= 199 ? 0 : 25;
-  const grandTotal = itemTotal + deliveryFee;
+  const baseDeliveryFee = itemTotal >= 199 ? 0 : 25;
+
+  let deliveryFee = baseDeliveryFee;
+  let couponDiscount = 0;
+  let coupon = null;
+
+  const requested = String(couponCode || "").trim();
+  if (requested) {
+    const result = evaluateCoupon(requested, itemTotal, baseDeliveryFee);
+    if (!result.ok) {
+      const err = new Error(result.message || "Coupon not applicable");
+      err.status = 400;
+      throw err;
+    }
+
+    const meta = getCouponByCode(requested);
+    coupon = {
+      code: meta.code,
+      title: meta.title,
+      type: meta.type,
+    };
+    couponDiscount = result.discount;
+    deliveryFee = result.deliveryFee;
+  }
+
+  const itemOff = coupon?.type === "free_delivery" ? 0 : couponDiscount;
+  const grandTotal = Math.max(0, itemTotal - itemOff + deliveryFee);
 
   const deliveryAddress = address
     ? {
@@ -158,6 +184,8 @@ export function createOrder({ name, phone, items, address }) {
     items: normalized,
     itemTotal,
     deliveryFee,
+    coupon,
+    couponDiscount,
     grandTotal,
     status: "confirmed",
     statusUpdatedAt: now,

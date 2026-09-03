@@ -12,8 +12,8 @@ const router = Router();
 // POST /api/orders — place an order
 router.post("/orders", (req, res) => {
   try {
-    const { name, phone, items, address } = req.body || {};
-    const order = createOrder({ name, phone, items, address });
+    const { name, phone, items, address, couponCode } = req.body || {};
+    const order = createOrder({ name, phone, items, address, couponCode });
     res.status(201).json({ success: true, data: order });
   } catch (err) {
     res.status(err.status || 500).json({
