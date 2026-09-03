@@ -20,7 +20,7 @@ const MENU = [
   { id: "wishlist", label: "Wishlist", hint: "Saved for later", Icon: Heart },
   { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
   { id: "address", label: "Saved addresses", hint: "Home, work & more", Icon: MapPin },
-  { id: "support", label: "Support", hint: "Chat with us", Icon: MessageCircle },
+  { id: "support", label: "Help & support", hint: "FAQ & guides", Icon: MessageCircle },
   { id: "about", label: "About Blinkit Clone", hint: "v1.0 · Expo SDK 54", Icon: Info },
 ];
 
@@ -80,11 +80,7 @@ export default function AccountScreen({ navigation }) {
       return;
     }
     if (id === "support") {
-      Alert.alert(
-        "Support",
-        "This is a learning clone — no real support chat yet.\n\nFor bugs, check the README or restart backend + Expo.",
-        [{ text: "OK" }]
-      );
+      navigation.navigate("Help");
       return;
     }
     Alert.alert("Coming soon", "This section is UI-only for now.");

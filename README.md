@@ -187,6 +187,7 @@ scripts/
 22. Rate delivered orders  
 23. Recently viewed products  
 24. Pull-to-refresh on main screens  
+25. Help & FAQ screen  
 
 ---
 
