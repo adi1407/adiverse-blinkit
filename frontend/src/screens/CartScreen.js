@@ -51,6 +51,8 @@ const PAYMENT_ICONS = {
 
 function CartRow({ item }) {
   const { increaseQty, decreaseQty, removeItem } = useCart();
+  const lineTotal = item.price * item.qty;
+  const showMrp = item.mrp > item.price;
 
   return (
     <View style={[styles.row, shadows.soft]}>
@@ -61,7 +63,12 @@ function CartRow({ item }) {
           {item.name}
         </Text>
         <Text style={styles.unit}>{item.unit}</Text>
-        <Text style={styles.price}>₹{item.price * item.qty}</Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.price}>₹{lineTotal}</Text>
+          {showMrp ? (
+            <Text style={styles.mrpStrike}>₹{item.mrp * item.qty}</Text>
+          ) : null}
+        </View>
       </View>
 
       <View style={styles.actions}>
@@ -229,12 +236,18 @@ export default function CartScreen({ navigation }) {
         <View style={styles.body}>
           <View style={[styles.emptyBox, shadows.soft]}>
             <View style={styles.emptyIcon}>
-              <ShoppingCart size={34} color={colors.accent} strokeWidth={1.8} />
+              <ShoppingCart size={34} color={colors.text} strokeWidth={1.8} />
             </View>
             <Text style={styles.emptyTitle}>Your cart is empty</Text>
             <Text style={styles.emptyText}>
               Add groceries from Home. Your items and bill will show up here.
             </Text>
+            <Pressable
+              style={styles.emptyCta}
+              onPress={() => navigation.navigate("MainTabs", { screen: "Home" })}
+            >
+              <Text style={styles.emptyCtaText}>Browse Home</Text>
+            </Pressable>
           </View>
         </View>
       ) : (
@@ -535,7 +548,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -551,6 +564,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
+  },
+  emptyCta: {
+    marginTop: spacing.lg,
+    backgroundColor: colors.text,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: radii.pill,
+  },
+  emptyCtaText: {
+    color: colors.primary,
+    fontWeight: "900",
+    fontSize: 14,
   },
   filled: {
     flex: 1,
@@ -591,11 +616,22 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: "600",
   },
-  price: {
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     marginTop: 4,
+  },
+  price: {
     fontSize: 14,
     fontWeight: "900",
     color: colors.text,
+  },
+  mrpStrike: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textDecorationLine: "line-through",
+    fontWeight: "600",
   },
   actions: {
     alignItems: "flex-end",

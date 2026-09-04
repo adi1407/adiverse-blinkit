@@ -1,7 +1,8 @@
 import { apiGet } from "./client";
 
-export function fetchHomeData() {
-  return apiGet("/api/home");
+export function fetchHomeData(hub = "all") {
+  const q = hub && hub !== "all" ? `?hub=${encodeURIComponent(hub)}` : "";
+  return apiGet(`/api/home${q}`);
 }
 
 export function fetchCategories() {

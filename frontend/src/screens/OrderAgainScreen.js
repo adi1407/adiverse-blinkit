@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,9 +9,10 @@ import {
   Text,
   Pressable,
   RefreshControl,
+  TextInput,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { RotateCcw } from "../utils/lucideIcons";
+import { RotateCcw, Search } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import ProductRow from "../components/ProductRow";
 import LoadingState from "../components/LoadingState";
@@ -29,6 +30,7 @@ export default function OrderAgainScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
   const hasContent = pastProducts.length > 0 || rows.length > 0;
 
   const load = useCallback(
@@ -38,7 +40,13 @@ export default function OrderAgainScreen() {
       setError("");
       try {
         const home = await fetchHomeData();
-        setRows(home.featuredRows || []);
+        const featured =
+          home.featuredRows?.slice(0, 4) ||
+          (home.sections || [])
+            .filter((s) => s.type === "product_rail")
+            .slice(0, 4)
+            .map((s) => ({ id: s.id, title: s.title, products: s.products }));
+        setRows(featured);
 
         if (isLoggedIn) {
           const data = await fetchReorderProducts(user.phone);
@@ -62,13 +70,21 @@ export default function OrderAgainScreen() {
     }, [load])
   );
 
+  const filteredPast = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return pastProducts;
+    return pastProducts.filter((p) =>
+      `${p.name} ${p.brand || ""}`.toLowerCase().includes(q)
+    );
+  }, [pastProducts, query]);
+
   const hasPast = pastProducts.length > 0;
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
         title="Order Again"
-        subtitle="Reorder favorites in one tap"
+        subtitle="Your favourites, one tap away"
       />
       <View style={styles.curve} />
 
@@ -91,38 +107,55 @@ export default function OrderAgainScreen() {
             />
           }
         >
-          <View style={[styles.banner, shadows.soft]}>
-            <View style={styles.bannerIcon}>
-              <RotateCcw size={20} color={colors.accent} strokeWidth={2.3} />
+          <View style={[styles.hero, shadows.soft]}>
+            <View style={styles.heroIcon}>
+              <RotateCcw size={22} color={colors.text} strokeWidth={2.3} />
             </View>
-            <View style={styles.bannerCopy}>
-              <Text style={styles.bannerTitle}>
+            <View style={styles.heroCopy}>
+              <Text style={styles.heroTitle}>
                 {hasPast
-                  ? "From your past orders"
+                  ? "Buy again from past orders"
                   : isLoggedIn
                     ? "No past orders yet"
-                    : "Login to reorder"}
+                    : "Login to reorder faster"}
               </Text>
-              <Text style={styles.bannerText}>
+              <Text style={styles.heroText}>
                 {hasPast
-                  ? "Tap ADD on anything you’ve bought before."
+                  ? `${pastProducts.length} items you’ve bought before`
                   : isLoggedIn
-                    ? "Checkout from Cart and your basket items will show here."
-                    : "Login, place an order, then reorder from this tab."}
+                    ? "Place an order from Cart — they’ll land here."
+                    : "Sign in, checkout once, then reorder in seconds."}
               </Text>
               {!isLoggedIn ? (
                 <Pressable
-                  style={styles.loginLink}
+                  style={styles.loginBtn}
                   onPress={() => navigation.navigate("Login")}
                 >
-                  <Text style={styles.loginLinkText}>Login →</Text>
+                  <Text style={styles.loginBtnText}>Login</Text>
                 </Pressable>
               ) : null}
             </View>
           </View>
 
           {hasPast ? (
-            <ProductRow title="Buy again" products={pastProducts} />
+            <View style={styles.searchWrap}>
+              <Search size={16} color={colors.textMuted} strokeWidth={2.2} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search past orders"
+                placeholderTextColor={colors.textMuted}
+                value={query}
+                onChangeText={setQuery}
+              />
+            </View>
+          ) : null}
+
+          {hasPast ? (
+            <ProductRow title="From your orders" products={filteredPast} />
+          ) : null}
+
+          {hasPast && query && filteredPast.length === 0 ? (
+            <Text style={styles.emptySearch}>No matches for “{query}”</Text>
           ) : null}
 
           {rows.map((row) => (
@@ -153,46 +186,75 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: 110,
   },
-  banner: {
+  hero: {
     margin: spacing.lg,
     padding: spacing.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primarySoft,
     borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(0,0,0,0.05)",
     flexDirection: "row",
     gap: spacing.md,
   },
-  bannerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.accentSoft,
+  heroIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
-  bannerCopy: {
+  heroCopy: {
     flex: 1,
   },
-  bannerTitle: {
-    fontSize: 15,
+  heroTitle: {
+    fontSize: 16,
     fontWeight: "900",
     color: colors.text,
     marginBottom: 4,
   },
-  bannerText: {
+  heroText: {
     fontSize: 12,
     color: colors.textSecondary,
     lineHeight: 17,
     fontWeight: "500",
   },
-  loginLink: {
-    marginTop: 8,
+  loginBtn: {
+    marginTop: 10,
     alignSelf: "flex-start",
+    backgroundColor: colors.text,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
   },
-  loginLinkText: {
-    color: colors.accent,
+  loginBtnText: {
+    color: colors.primary,
     fontWeight: "900",
     fontSize: 13,
+  },
+  searchWrap: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    height: 44,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: "500",
+  },
+  emptySearch: {
+    textAlign: "center",
+    color: colors.textMuted,
+    fontWeight: "600",
+    padding: spacing.lg,
   },
 });

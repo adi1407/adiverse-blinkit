@@ -22,6 +22,7 @@ import {
   MapPin,
   X,
   ChevronRight,
+  PenLine,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
@@ -250,11 +251,11 @@ export default function PrintScreen({ navigation }) {
       >
         <View style={[styles.hero, shadows.soft]}>
           <View style={styles.heroIcon}>
-            <Printer size={32} color={colors.accent} strokeWidth={1.8} />
+            <Printer size={32} color={colors.text} strokeWidth={1.8} />
           </View>
-          <Text style={styles.title}>Blinkit Print</Text>
+          <Text style={styles.title}>Print store</Text>
           <Text style={styles.text}>
-            Pick files on your phone — we print nearby and deliver to your door.
+            Documents & photos printed nearby — delivered to your door in minutes.
           </Text>
           <Pressable
             style={styles.jobsLink}
@@ -270,6 +271,24 @@ export default function PrintScreen({ navigation }) {
             <ChevronRight size={14} color={colors.accent} strokeWidth={2.6} />
           </Pressable>
         </View>
+
+        <Pressable
+          style={[styles.stationeryCard, shadows.soft]}
+          onPress={() =>
+            navigation.navigate("CategoryProducts", { categoryId: "c13" })
+          }
+        >
+          <View style={styles.stationeryIcon}>
+            <PenLine size={22} color={colors.text} strokeWidth={2.2} />
+          </View>
+          <View style={styles.stationeryCopy}>
+            <Text style={styles.stationeryTitle}>Stationery & Pens</Text>
+            <Text style={styles.stationeryHint}>
+              Notebooks, pens, markers — shop the aisle
+            </Text>
+          </View>
+          <ChevronRight size={18} color={colors.textMuted} strokeWidth={2.2} />
+        </Pressable>
 
         {!kind ? (
           <>
@@ -508,18 +527,18 @@ const styles = StyleSheet.create({
   },
   hero: {
     alignItems: "center",
-    backgroundColor: colors.white,
+    backgroundColor: colors.primarySoft,
     borderRadius: radii.lg,
     padding: spacing.xxl,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   heroIcon: {
     width: 68,
     height: 68,
     borderRadius: 20,
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -546,6 +565,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     color: colors.accent,
+  },
+  stationeryCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.md,
+  },
+  stationeryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#E8EAF6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stationeryCopy: {
+    flex: 1,
+  },
+  stationeryTitle: {
+    fontSize: 15,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  stationeryHint: {
+    marginTop: 2,
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: "500",
   },
   action: {
     flexDirection: "row",

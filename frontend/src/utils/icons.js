@@ -21,6 +21,9 @@ import {
   Battery,
   Lightbulb,
   Coins,
+  LayoutGrid,
+  Gift,
+  Globe,
 } from "./lucideIcons";
 
 const MAP = {
@@ -46,6 +49,9 @@ const MAP = {
   Battery,
   Lightbulb,
   Coins,
+  LayoutGrid,
+  Gift,
+  Globe,
 };
 
 export function getLucideIcon(name) {

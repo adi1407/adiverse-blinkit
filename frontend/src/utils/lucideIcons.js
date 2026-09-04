@@ -27,7 +27,10 @@ export { default as Info } from "lucide-react-native/icons/info";
 export { default as LayoutGrid } from "lucide-react-native/icons/layout-grid";
 export { default as MapPin } from "lucide-react-native/icons/map-pin";
 export { default as MessageCircle } from "lucide-react-native/icons/message-circle";
+export { default as Mic } from "lucide-react-native/icons/mic";
 export { default as Milk } from "lucide-react-native/icons/milk";
+export { default as Gift } from "lucide-react-native/icons/gift";
+export { default as Globe } from "lucide-react-native/icons/globe";
 export { default as Package } from "lucide-react-native/icons/package";
 export { default as PackageCheck } from "lucide-react-native/icons/package-check";
 export { default as PawPrint } from "lucide-react-native/icons/paw-print";
@@ -61,6 +64,7 @@ export { default as TriangleAlert } from "lucide-react-native/icons/triangle-ale
 export { default as Truck } from "lucide-react-native/icons/truck";
 export { default as Upload } from "lucide-react-native/icons/upload";
 export { default as UserRound } from "lucide-react-native/icons/user-round";
+export { default as Volume2 } from "lucide-react-native/icons/volume-2";
 export { default as Wallet } from "lucide-react-native/icons/wallet";
 export { default as Wheat } from "lucide-react-native/icons/wheat";
 export { default as X } from "lucide-react-native/icons/x";

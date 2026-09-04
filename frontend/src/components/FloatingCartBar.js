@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowRight } from "../utils/lucideIcons";
+import { ArrowRight, ShoppingBag } from "../utils/lucideIcons";
 import { useCart } from "../context/CartContext";
 import { colors, spacing } from "../theme/colors";
 import { TAB_BAR_BASE_HEIGHT } from "./BlinkitTabBar";
@@ -40,7 +40,7 @@ export default function FloatingCartBar() {
     if (totalItems > prevCount.current) {
       Animated.sequence([
         Animated.timing(pulse, {
-          toValue: 1.05,
+          toValue: 1.06,
           duration: 120,
           useNativeDriver: true,
         }),
@@ -102,17 +102,23 @@ export default function FloatingCartBar() {
                   />
                 </View>
               ))}
+              {items.length > 3 ? (
+                <View style={[styles.thumbChip, styles.moreChip, { marginLeft: -10 }]}>
+                  <Text style={styles.moreText}>+{items.length - 3}</Text>
+                </View>
+              ) : null}
             </View>
             <View style={styles.meta}>
               <Text style={styles.count}>
-                {totalItems} item{totalItems === 1 ? "" : "s"} added
+                {totalItems} item{totalItems === 1 ? "" : "s"} · in cart
               </Text>
               <Text style={styles.price}>₹{totalPrice}</Text>
             </View>
           </View>
 
           <View style={styles.cta}>
-            <Text style={styles.ctaText}>View Cart</Text>
+            <ShoppingBag size={16} color={colors.white} strokeWidth={2.3} />
+            <Text style={styles.ctaText}>View cart</Text>
             <View style={styles.ctaIcon}>
               <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
             </View>
@@ -175,6 +181,17 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "#0A7A1C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  moreChip: {
+    backgroundColor: colors.primary,
+    borderColor: "#0A7A1C",
+  },
+  moreText: {
+    fontSize: 10,
+    fontWeight: "900",
+    color: colors.text,
   },
   thumbImage: {
     width: "100%",
@@ -197,12 +214,12 @@ const styles = StyleSheet.create({
   cta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     paddingLeft: spacing.sm,
   },
   ctaText: {
     color: colors.white,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
   },
   ctaIcon: {

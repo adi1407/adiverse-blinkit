@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -7,15 +7,17 @@ import {
   Platform,
   View,
   Text,
+  TextInput,
   RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { Search } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import CategoryGrid from "../components/CategoryGrid";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchCategories } from "../api/catalogApi";
-import { colors, spacing } from "../theme/colors";
+import { colors, spacing, radii } from "../theme/colors";
 
 export default function CategoriesScreen() {
   const navigation = useNavigation();
@@ -23,6 +25,7 @@ export default function CategoriesScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
 
   const loadCategories = useCallback(async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
@@ -43,6 +46,14 @@ export default function CategoriesScreen() {
     loadCategories();
   }, [loadCategories]);
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return categories;
+    return categories.filter((c) =>
+      String(c.name).replace(/\n/g, " ").toLowerCase().includes(q)
+    );
+  }, [categories, query]);
+
   function openCategory(cat) {
     navigation.navigate("CategoryProducts", { categoryId: cat.id });
   }
@@ -51,7 +62,7 @@ export default function CategoriesScreen() {
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
         title="Categories"
-        subtitle="Everything delivered in minutes"
+        subtitle="Browse every aisle in minutes"
       />
       <View style={styles.curve} />
 
@@ -74,12 +85,28 @@ export default function CategoriesScreen() {
             />
           }
         >
-          <View style={styles.note}>
-            <Text style={styles.noteTitle}>{categories.length} categories</Text>
-            <Text style={styles.noteText}>Tap any aisle to browse products</Text>
+          <View style={styles.searchWrap}>
+            <Search size={16} color={colors.textMuted} strokeWidth={2.2} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search categories"
+              placeholderTextColor={colors.textMuted}
+              value={query}
+              onChangeText={setQuery}
+            />
           </View>
+
+          <View style={styles.note}>
+            <Text style={styles.noteTitle}>
+              {filtered.length} categor{filtered.length === 1 ? "y" : "ies"}
+            </Text>
+            <Text style={styles.noteText}>
+              Tap an aisle — fresh stock, same-day delivery feel
+            </Text>
+          </View>
+
           <CategoryGrid
-            categories={categories}
+            categories={filtered}
             onSelectCategory={openCategory}
             showTitle={false}
           />
@@ -108,9 +135,28 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: 110,
   },
+  searchWrap: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    height: 44,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: "500",
+  },
   note: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
   noteTitle: {

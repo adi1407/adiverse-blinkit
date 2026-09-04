@@ -10,18 +10,29 @@ import {
   getSimilarProducts,
   searchProducts,
 } from "../data/catalog.js";
+import {
+  buildFeaturedRowsFromSections,
+  buildHomeSections,
+  lifestyleHubs,
+} from "../data/homeSections.js";
 
 const router = Router();
 
-// GET /api/home — everything the Home screen needs
+// GET /api/home — everything the Home screen needs (?hub=beauty)
 router.get("/home", (req, res) => {
+  const hub = String(req.query.hub || "all").trim() || "all";
+  const sections = buildHomeSections({ hub });
+  const rows = buildFeaturedRowsFromSections(sections);
   res.json({
     success: true,
     data: {
       deliveryInfo,
       categories,
-      featuredRows,
+      lifestyleHubs,
+      sections,
+      featuredRows: rows.length ? rows : featuredRows,
       stats: catalogStats,
+      hub,
     },
   });
 });

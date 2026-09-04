@@ -23,26 +23,22 @@ const TABS = [
     name: "Home",
     label: "Home",
     Icon: House,
-    tone: "yellow",
     fillWhenActive: true,
   },
   {
     name: "OrderAgain",
     label: "Order Again",
     Icon: RotateCcw,
-    tone: "green",
   },
   {
     name: "Categories",
     label: "Categories",
     Icon: LayoutGrid,
-    tone: "green",
   },
   {
     name: "Print",
     label: "Print",
     Icon: Printer,
-    tone: "green",
     badge: "NEW",
   },
 ];
@@ -92,10 +88,7 @@ function TabItem({ meta, focused, onPress, cartCount }) {
 
   const pillBg = pill.interpolate({
     inputRange: [0, 1],
-    outputRange:
-      meta.tone === "yellow"
-        ? ["rgba(248,203,70,0)", colors.primary]
-        : ["rgba(12,131,31,0)", colors.accentSoft],
+    outputRange: ["rgba(248,203,70,0)", colors.primary],
   });
 
   const pillScale = pill.interpolate({
@@ -103,11 +96,7 @@ function TabItem({ meta, focused, onPress, cartCount }) {
     outputRange: [0.6, 1],
   });
 
-  const iconColor = focused
-    ? meta.tone === "yellow"
-      ? colors.text
-      : colors.accent
-    : "#8E8E8E";
+  const iconColor = focused ? colors.text : "#8E8E8E";
 
   return (
     <Pressable
@@ -180,8 +169,7 @@ function TabItem({ meta, focused, onPress, cartCount }) {
           styles.dot,
           {
             opacity: lift,
-            backgroundColor:
-              meta.tone === "yellow" ? colors.primaryDark : colors.accent,
+            backgroundColor: colors.primaryDark,
             transform: [{ scale: lift }],
           },
         ]}
@@ -238,7 +226,6 @@ export default function BlinkitTabBar({ state, navigation }) {
             name: route.name,
             label: route.name,
             Icon: House,
-            tone: "green",
           };
 
           return (
