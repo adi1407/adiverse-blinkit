@@ -151,20 +151,20 @@ const styles = StyleSheet.create({
     zIndex: 30,
   },
   surface: {
-    borderRadius: 16,
+    borderRadius: 14,
     overflow: "hidden",
     backgroundColor: colors.accentDark,
   },
   progressTrack: {
-    height: 22,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    height: 20,
+    backgroundColor: "rgba(255,255,255,0.14)",
     justifyContent: "center",
     overflow: "hidden",
   },
   progressFill: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.primary,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   progressText: {
     textAlign: "center",
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   bar: {
-    minHeight: 56,
+    minHeight: 58,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

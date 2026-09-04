@@ -9,7 +9,7 @@ import {
   ScrollView,
   Animated,
 } from "react-native";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { colors, spacing, radii } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
 const W = Dimensions.get("window").width;
@@ -28,12 +28,12 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
       setIndex((prev) => {
         const next = (prev + 1) % banners.length;
         scrollRef.current?.scrollTo({
-          x: next * (CARD_W + spacing.md),
+          x: next * (CARD_W + 12),
           animated: true,
         });
         return next;
       });
-    }, 4200);
+    }, 4500);
     return () => clearInterval(id);
   }, [banners.length]);
 
@@ -41,7 +41,7 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
     dotAnims.forEach((anim, i) => {
       Animated.spring(anim, {
         toValue: i === index ? 1 : 0,
-        friction: 7,
+        friction: 8,
         useNativeDriver: false,
       }).start();
     });
@@ -55,18 +55,18 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
         ref={scrollRef}
         horizontal
         decelerationRate="fast"
-        snapToInterval={CARD_W + spacing.md}
+        snapToInterval={CARD_W + 12}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.row}
         onMomentumScrollEnd={(e) => {
           const x = e.nativeEvent.contentOffset.x;
-          setIndex(Math.round(x / (CARD_W + spacing.md)));
+          setIndex(Math.round(x / (CARD_W + 12)));
         }}
       >
         {banners.map((b) => (
           <Pressable
             key={b.id}
-            style={[styles.card, shadows.card]}
+            style={styles.card}
             onPress={() => onCta?.(b)}
           >
             <Image source={{ uri: b.image }} style={styles.image} />
@@ -97,12 +97,13 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
               {
                 width: dotAnims[i]?.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [6, 16],
+                  outputRange: [5, 14],
                 }),
-                backgroundColor: dotAnims[i]?.interpolate({
+                opacity: dotAnims[i]?.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [colors.borderStrong, colors.primaryDark],
+                  outputRange: [0.35, 1],
                 }),
+                backgroundColor: colors.text,
               },
             ]}
           />
@@ -114,20 +115,20 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
+    paddingTop: 14,
+    paddingBottom: 4,
     backgroundColor: colors.background,
   },
   row: {
     paddingHorizontal: spacing.lg,
-    gap: spacing.md,
+    gap: 12,
   },
   card: {
     width: CARD_W,
-    height: 210,
-    borderRadius: radii.lg,
+    height: 168,
+    borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: colors.surface,
+    backgroundColor: "#EEE",
   },
   image: {
     ...StyleSheet.absoluteFillObject,
@@ -139,47 +140,47 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: "52%",
-    backgroundColor: "rgba(0,0,0,0.42)",
+    height: "58%",
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   copy: {
     flex: 1,
     justifyContent: "flex-end",
-    padding: spacing.lg,
+    padding: 16,
   },
   title: {
     color: colors.white,
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: fonts.extraBold,
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   subtitle: {
-    marginTop: 4,
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 13,
+    marginTop: 3,
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 12,
     fontFamily: fonts.semiBold,
-    lineHeight: 18,
+    lineHeight: 16,
   },
   cta: {
     alignSelf: "flex-start",
-    marginTop: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: radii.pill,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
   ctaText: {
     color: colors.text,
     fontFamily: fonts.extraBold,
-    fontSize: 12,
+    fontSize: 11,
   },
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 6,
-    marginTop: 12,
+    gap: 5,
+    marginTop: 10,
   },
   dot: {
-    height: 6,
+    height: 5,
     borderRadius: 3,
   },
 });

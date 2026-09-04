@@ -8,7 +8,7 @@ import {
 } from "../utils/lucideIcons";
 import { useAddress } from "../context/AddressContext";
 import { useNotifications } from "../context/NotificationContext";
-import { colors, spacing, shadows } from "../theme/colors";
+import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
 function IconButton({ onPress, children, accessibilityLabel }) {
@@ -16,7 +16,7 @@ function IconButton({ onPress, children, accessibilityLabel }) {
     <Pressable
       style={({ pressed }) => [
         styles.iconBtn,
-        pressed && styles.iconBtnPressed,
+        pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
       ]}
       onPress={onPress}
       accessibilityRole="button"
@@ -47,11 +47,11 @@ export default function HomeHeader({ minutes }) {
           <Text style={styles.etaLabel}>Delivery in</Text>
           <Text style={styles.etaValue}>{minutes} minutes</Text>
           <View style={styles.addressRow}>
-            <MapPin size={14} color={colors.text} strokeWidth={2.4} />
+            <MapPin size={13} color={colors.text} strokeWidth={2.6} fill={colors.text} />
             <Text style={styles.addressLabel} numberOfLines={1}>
-              {label} · {line}
+              {label} - {line}
             </Text>
-            <ChevronDown size={14} color={colors.text} strokeWidth={2.4} />
+            <ChevronDown size={14} color={colors.text} strokeWidth={2.6} />
           </View>
         </Pressable>
 
@@ -86,65 +86,64 @@ const styles = StyleSheet.create({
   wrap: {
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
+    paddingTop: 6,
+    paddingBottom: 4,
   },
   topRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     gap: spacing.md,
   },
   locationBlock: {
     flex: 1,
     minWidth: 0,
+    paddingTop: 2,
   },
   etaLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
+    fontSize: 11,
+    color: "rgba(31,31,31,0.65)",
     fontFamily: fonts.semiBold,
+    letterSpacing: 0.1,
   },
   etaValue: {
-    fontSize: 22,
+    fontSize: 26,
     fontFamily: fonts.extraBold,
     color: colors.text,
-    letterSpacing: -0.6,
-    marginTop: -1,
+    letterSpacing: -0.9,
+    lineHeight: 30,
+    marginTop: 1,
   },
   addressRow: {
     marginTop: 2,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 3,
   },
   addressLabel: {
     flexShrink: 1,
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: fonts.bold,
     color: colors.text,
   },
   right: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
+    paddingTop: 4,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.72)",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.soft,
-  },
-  iconBtnPressed: {
-    opacity: 0.75,
-    backgroundColor: colors.primarySoft,
   },
   badge: {
     position: "absolute",
-    top: -2,
-    right: -2,
+    top: -3,
+    right: -3,
     minWidth: 16,
     height: 16,
     borderRadius: 8,

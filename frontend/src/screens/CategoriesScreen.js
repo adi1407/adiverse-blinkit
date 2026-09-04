@@ -10,29 +10,72 @@ import {
   Pressable,
   Image,
   RefreshControl,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import ScreenHeader from "../components/ScreenHeader";
+import { Search, ChevronRight } from "../utils/lucideIcons";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
-import { fetchCategories } from "../api/catalogApi";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import ProductCard from "../components/ProductCard";
+import {
+  fetchCategories,
+  fetchCategoryProducts,
+} from "../api/catalogApi";
+import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
-const GROUPS = [
-  { id: "grocery", label: "Grocery", ids: ["c1", "c2", "c3", "c4", "c5", "c6"] },
-  { id: "snacks", label: "Snacks", ids: ["c7", "c8"] },
-  { id: "beauty", label: "Beauty", ids: ["c9", "c11"] },
-  { id: "home", label: "Household", ids: ["c10", "c12", "c13", "c14", "c15", "c16"] },
-];
+function shortLabel(name) {
+  return String(name || "")
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function RailItem({ cat, active, onPress }) {
+  const label = shortLabel(cat.name);
+  return (
+    <Pressable
+      style={[styles.railItem, active && styles.railItemActive]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+    >
+      {active ? <View style={styles.railBar} /> : null}
+      <View
+        style={[
+          styles.railThumb,
+          { backgroundColor: cat.bg || "#F0F0F0" },
+          active && styles.railThumbActive,
+        ]}
+      >
+        {cat.image ? (
+          <Image source={{ uri: cat.image }} style={styles.railImage} />
+        ) : null}
+      </View>
+      <Text
+        style={[styles.railLabel, active && styles.railLabelActive]}
+        numberOfLines={2}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export default function CategoriesScreen() {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+
+  const selected = useMemo(
+    () => categories.find((c) => c.id === selectedId) || null,
+    [categories, selectedId]
+  );
 
   const loadCategories = useCallback(async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
@@ -50,36 +93,49 @@ export default function CategoriesScreen() {
     }
   }, []);
 
+  const loadProducts = useCallback(async (categoryId) => {
+    if (!categoryId) return;
+    setProductsLoading(true);
+    try {
+      const res = await fetchCategoryProducts(categoryId, { limit: 48 });
+      setProducts(res?.products || res || []);
+    } catch {
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
 
-  const byId = useMemo(() => {
-    const map = {};
-    categories.forEach((c) => {
-      map[c.id] = c;
-    });
-    return map;
-  }, [categories]);
+  useEffect(() => {
+    if (selectedId) loadProducts(selectedId);
+  }, [selectedId, loadProducts]);
 
-  const selected = byId[selectedId];
-  const siblingIds =
-    GROUPS.find((g) => g.ids.includes(selectedId))?.ids ||
-    categories.map((c) => c.id);
-  const rightTiles = siblingIds.map((id) => byId[id]).filter(Boolean);
-
-  function openCategory(cat) {
-    navigation.navigate("CategoryProducts", { categoryId: cat.id });
+  function openAll() {
+    if (!selectedId) return;
+    navigation.navigate("CategoryProducts", { categoryId: selectedId });
   }
+
+  const title = selected ? shortLabel(selected.name) : "Categories";
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScreenHeader
-        title="Categories"
-        subtitle="Browse every aisle"
-        compact
-      />
-      <View style={styles.curve} />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Categories</Text>
+        <Pressable
+          style={styles.searchPill}
+          onPress={() => navigation.navigate("Search")}
+          accessibilityRole="search"
+        >
+          <Search size={16} color="#6B6B6B" strokeWidth={2.4} />
+          <Text style={styles.searchHint} numberOfLines={1}>
+            Search for atta, milk, bread…
+          </Text>
+        </Pressable>
+      </View>
 
       {loading && categories.length === 0 ? (
         <LoadingState message="Loading categories..." />
@@ -87,94 +143,78 @@ export default function CategoriesScreen() {
         <ErrorState message={error} onRetry={() => loadCategories()} />
       ) : (
         <View style={styles.split}>
+          {/* Left aisle rail — Blinkit / Zepto style */}
           <ScrollView
             style={styles.rail}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.railContent}
           >
-            {categories.map((cat) => {
-              const active = cat.id === selectedId;
-              const label = String(cat.name).replace(/\n/g, " ");
-              return (
-                <Pressable
-                  key={cat.id}
-                  style={[styles.railItem, active && styles.railItemActive]}
-                  onPress={() => setSelectedId(cat.id)}
-                >
-                  {active ? <View style={styles.railBar} /> : null}
-                  <Text
-                    style={[styles.railLabel, active && styles.railLabelActive]}
-                    numberOfLines={3}
-                  >
-                    {label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-
-          <ScrollView
-            style={styles.pane}
-            contentContainerStyle={styles.paneContent}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => loadCategories({ silent: true })}
-                tintColor={colors.accent}
-                colors={[colors.accent]}
+            {categories.map((cat) => (
+              <RailItem
+                key={cat.id}
+                cat={cat}
+                active={cat.id === selectedId}
+                onPress={() => setSelectedId(cat.id)}
               />
-            }
-          >
-            {selected ? (
-              <Pressable
-                style={[styles.hero, shadows.soft]}
-                onPress={() => openCategory(selected)}
-              >
-                {selected.image ? (
-                  <Image
-                    source={{ uri: selected.image }}
-                    style={styles.heroImage}
-                  />
-                ) : (
-                  <View
-                    style={[styles.heroImage, { backgroundColor: selected.bg }]}
-                  />
-                )}
-                <View style={styles.heroCopy}>
-                  <Text style={styles.heroTitle}>
-                    {String(selected.name).replace(/\n/g, " ")}
-                  </Text>
-                  <Text style={styles.heroCta}>Shop aisle →</Text>
-                </View>
-              </Pressable>
-            ) : null}
-
-            <Text style={styles.paneTitle}>In this section</Text>
-            <View style={styles.grid}>
-              {rightTiles.map((cat) => (
-                <Pressable
-                  key={cat.id}
-                  style={styles.tileWrap}
-                  onPress={() => openCategory(cat)}
-                >
-                  <View
-                    style={[styles.tile, { backgroundColor: cat.bg }, shadows.soft]}
-                  >
-                    {cat.image ? (
-                      <Image
-                        source={{ uri: cat.image }}
-                        style={styles.tileImage}
-                      />
-                    ) : null}
-                  </View>
-                  <Text style={styles.tileName} numberOfLines={2}>
-                    {String(cat.name).replace(/\n/g, " ")}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            ))}
           </ScrollView>
+
+          {/* Right product pane */}
+          <View style={styles.pane}>
+            <View style={styles.paneHeader}>
+              <View style={styles.paneTitleBlock}>
+                <Text style={styles.paneTitle} numberOfLines={1}>
+                  {title}
+                </Text>
+                <Text style={styles.paneMeta}>
+                  {productsLoading
+                    ? "Loading…"
+                    : `${products.length} items · 8 mins`}
+                </Text>
+              </View>
+              <Pressable style={styles.seeAll} onPress={openAll} hitSlop={8}>
+                <Text style={styles.seeAllText}>see all</Text>
+                <ChevronRight
+                  size={15}
+                  color={colors.accent}
+                  strokeWidth={2.6}
+                />
+              </Pressable>
+            </View>
+
+            {productsLoading && products.length === 0 ? (
+              <LoadingState message="Fetching aisle…" />
+            ) : (
+              <FlatList
+                data={products}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                columnWrapperStyle={styles.gridRow}
+                contentContainerStyle={styles.gridContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                      loadCategories({ silent: true });
+                      if (selectedId) loadProducts(selectedId);
+                    }}
+                    tintColor={colors.accent}
+                    colors={[colors.accent]}
+                  />
+                }
+                ListEmptyComponent={
+                  <Text style={styles.empty}>No items in this aisle yet</Text>
+                }
+                renderItem={({ item }) => (
+                  <View style={styles.cardWrap}>
+                    <ProductCard product={item} variant="grid" />
+                  </View>
+                )}
+                ListFooterComponent={<View style={{ height: 100 }} />}
+              />
+            )}
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -184,35 +224,61 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  curve: {
-    height: 14,
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
+  header: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: 10,
+    paddingBottom: 12,
+    backgroundColor: colors.white,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#EEEEEE",
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    letterSpacing: -0.5,
+    marginBottom: 10,
+  },
+  searchPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 42,
+    borderWidth: 1,
+    borderColor: "#ECECEC",
+  },
+  searchHint: {
+    flex: 1,
+    fontSize: 13,
+    color: "#8A8A8A",
+    fontFamily: fonts.medium,
   },
   split: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: colors.background,
+    backgroundColor: colors.white,
   },
   rail: {
-    width: 92,
-    backgroundColor: colors.surface,
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
+    width: 86,
+    backgroundColor: "#F6F6F6",
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderRightColor: "#E8E8E8",
   },
   railContent: {
-    paddingBottom: 110,
+    paddingTop: 4,
+    paddingBottom: 120,
   },
   railItem: {
-    paddingVertical: 14,
-    paddingHorizontal: 8,
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: 72,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    minHeight: 88,
   },
   railItemActive: {
     backgroundColor: colors.white,
@@ -220,18 +286,37 @@ const styles = StyleSheet.create({
   railBar: {
     position: "absolute",
     left: 0,
-    top: 10,
-    bottom: 10,
+    top: 14,
+    bottom: 14,
     width: 3,
-    borderRadius: 2,
-    backgroundColor: colors.primary,
+    borderTopRightRadius: 3,
+    borderBottomRightRadius: 3,
+    backgroundColor: colors.accent,
+  },
+  railThumb: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 6,
+  },
+  railThumbActive: {
+    borderWidth: 1.5,
+    borderColor: colors.accent,
+  },
+  railImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   railLabel: {
-    fontSize: 11,
+    fontSize: 10,
     textAlign: "center",
-    color: colors.textMuted,
+    color: "#7A7A7A",
     fontFamily: fonts.semiBold,
-    lineHeight: 14,
+    lineHeight: 13,
   },
   railLabelActive: {
     color: colors.text,
@@ -239,70 +324,58 @@ const styles = StyleSheet.create({
   },
   pane: {
     flex: 1,
+    backgroundColor: colors.white,
   },
-  paneContent: {
-    padding: spacing.md,
-    paddingBottom: 110,
+  paneHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  hero: {
-    height: 120,
-    borderRadius: radii.lg,
-    overflow: "hidden",
-    marginBottom: spacing.lg,
-    backgroundColor: colors.surface,
-  },
-  heroImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
-  },
-  heroCopy: {
+  paneTitleBlock: {
     flex: 1,
-    justifyContent: "flex-end",
-    padding: spacing.md,
-    backgroundColor: "rgba(0,0,0,0.28)",
-  },
-  heroTitle: {
-    color: colors.white,
-    fontSize: 18,
-    fontFamily: fonts.extraBold,
-  },
-  heroCta: {
-    marginTop: 4,
-    color: colors.primary,
-    fontFamily: fonts.extraBold,
-    fontSize: 13,
+    paddingRight: 8,
   },
   paneTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: fonts.extraBold,
     color: colors.text,
-    marginBottom: spacing.md,
+    letterSpacing: -0.3,
   },
-  grid: {
+  paneMeta: {
+    marginTop: 2,
+    fontSize: 11,
+    color: "#8C8C8C",
+    fontFamily: fonts.medium,
+  },
+  seeAll: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "center",
+  },
+  seeAllText: {
+    color: colors.accent,
+    fontFamily: fonts.bold,
+    fontSize: 13,
+  },
+  gridContent: {
+    paddingHorizontal: 8,
+    paddingBottom: 16,
+  },
+  gridRow: {
     justifyContent: "space-between",
+    gap: 8,
   },
-  tileWrap: {
-    width: "48%",
-    marginBottom: spacing.md,
+  cardWrap: {
+    flex: 1,
+    maxWidth: "48.5%",
   },
-  tile: {
-    width: "100%",
-    aspectRatio: 1.05,
-    borderRadius: radii.md,
-    overflow: "hidden",
-    marginBottom: 6,
-  },
-  tileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  tileName: {
-    fontSize: 12,
-    fontFamily: fonts.semiBold,
-    color: colors.text,
+  empty: {
     textAlign: "center",
+    marginTop: 48,
+    color: "#9A9A9A",
+    fontFamily: fonts.medium,
+    fontSize: 13,
   },
 });

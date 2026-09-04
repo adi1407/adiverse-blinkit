@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { getLucideIcon } from "../utils/icons";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { colors, spacing, radii } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
 export default function CategoryBlock({ title, subtitle, tiles = [], onSelect }) {
@@ -13,20 +13,24 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
       <View style={styles.grid}>
         {tiles.slice(0, 8).map((tile) => {
           const Icon = getLucideIcon(tile.icon);
+          const shortName = String(tile.name || "")
+            .replace(/\s*&\s*/g, " &\n")
+            .split(" ")
+            .slice(0, 4)
+            .join(" ");
           return (
             <Pressable
               key={tile.id}
               style={({ pressed }) => [
                 styles.item,
-                pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
+                pressed && { opacity: 0.9, transform: [{ scale: 0.96 }] },
               ]}
               onPress={() => onSelect?.(tile)}
             >
               <View
                 style={[
                   styles.tile,
-                  { backgroundColor: tile.bg || colors.surface },
-                  shadows.soft,
+                  { backgroundColor: tile.bg || "#F5F5F5" },
                 ]}
               >
                 {tile.image ? (
@@ -37,14 +41,14 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
                   />
                 ) : (
                   <Icon
-                    size={24}
+                    size={28}
                     color={tile.color || colors.accent}
-                    strokeWidth={2.1}
+                    strokeWidth={2}
                   />
                 )}
               </View>
               <Text style={styles.name} numberOfLines={2}>
-                {tile.name}
+                {shortName}
               </Text>
             </Pressable>
           );
@@ -57,21 +61,21 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
+    paddingTop: 22,
+    paddingBottom: 8,
     backgroundColor: colors.background,
   },
   title: {
     fontSize: 18,
     fontFamily: fonts.extraBold,
     color: colors.text,
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
   subtitle: {
-    marginTop: 2,
-    marginBottom: spacing.md,
+    marginTop: 3,
+    marginBottom: 14,
     fontSize: 12,
-    color: colors.textMuted,
+    color: "#7D7D7D",
     fontFamily: fonts.medium,
   },
   grid: {
@@ -81,13 +85,13 @@ const styles = StyleSheet.create({
   },
   item: {
     width: "23%",
-    marginBottom: spacing.md,
+    marginBottom: 14,
     alignItems: "center",
   },
   tile: {
     width: "100%",
-    aspectRatio: 1,
-    borderRadius: radii.md,
+    aspectRatio: 0.92,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 6,
@@ -100,8 +104,9 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 11,
     textAlign: "center",
-    color: colors.text,
+    color: "#1F1F1F",
     lineHeight: 14,
     fontFamily: fonts.semiBold,
+    minHeight: 28,
   },
 });

@@ -229,11 +229,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   heroCurve: {
-    height: 14,
+    height: 16,
     backgroundColor: colors.background,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    marginTop: -2,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: -1,
   },
   list: {
     flex: 1,

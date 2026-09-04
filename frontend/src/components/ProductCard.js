@@ -2,17 +2,13 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Zap } from "../utils/lucideIcons";
 import { hapticLight } from "../utils/haptics";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { colors } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import { useCart } from "../context/CartContext";
 import QtyStepper from "./QtyStepper";
 import ProductImage from "./ProductImage";
 
-export default function ProductCard({
-  product,
-  variant = "carousel",
-  showWishlist = false,
-}) {
+export default function ProductCard({ product, variant = "carousel" }) {
   const navigation = useNavigation();
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
   const qty = getQty(product.id);
@@ -22,18 +18,12 @@ export default function ProductCard({
     : 0;
   const isGrid = variant === "grid";
 
-  function openDetail() {
-    navigation.push("ProductDetail", { productId: product.id });
-  }
-
   return (
     <Pressable
-      onPress={openDetail}
-      style={({ pressed }) => [
-        styles.card,
-        isGrid && styles.cardGrid,
-        pressed ? shadows.pressed : null,
-      ]}
+      onPress={() =>
+        navigation.push("ProductDetail", { productId: product.id })
+      }
+      style={[styles.card, isGrid && styles.cardGrid]}
     >
       <View style={styles.imageBox}>
         {discountPct > 0 ? (
@@ -42,20 +32,17 @@ export default function ProductCard({
           </View>
         ) : null}
 
-        <ProductImage uri={product.image} style={styles.image} iconSize={32} />
+        <ProductImage uri={product.image} style={styles.image} iconSize={30} />
 
         <View style={styles.etaChip}>
-          <Zap size={10} color={colors.accent} fill={colors.accent} />
+          <Zap size={9} color={colors.accent} fill={colors.accent} />
           <Text style={styles.etaText}>8 MINS</Text>
         </View>
       </View>
 
-      <Text style={styles.unit}>{product.unit}</Text>
-      {product.brand ? (
-        <Text style={styles.brand} numberOfLines={1}>
-          {product.brand}
-        </Text>
-      ) : null}
+      <Text style={styles.unit} numberOfLines={1}>
+        {product.unit}
+      </Text>
       <Text style={styles.name} numberOfLines={2}>
         {product.name}
       </Text>
@@ -91,7 +78,11 @@ export default function ProductCard({
               addItem(product);
             }}
           >
-            <Text style={styles.addText}>ADD</Text>
+            {({ pressed }) => (
+              <Text style={[styles.addText, pressed && styles.addTextPressed]}>
+                ADD
+              </Text>
+            )}
           </Pressable>
         )}
       </View>
@@ -101,37 +92,40 @@ export default function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    width: 138,
-    marginRight: spacing.md,
+    width: 126,
+    marginRight: 10,
     backgroundColor: colors.white,
-    borderRadius: radii.md,
-    padding: 10,
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 0.8,
+    borderColor: "#E8E8E8",
   },
   cardGrid: {
     width: "100%",
     marginRight: 0,
-    marginBottom: spacing.md,
+    marginBottom: 10,
     flex: 1,
   },
   imageBox: {
-    height: 112,
-    borderRadius: radii.sm,
-    backgroundColor: colors.white,
-    marginBottom: spacing.sm,
+    height: 118,
+    borderRadius: 10,
+    backgroundColor: "#F5F5F5",
+    marginBottom: 8,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
   },
   image: {
     width: "100%",
     height: "100%",
+    backgroundColor: "#F5F5F5",
   },
   discountBadge: {
     position: "absolute",
     top: 0,
     left: 0,
-    backgroundColor: colors.discount,
-    paddingHorizontal: 6,
+    backgroundColor: "#256FEF",
+    paddingHorizontal: 5,
     paddingVertical: 3,
     borderBottomRightRadius: 8,
     zIndex: 2,
@@ -143,74 +137,72 @@ const styles = StyleSheet.create({
   },
   etaChip: {
     position: "absolute",
-    left: 6,
-    bottom: 6,
+    left: 5,
+    bottom: 5,
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 2,
     backgroundColor: colors.white,
     borderRadius: 4,
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
     paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: colors.border,
     zIndex: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   etaText: {
-    fontSize: 9,
+    fontSize: 8,
     fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: 0.2,
   },
   unit: {
     fontSize: 11,
-    color: colors.textMuted,
-    fontFamily: fonts.semiBold,
-    marginBottom: 1,
-  },
-  brand: {
-    fontSize: 10,
-    color: colors.textSecondary,
+    color: "#7D7D7D",
     fontFamily: fonts.medium,
     marginBottom: 2,
   },
   name: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: fonts.semiBold,
-    color: colors.text,
-    minHeight: 34,
-    lineHeight: 17,
-    marginBottom: spacing.sm,
-    letterSpacing: -0.15,
+    color: "#1F1F1F",
+    minHeight: 32,
+    lineHeight: 16,
+    marginBottom: 8,
   },
   footer: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
-    gap: 6,
+    gap: 4,
+    marginTop: "auto",
   },
   priceBlock: {
     flexShrink: 1,
   },
   price: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: fonts.extraBold,
-    color: colors.text,
+    color: "#1F1F1F",
   },
   mrp: {
-    fontSize: 11,
-    color: colors.textMuted,
+    fontSize: 10,
+    color: "#9C9C9C",
     textDecorationLine: "line-through",
     marginTop: 1,
     fontFamily: fonts.medium,
   },
   addBtn: {
-    borderWidth: 1.4,
+    borderWidth: 1.2,
     borderColor: colors.accent,
-    borderRadius: radii.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     backgroundColor: colors.white,
-    minWidth: 54,
+    minWidth: 50,
     alignItems: "center",
   },
   addBtnPressed: {
@@ -219,7 +211,10 @@ const styles = StyleSheet.create({
   addText: {
     color: colors.accent,
     fontFamily: fonts.extraBold,
-    fontSize: 12,
-    letterSpacing: 0.3,
+    fontSize: 11,
+    letterSpacing: 0.4,
+  },
+  addTextPressed: {
+    color: colors.white,
   },
 });

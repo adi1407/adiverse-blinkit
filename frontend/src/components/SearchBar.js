@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
-import { Search, Mic, Volume2 } from "../utils/lucideIcons";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { View, StyleSheet, Pressable, Animated } from "react-native";
+import { Search, Mic } from "../utils/lucideIcons";
+import { colors, spacing, radii } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
 const HINTS = [
@@ -9,7 +9,8 @@ const HINTS = [
   'Search "bread"',
   'Search "chips"',
   'Search "rice"',
-  'Search "shampoo"',
+  'Search "curd"',
+  'Search "banana"',
 ];
 
 export default function SearchBar({ onPress, onMicPress }) {
@@ -22,12 +23,12 @@ export default function SearchBar({ onPress, onMicPress }) {
       Animated.parallel([
         Animated.timing(fade, {
           toValue: 0,
-          duration: 180,
+          duration: 160,
           useNativeDriver: true,
         }),
         Animated.timing(slide, {
-          toValue: -8,
-          duration: 180,
+          toValue: -6,
+          duration: 160,
           useNativeDriver: true,
         }),
       ]).start(() => {
@@ -36,31 +37,29 @@ export default function SearchBar({ onPress, onMicPress }) {
         Animated.parallel([
           Animated.timing(fade, {
             toValue: 1,
-            duration: 220,
+            duration: 200,
             useNativeDriver: true,
           }),
           Animated.timing(slide, {
             toValue: 0,
-            duration: 220,
+            duration: 200,
             useNativeDriver: true,
           }),
         ]).start();
       });
-    }, 2400);
+    }, 2600);
     return () => clearInterval(id);
   }, [fade, slide]);
-
-  const hint = HINTS[hintIndex];
 
   return (
     <View style={styles.wrap}>
       <Pressable
-        style={[styles.bar, shadows.soft]}
+        style={styles.bar}
         onPress={onPress}
         accessibilityRole="search"
         accessibilityLabel="Open search"
       >
-        <Search size={20} color={colors.textSecondary} strokeWidth={2.2} />
+        <Search size={18} color="#363636" strokeWidth={2.4} />
         <Animated.Text
           style={[
             styles.placeholder,
@@ -68,30 +67,19 @@ export default function SearchBar({ onPress, onMicPress }) {
           ]}
           numberOfLines={1}
         >
-          {hint}
+          {HINTS[hintIndex]}
         </Animated.Text>
-        <Pressable
-          hitSlop={8}
-          onPress={(e) => {
-            e?.stopPropagation?.();
-            onPress?.();
-          }}
-          style={styles.sideBtn}
-          accessibilityLabel="Hear search hint"
-        >
-          <Volume2 size={18} color={colors.textSecondary} strokeWidth={2.2} />
-        </Pressable>
         <View style={styles.divider} />
         <Pressable
-          hitSlop={8}
+          hitSlop={10}
           onPress={(e) => {
             e?.stopPropagation?.();
             (onMicPress || onPress)?.();
           }}
-          style={styles.sideBtn}
+          style={styles.micBtn}
           accessibilityLabel="Voice search"
         >
-          <Mic size={18} color={colors.accent} strokeWidth={2.3} />
+          <Mic size={18} color={colors.accent} strokeWidth={2.4} />
         </Pressable>
       </Pressable>
     </View>
@@ -108,28 +96,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.white,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    height: 52,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.05)",
+    borderRadius: 12,
+    paddingLeft: 14,
+    paddingRight: 4,
+    height: 50,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
   placeholder: {
     flex: 1,
-    fontSize: 15,
-    color: colors.textMuted,
+    fontSize: 14,
+    color: "#868686",
     fontFamily: fonts.medium,
   },
-  sideBtn: {
-    width: 32,
-    height: 32,
+  divider: {
+    width: StyleSheet.hairlineWidth,
+    height: 22,
+    backgroundColor: "#D4D4D4",
+  },
+  micBtn: {
+    width: 42,
+    height: 42,
     alignItems: "center",
     justifyContent: "center",
-  },
-  divider: {
-    width: 1,
-    height: 22,
-    backgroundColor: colors.borderStrong,
   },
 });

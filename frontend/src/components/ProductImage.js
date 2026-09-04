@@ -73,7 +73,7 @@ export default function ProductImage({
 const styles = StyleSheet.create({
   wrap: {
     overflow: "hidden",
-    backgroundColor: colors.white,
+    backgroundColor: "#F5F5F5",
     borderRadius: radii.sm,
   },
   image: {

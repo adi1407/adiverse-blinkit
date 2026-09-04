@@ -1,6 +1,6 @@
 import { ScrollView, Pressable, Text, StyleSheet, View } from "react-native";
 import { getLucideIcon } from "../utils/icons";
-import { colors, spacing, radii } from "../theme/colors";
+import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
 const FALLBACK_HUBS = [
@@ -34,11 +34,13 @@ export default function LifestyleChips({ hubs, selectedId, onSelect }) {
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
             >
-              <Icon
-                size={15}
-                color={active ? colors.text : colors.textSecondary}
-                strokeWidth={active ? 2.4 : 2.1}
-              />
+              <View style={[styles.iconWrap, active && styles.iconWrapActive]}>
+                <Icon
+                  size={13}
+                  color={colors.text}
+                  strokeWidth={active ? 2.5 : 2.1}
+                />
+              </View>
               <Text style={[styles.label, active && styles.labelActive]}>
                 {hub.label}
               </Text>
@@ -46,8 +48,6 @@ export default function LifestyleChips({ hubs, selectedId, onSelect }) {
           );
         })}
       </ScrollView>
-      <View pointerEvents="none" style={styles.fadeLeft} />
-      <View pointerEvents="none" style={styles.fadeRight} />
     </View>
   );
 }
@@ -55,8 +55,7 @@ export default function LifestyleChips({ hubs, selectedId, onSelect }) {
 const styles = StyleSheet.create({
   wrap: {
     backgroundColor: colors.primary,
-    paddingBottom: spacing.sm,
-    position: "relative",
+    paddingBottom: 12,
   },
   row: {
     paddingHorizontal: spacing.lg,
@@ -66,40 +65,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: radii.pill,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.06)",
+    paddingLeft: 4,
+    paddingRight: 12,
+    paddingVertical: 4,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.42)",
+    borderWidth: 1.2,
+    borderColor: "transparent",
   },
   chipActive: {
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.white,
     borderColor: colors.text,
+  },
+  iconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconWrapActive: {
+    backgroundColor: colors.primary,
   },
   label: {
     fontSize: 12,
     fontFamily: fonts.bold,
-    color: colors.textSecondary,
+    color: "rgba(31,31,31,0.72)",
   },
   labelActive: {
     color: colors.text,
     fontFamily: fonts.extraBold,
-  },
-  fadeLeft: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: spacing.sm,
-    width: 16,
-    backgroundColor: "transparent",
-  },
-  fadeRight: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: spacing.sm,
-    width: 20,
-    backgroundColor: "transparent",
   },
 });

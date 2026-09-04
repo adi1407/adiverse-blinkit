@@ -2,18 +2,23 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   Animated,
+  Dimensions,
   Easing,
+  Modal,
   StyleSheet,
   Text,
   View,
+  StatusBar,
+  Platform,
 } from "react-native";
 import * as NativeSplash from "expo-splash-screen";
 import { Zap } from "../utils/lucideIcons";
 import { fonts } from "../theme/typography";
 import { colors, radii, spacing } from "../theme/colors";
 
-const INTRO_MIN_MS = 1750;
-const EXIT_MS = 460;
+const INTRO_MIN_MS = 1600;
+const EXIT_MS = 320;
+const SCREEN = Dimensions.get("screen");
 
 function LoadingDots({ tint = colors.text }) {
   const dots = useRef([
@@ -78,10 +83,7 @@ function LoadingDots({ tint = colors.text }) {
 }
 
 /**
- * Blinkit-style boot experience.
- *
- * Children mount underneath the overlay as soon as they are ready, so the app
- * is already warm (and laid out) by the time the splash zooms away.
+ * Full-screen boot splash (Modal) so Home never peeks through mid-fade.
  */
 export default function AnimatedSplash({ ready, children }) {
   const [mounted, setMounted] = useState(true);
@@ -97,20 +99,16 @@ export default function AnimatedSplash({ ready, children }) {
 
   useEffect(() => {
     let cancelled = false;
-
     AccessibilityInfo.isReduceMotionEnabled()
       .then((enabled) => {
         if (!cancelled) setReduceMotion(enabled);
       })
       .catch(() => {});
-
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // Hide the native splash only once our own screen has painted, otherwise
-  // Android flashes a blank frame between the two.
   const handleLayout = useCallback(() => {
     NativeSplash.hideAsync().catch(() => {});
   }, []);
@@ -118,7 +116,7 @@ export default function AnimatedSplash({ ready, children }) {
   useEffect(() => {
     if (reduceMotion) {
       [logo, wordmark, pill, footer].forEach((value) => value.setValue(1));
-      const timer = setTimeout(() => setIntroDone(true), 600);
+      const timer = setTimeout(() => setIntroDone(true), 500);
       return () => clearTimeout(timer);
     }
 
@@ -132,19 +130,19 @@ export default function AnimatedSplash({ ready, children }) {
       Animated.stagger(90, [
         Animated.timing(wordmark, {
           toValue: 1,
-          duration: 420,
+          duration: 400,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(pill, {
           toValue: 1,
-          duration: 380,
+          duration: 360,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(footer, {
           toValue: 1,
-          duration: 360,
+          duration: 340,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
@@ -169,7 +167,6 @@ export default function AnimatedSplash({ ready, children }) {
 
     intro.start();
     pulse.start();
-
     const timer = setTimeout(() => setIntroDone(true), INTRO_MIN_MS);
 
     return () => {
@@ -183,12 +180,17 @@ export default function AnimatedSplash({ ready, children }) {
     if (!ready || !introDone) return undefined;
 
     let cancelled = false;
-    const animation = Animated.timing(exit, {
-      toValue: 1,
-      duration: reduceMotion ? 180 : EXIT_MS,
-      easing: Easing.inOut(Easing.cubic),
-      useNativeDriver: true,
-    });
+    // Keep fully opaque for most of the exit, then snap away —
+    // avoids the “half splash over Home” look from a long fade.
+    const animation = Animated.sequence([
+      Animated.delay(reduceMotion ? 40 : 80),
+      Animated.timing(exit, {
+        toValue: 1,
+        duration: reduceMotion ? 120 : EXIT_MS,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]);
 
     animation.start(({ finished }) => {
       if (finished && !cancelled) setMounted(false);
@@ -200,35 +202,55 @@ export default function AnimatedSplash({ ready, children }) {
     };
   }, [ready, introDone, reduceMotion, exit]);
 
-  const exiting = ready && introDone;
-
   return (
     <View style={styles.root}>
       <View
         style={styles.children}
         pointerEvents={mounted ? "none" : "auto"}
-        // Keep tree warm under splash, but never let Home peek through.
         collapsable={false}
       >
         {children}
       </View>
 
-      {mounted ? (
+      <Modal
+        visible={mounted}
+        animationType="none"
+        transparent
+        statusBarTranslucent
+        hardwareAccelerated
+        onRequestClose={() => {}}
+      >
         <Animated.View
           onLayout={handleLayout}
-          pointerEvents={exiting ? "none" : "auto"}
+          pointerEvents="auto"
           accessible
           accessibilityLabel="blinkit. India's last minute app. Loading."
           style={[
             styles.overlay,
             {
               opacity: exit.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 0],
+                inputRange: [0, 0.55, 1],
+                outputRange: [1, 1, 0],
               }),
+              transform: [
+                {
+                  scale: exit.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 1.04],
+                  }),
+                },
+              ],
             },
           ]}
         >
+          {Platform.OS === "android" ? (
+            <StatusBar
+              backgroundColor={colors.primary}
+              barStyle="dark-content"
+              translucent
+            />
+          ) : null}
+
           <View pointerEvents="none" style={styles.blobTop} />
           <View pointerEvents="none" style={styles.blobBottom} />
 
@@ -334,7 +356,7 @@ export default function AnimatedSplash({ ready, children }) {
             <Text style={styles.tagline}>India's last minute app</Text>
           </Animated.View>
         </Animated.View>
-      ) : null}
+      </Modal>
     </View>
   );
 }
@@ -342,15 +364,15 @@ export default function AnimatedSplash({ ready, children }) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
   },
   children: {
     flex: 1,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
-    elevation: 1000,
+    flex: 1,
+    width: SCREEN.width,
+    minHeight: SCREEN.height,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -378,6 +400,7 @@ const styles = StyleSheet.create({
   },
   center: {
     alignItems: "center",
+    marginTop: -24,
   },
   logoWrap: {
     alignItems: "center",
@@ -429,7 +452,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 56,
+    bottom: Math.max(56, SCREEN.height * 0.08),
     alignItems: "center",
     gap: spacing.md,
   },

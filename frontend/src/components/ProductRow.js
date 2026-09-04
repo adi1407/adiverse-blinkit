@@ -19,11 +19,11 @@ export default function ProductRow({
   useEffect(() => {
     if (!autoScroll || products.length < 3) return undefined;
     const id = setInterval(() => {
-      offset.current += 60;
-      const max = products.length * 148;
-      if (offset.current > max - 280) offset.current = 0;
+      offset.current += 50;
+      const max = products.length * 136;
+      if (offset.current > max - 260) offset.current = 0;
       scrollRef.current?.scrollTo({ x: offset.current, animated: true });
-    }, 2200);
+    }, 2400);
     return () => clearInterval(id);
   }, [autoScroll, products.length]);
 
@@ -37,9 +37,9 @@ export default function ProductRow({
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
         {onSeeAll ? (
-          <Pressable style={styles.seeAll} onPress={onSeeAll}>
-            <Text style={styles.seeAllText}>See all</Text>
-            <ChevronRight size={14} color={colors.accent} strokeWidth={2.6} />
+          <Pressable style={styles.seeAll} onPress={onSeeAll} hitSlop={8}>
+            <Text style={styles.seeAllText}>see all</Text>
+            <ChevronRight size={15} color={colors.accent} strokeWidth={2.6} />
           </Pressable>
         ) : null}
       </View>
@@ -61,16 +61,15 @@ export default function ProductRow({
 
 const styles = StyleSheet.create({
   wrap: {
-    marginTop: spacing.sm,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingTop: 18,
+    paddingBottom: 8,
     backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
+    marginBottom: 12,
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   titleBlock: {
@@ -80,27 +79,27 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: fonts.extraBold,
-    color: colors.text,
-    letterSpacing: -0.3,
+    color: "#1F1F1F",
+    letterSpacing: -0.4,
   },
   subtitle: {
-    marginTop: 3,
+    marginTop: 2,
     fontSize: 12,
-    color: colors.textMuted,
+    color: "#7D7D7D",
     fontFamily: fonts.medium,
   },
   seeAll: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
-    paddingBottom: 2,
+    gap: 0,
   },
   seeAllText: {
     color: colors.accent,
-    fontFamily: fonts.extraBold,
-    fontSize: 12,
+    fontFamily: fonts.bold,
+    fontSize: 13,
   },
   list: {
     paddingHorizontal: spacing.lg,
+    paddingBottom: 8,
   },
 });

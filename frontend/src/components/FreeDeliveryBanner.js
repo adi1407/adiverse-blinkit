@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Bike, Sparkles } from "../utils/lucideIcons";
 import { colors, spacing, radii } from "../theme/colors";
+import { fonts } from "../theme/typography";
 import { getDeliveryProgress } from "../utils/delivery";
 
 /**
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   titleCompact: {
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 2,
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.textSecondary,
   },
   track: {

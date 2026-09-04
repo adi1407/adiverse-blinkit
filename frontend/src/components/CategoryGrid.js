@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, Image } from "react-native";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import { getLucideIcon } from "../utils/icons";
 
@@ -13,7 +13,6 @@ export default function CategoryGrid({
       {showTitle ? (
         <View style={styles.titleRow}>
           <Text style={styles.title}>Shop by category</Text>
-          <Text style={styles.caption}>Fresh picks near you</Text>
         </View>
       ) : null}
 
@@ -30,11 +29,7 @@ export default function CategoryGrid({
               onPress={() => onSelectCategory?.(cat)}
             >
               <View
-                style={[
-                  styles.tile,
-                  { backgroundColor: cat.bg },
-                  shadows.soft,
-                ]}
+                style={[styles.tile, { backgroundColor: cat.bg || "#F5F5F5" }]}
               >
                 {cat.image ? (
                   <Image
@@ -52,7 +47,9 @@ export default function CategoryGrid({
                   </View>
                 )}
               </View>
-              <Text style={styles.name}>{cat.name}</Text>
+              <Text style={styles.name} numberOfLines={2}>
+                {cat.name}
+              </Text>
             </Pressable>
           );
         })}
@@ -64,23 +61,17 @@ export default function CategoryGrid({
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: 18,
     backgroundColor: colors.background,
   },
   titleRow: {
-    marginBottom: spacing.md,
+    marginBottom: 14,
   },
   title: {
     fontSize: 18,
     fontFamily: fonts.extraBold,
     color: colors.text,
-    letterSpacing: -0.3,
-  },
-  caption: {
-    marginTop: 2,
-    fontSize: 12,
-    color: colors.textMuted,
-    fontFamily: fonts.medium,
+    letterSpacing: -0.4,
   },
   grid: {
     flexDirection: "row",
@@ -89,16 +80,16 @@ const styles = StyleSheet.create({
   },
   item: {
     width: "23%",
-    marginBottom: spacing.lg,
+    marginBottom: 14,
     alignItems: "center",
   },
   tile: {
     width: "100%",
-    aspectRatio: 0.95,
-    borderRadius: radii.md,
+    aspectRatio: 0.92,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.sm,
+    marginBottom: 6,
     overflow: "hidden",
   },
   tileImage: {
@@ -119,5 +110,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     lineHeight: 14,
     fontFamily: fonts.semiBold,
+    minHeight: 28,
   },
 });
