@@ -18,7 +18,6 @@ import {
   Heart,
   Share2,
 } from "../utils/lucideIcons";
-import ProductImage from "../components/ProductImage";
 import ProductImageGallery from "../components/ProductImageGallery";
 import ProductRow from "../components/ProductRow";
 import QtyStepper from "../components/QtyStepper";
@@ -358,6 +357,14 @@ const styles = StyleSheet.create({
   },
   info: {
     paddingHorizontal: spacing.lg,
+  },
+  brand: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.accent,
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   unit: {
     fontSize: 13,

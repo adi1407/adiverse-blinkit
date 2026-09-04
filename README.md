@@ -71,8 +71,8 @@ Scan the QR with Expo Go. Keep the backend running.
 | Area | Features |
 |------|----------|
 | **Home** | Yellow header, search, categories, featured rows, recently viewed, splash |
-| **Catalog** | 12 categories, mega snack/drink pack, pagination, brand chips + price sort |
-| **Product** | Product detail page, similar items, ADD / qty, share product |
+| **Catalog** | 16 categories (grocery + stationery/batteries/bulbs/coins), curated multi-brand SKUs, 2–3 images/product, pagination, brand chips + price sort |
+| **Product** | Product detail gallery, similar items, ADD / qty, share product |
 | **Search** | Debounced live search, recent history on device |
 | **Cart** | Shared context, AsyncStorage persist, bill, coupons, tip, free-delivery progress, checkout |
 | **Auth** | Guest login (name + phone), edit display name, session on device |
@@ -154,9 +154,10 @@ frontend/src/
 backend/src/
   server.js
   routes/       # catalog, orders, print
-  data/         # catalog, coupons, orders store, print store
+  data/         # curated catalog, coupons, orders store, print store
+    curated/    # snacks, grocery, drinks, aisles, specialty
 scripts/
-  buildMegaCatalog.js   # npm run catalog:build
+  buildMegaCatalog.js   # optional OFF rebuild (disabled in live catalog)
 ```
 
 ---
@@ -195,6 +196,8 @@ scripts/
 30. Search history (recent queries)  
 31. Share order summary  
 32. Share product from detail  
+33. Multi-image product gallery  
+34–37. Curated Blinkit-scale catalog (grocery, drinks/cleaning, new aisles, fill-out)  
 
 ---
 
@@ -204,6 +207,7 @@ scripts/
 - Payment is **mock** (UPI / card / wallet / COD — no real money moves).
 - Print stores **file metadata only** (no upload to cloud).
 - Order/print status advances on a **demo timer**, not real riders.
+- Catalog images are curated Unsplash URLs (2–3 per product); Open Food Facts mega dump is disabled.
 - Catalog images come from Unsplash / Open Food Facts style sources.
 - Expo Go shows Expo’s splash first; our yellow animated splash runs after JS loads.
 

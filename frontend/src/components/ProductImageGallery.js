@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import ProductImage from "./ProductImage";
 import { colors, spacing, radii } from "../theme/colors";
 
-const SCREEN_W = Dimensions.get("window").width;
 const HERO_H = 260;
 
 /**
@@ -19,6 +18,9 @@ export default function ProductImageGallery({
     Boolean
   );
   const [index, setIndex] = useState(0);
+  const [width, setWidth] = useState(
+    Dimensions.get("window").width - spacing.lg * 2
+  );
   const listRef = useRef(null);
 
   if (!list.length) {
@@ -37,11 +39,15 @@ export default function ProductImageGallery({
 
   return (
     <View style={styles.wrap}>
-      <View style={styles.hero}>
-        {discountPct > 0 ? (
-          <View style={styles.discountBadge}>
-            {badge}
-          </View>
+      <View
+        style={styles.hero}
+        onLayout={(e) => {
+          const w = e.nativeEvent.layout.width;
+          if (w > 0 && Math.abs(w - width) > 1) setWidth(w);
+        }}
+      >
+        {discountPct > 0 && badge ? (
+          <View style={styles.discountBadge}>{badge}</View>
         ) : null}
 
         <FlatList
@@ -52,16 +58,16 @@ export default function ProductImageGallery({
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={(e) => {
-            const i = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
+            const i = Math.round(e.nativeEvent.contentOffset.x / width);
             setIndex(i);
           }}
           getItemLayout={(_, i) => ({
-            length: SCREEN_W,
-            offset: SCREEN_W * i,
+            length: width,
+            offset: width * i,
             index: i,
           })}
           renderItem={({ item }) => (
-            <View style={{ width: SCREEN_W }}>
+            <View style={{ width }}>
               <ProductImage uri={item} style={styles.heroImage} iconSize={56} />
             </View>
           )}
