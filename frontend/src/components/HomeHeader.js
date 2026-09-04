@@ -1,14 +1,17 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { Bell } from "../utils/lucideIcons";
 import { useCart } from "../context/CartContext";
 import { useAddress } from "../context/AddressContext";
+import { useNotifications } from "../context/NotificationContext";
 import { colors, spacing, shadows } from "../theme/colors";
 
 export default function HomeHeader({ minutes }) {
   const navigation = useNavigation();
   const { totalItems } = useCart();
   const { selectedAddress } = useAddress();
+  const { unreadCount } = useNotifications();
 
   const label = selectedAddress?.label || "Home";
   const line = selectedAddress?.line1 || "Add delivery address";
@@ -20,6 +23,19 @@ export default function HomeHeader({ minutes }) {
           <Text style={styles.brandText}>blinkit</Text>
         </View>
         <View style={styles.right}>
+          <Pressable
+            style={styles.iconBtn}
+            onPress={() => navigation.navigate("Notifications")}
+          >
+            <Bell size={18} color={colors.text} strokeWidth={2.2} />
+            {unreadCount > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Text>
+              </View>
+            ) : null}
+          </Pressable>
           <Pressable
             style={styles.iconBtn}
             onPress={() => navigation.navigate("Account")}

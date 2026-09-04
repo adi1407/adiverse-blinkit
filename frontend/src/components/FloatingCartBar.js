@@ -14,6 +14,8 @@ import { useCart } from "../context/CartContext";
 import { colors, spacing } from "../theme/colors";
 import { TAB_BAR_BASE_HEIGHT } from "./BlinkitTabBar";
 import ProductImage from "./ProductImage";
+import FreeDeliveryBanner from "./FreeDeliveryBanner";
+import { getDeliveryProgress } from "../utils/delivery";
 
 export default function FloatingCartBar() {
   const { totalItems, totalPrice, items } = useCart();
@@ -55,6 +57,7 @@ export default function FloatingCartBar() {
   if (!visible) return null;
 
   const preview = items.slice(0, 3);
+  const { unlocked } = getDeliveryProgress(totalPrice);
   const bottom =
     TAB_BAR_BASE_HEIGHT +
     Math.max(insets.bottom, Platform.OS === "android" ? 10 : 6) +
@@ -80,42 +83,47 @@ export default function FloatingCartBar() {
         },
       ]}
     >
-      <Pressable
-        style={styles.bar}
-        onPress={() => navigation.navigate("Cart")}
-      >
-        <View style={styles.left}>
-          <View style={styles.thumbRow}>
-            {preview.map((item, i) => (
-              <View
-                key={item.id}
-                style={[
-                  styles.thumbChip,
-                  { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 },
-                ]}
-              >
-                <ProductImage
-                  uri={item.image}
-                  style={styles.thumbImage}
-                  iconSize={14}
-                />
-              </View>
-            ))}
+      <Pressable onPress={() => navigation.navigate("Cart")}>
+        <View style={styles.bar}>
+          <View style={styles.left}>
+            <View style={styles.thumbRow}>
+              {preview.map((item, i) => (
+                <View
+                  key={item.id}
+                  style={[
+                    styles.thumbChip,
+                    { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 },
+                  ]}
+                >
+                  <ProductImage
+                    uri={item.image}
+                    style={styles.thumbImage}
+                    iconSize={14}
+                  />
+                </View>
+              ))}
+            </View>
+            <View style={styles.meta}>
+              <Text style={styles.count}>
+                {totalItems} item{totalItems === 1 ? "" : "s"} added
+              </Text>
+              <Text style={styles.price}>₹{totalPrice}</Text>
+            </View>
           </View>
-          <View style={styles.meta}>
-            <Text style={styles.count}>
-              {totalItems} item{totalItems === 1 ? "" : "s"} added
-            </Text>
-            <Text style={styles.price}>₹{totalPrice}</Text>
+
+          <View style={styles.cta}>
+            <Text style={styles.ctaText}>View Cart</Text>
+            <View style={styles.ctaIcon}>
+              <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
+            </View>
           </View>
         </View>
 
-        <View style={styles.cta}>
-          <Text style={styles.ctaText}>View Cart</Text>
-          <View style={styles.ctaIcon}>
-            <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
+        {!unlocked ? (
+          <View style={styles.progressSlot}>
+            <FreeDeliveryBanner itemTotal={totalPrice} compact />
           </View>
-        </View>
+        ) : null}
       </Pressable>
     </Animated.View>
   );
@@ -204,5 +212,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
+  },
+  progressSlot: {
+    marginTop: 8,
   },
 });

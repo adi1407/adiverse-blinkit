@@ -74,10 +74,10 @@ Scan the QR with Expo Go. Keep the backend running.
 | **Catalog** | 12 categories, mega snack/drink pack, pagination, brand chips + price sort |
 | **Product** | Product detail page, similar items, ADD / qty |
 | **Search** | Debounced live search |
-| **Cart** | Shared context, AsyncStorage persist, bill, coupons, checkout |
+| **Cart** | Shared context, AsyncStorage persist, bill, coupons, tip, free-delivery progress, checkout |
 | **Auth** | Guest login (name + phone), edit display name, session on device |
 | **Addresses** | Save / pick delivery address |
-| **Orders** | Place order, history, live timeline, cancel while confirmed, rate after delivery, Order Again |
+| **Orders** | Place order, history, live timeline, cancel while confirmed, rate after delivery, Order Again, in-app status alerts |
 | **Print** | Pick docs/photos, quote, place print job, job list |
 | **Wishlist** | Heart on cards / PDP, saved list, add all to cart |
 | **UI** | Custom Blinkit tab bar (Lucide), floating cart bar, branded yellow icon/splash |
@@ -88,13 +88,13 @@ Scan the QR with Expo Go. Keep the backend running.
 
 ```
 App.js
-  Auth + Address + Cart + Wishlist providers
+  Auth + Address + Cart + Wishlist + Notifications providers
   Animated splash (waits for hydrate)
     Navigation
       Tabs: Home · Order Again · Categories · Print
       Stack: Search, ProductDetail, Cart, Account,
              Orders, OrderDetail, Addresses,
-             Wishlist, PrintJobs, EditProfile, Login, …
+             Wishlist, PrintJobs, EditProfile, Notifications, Login, …
 ```
 
 **Data flow**
@@ -190,6 +190,8 @@ scripts/
 25. Help & FAQ screen  
 26. Delivery partner tip at checkout  
 27. Edit profile (display name)  
+28. Free-delivery progress bar (cart + floating bar)  
+29. In-app order notifications  
 
 ---
 

@@ -35,6 +35,12 @@ import { placeOrder } from "../api/ordersApi";
 import { COUPONS, evaluateCoupon } from "../data/coupons";
 import { PAYMENT_METHODS } from "../data/payments";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import FreeDeliveryBanner from "../components/FreeDeliveryBanner";
+import {
+  FREE_DELIVERY_MIN,
+  BASE_DELIVERY_FEE,
+} from "../utils/delivery";
+import { useNotifications } from "../context/NotificationContext";
 
 const PAYMENT_ICONS = {
   Smartphone,
@@ -76,6 +82,7 @@ export default function CartScreen({ navigation }) {
   const { items, totalItems, totalPrice, clearCart } = useCart();
   const { isLoggedIn, user } = useAuth();
   const { selectedAddress } = useAddress();
+  const { notifyOrderPlaced } = useNotifications();
   const isEmpty = items.length === 0;
   const [placing, setPlacing] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
@@ -84,7 +91,7 @@ export default function CartScreen({ navigation }) {
 
   const TIP_OPTIONS = [0, 10, 20, 30, 50];
 
-  const baseDeliveryFee = totalPrice >= 199 ? 0 : 25;
+  const baseDeliveryFee = totalPrice >= FREE_DELIVERY_MIN ? 0 : BASE_DELIVERY_FEE;
 
   const couponResult = useMemo(() => {
     if (!couponCode) {
@@ -183,6 +190,7 @@ export default function CartScreen({ navigation }) {
       clearCart();
       setCouponCode(null);
       setTipAmount(0);
+      notifyOrderPlaced(order);
       const payLabel = order.payment?.label || paymentMethod;
       Alert.alert(
         "Order placed!",
@@ -235,6 +243,12 @@ export default function CartScreen({ navigation }) {
             data={items}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
+            ListHeaderComponent={
+              <FreeDeliveryBanner
+                itemTotal={totalPrice}
+                forceUnlocked={deliveryFee === 0}
+              />
+            }
             renderItem={({ item }) => <CartRow item={item} />}
             ListFooterComponent={
               <View>
@@ -443,7 +457,7 @@ export default function CartScreen({ navigation }) {
                         : deliveryFee === 0
                           ? "Free delivery unlocked"
                           : "Add ₹" +
-                            (199 - totalPrice) +
+                            Math.max(0, FREE_DELIVERY_MIN - totalPrice) +
                             " more for free delivery"}
                     </Text>
                   </View>

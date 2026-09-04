@@ -18,6 +18,7 @@ import PrintJobsScreen from "../screens/PrintJobsScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import HelpScreen from "../screens/HelpScreen";
 import EditProfileScreen from "../screens/EditProfileScreen";
+import NotificationsScreen from "../screens/NotificationsScreen";
 import BlinkitTabBar from "../components/BlinkitTabBar";
 import FloatingCartBar from "../components/FloatingCartBar";
 import { colors } from "../theme/colors";
@@ -68,6 +69,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Wishlist" component={WishlistScreen} />
       <Stack.Screen name="Help" component={HelpScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Account" component={AccountScreen} />
     </Stack.Navigator>

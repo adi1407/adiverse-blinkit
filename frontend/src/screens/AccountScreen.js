@@ -10,14 +10,17 @@ import {
   Printer,
   Heart,
   Pencil,
+  Bell,
 } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useNotifications } from "../context/NotificationContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const MENU = [
   { id: "profile", label: "Edit profile", hint: "Change display name", Icon: Pencil },
+  { id: "notifications", label: "Notifications", hint: "Order status alerts", Icon: Bell },
   { id: "orders", label: "Your orders", hint: "Track & reorder", Icon: Package },
   { id: "wishlist", label: "Wishlist", hint: "Saved for later", Icon: Heart },
   { id: "print", label: "Print jobs", hint: "Docs & photo prints", Icon: Printer },
@@ -34,6 +37,7 @@ function formatPhone(phone) {
 export default function AccountScreen({ navigation }) {
   const { user, isLoggedIn, logout } = useAuth();
   const { count: wishlistCount } = useWishlist();
+  const { unreadCount } = useNotifications();
 
   function onLogin() {
     navigation.navigate("Login");
@@ -59,6 +63,10 @@ export default function AccountScreen({ navigation }) {
         return;
       }
       navigation.navigate("EditProfile");
+      return;
+    }
+    if (id === "notifications") {
+      navigation.navigate("Notifications");
       return;
     }
     if (id === "orders") {
@@ -175,7 +183,11 @@ export default function AccountScreen({ navigation }) {
                       ? wishlistCount
                         ? `${wishlistCount} saved`
                         : "Saved for later"
-                      : item.hint}
+                      : item.id === "notifications"
+                        ? unreadCount
+                          ? `${unreadCount} unread`
+                          : "Order status alerts"
+                        : item.hint}
                   </Text>
                 </View>
                 <ChevronRight size={18} color={colors.textMuted} />

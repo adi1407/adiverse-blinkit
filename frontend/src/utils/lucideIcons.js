@@ -5,6 +5,7 @@
  */
 export { default as Briefcase } from "lucide-react-native/icons/briefcase";
 export { default as Banknote } from "lucide-react-native/icons/banknote";
+export { default as Bell } from "lucide-react-native/icons/bell";
 export { default as Check } from "lucide-react-native/icons/check";
 export { default as ChevronLeft } from "lucide-react-native/icons/chevron-left";
 export { default as ChevronRight } from "lucide-react-native/icons/chevron-right";

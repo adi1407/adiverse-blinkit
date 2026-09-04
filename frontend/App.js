@@ -11,6 +11,10 @@ import {
   RecentlyViewedProvider,
   useRecentlyViewed,
 } from "./src/context/RecentlyViewedContext";
+import {
+  NotificationProvider,
+  useNotifications,
+} from "./src/context/NotificationContext";
 import AnimatedSplash from "./src/components/AnimatedSplash";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { colors } from "./src/theme/colors";
@@ -23,8 +27,14 @@ function Root() {
   const { ready: cartReady } = useCart();
   const { ready: wishlistReady } = useWishlist();
   const { ready: recentReady } = useRecentlyViewed();
+  const { ready: notifReady } = useNotifications();
   const ready =
-    authReady && addressReady && cartReady && wishlistReady && recentReady;
+    authReady &&
+    addressReady &&
+    cartReady &&
+    wishlistReady &&
+    recentReady &&
+    notifReady;
 
   return (
     <AnimatedSplash ready={ready}>
@@ -44,15 +54,17 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <AuthProvider>
-        <AddressProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <RecentlyViewedProvider>
-                <Root />
-              </RecentlyViewedProvider>
-            </WishlistProvider>
-          </CartProvider>
-        </AddressProvider>
+        <NotificationProvider>
+          <AddressProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <RecentlyViewedProvider>
+                  <Root />
+                </RecentlyViewedProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AddressProvider>
+        </NotificationProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );
