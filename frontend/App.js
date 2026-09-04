@@ -15,6 +15,10 @@ import {
   NotificationProvider,
   useNotifications,
 } from "./src/context/NotificationContext";
+import {
+  SearchHistoryProvider,
+  useSearchHistory,
+} from "./src/context/SearchHistoryContext";
 import AnimatedSplash from "./src/components/AnimatedSplash";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { colors } from "./src/theme/colors";
@@ -28,13 +32,15 @@ function Root() {
   const { ready: wishlistReady } = useWishlist();
   const { ready: recentReady } = useRecentlyViewed();
   const { ready: notifReady } = useNotifications();
+  const { ready: searchReady } = useSearchHistory();
   const ready =
     authReady &&
     addressReady &&
     cartReady &&
     wishlistReady &&
     recentReady &&
-    notifReady;
+    notifReady &&
+    searchReady;
 
   return (
     <AnimatedSplash ready={ready}>
@@ -59,7 +65,9 @@ export default function App() {
             <CartProvider>
               <WishlistProvider>
                 <RecentlyViewedProvider>
-                  <Root />
+                  <SearchHistoryProvider>
+                    <Root />
+                  </SearchHistoryProvider>
                 </RecentlyViewedProvider>
               </WishlistProvider>
             </CartProvider>

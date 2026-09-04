@@ -19,6 +19,7 @@ import {
   MapPin,
   RefreshCw,
   Star,
+  Share2,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
 import LoadingState from "../components/LoadingState";
@@ -26,6 +27,7 @@ import ErrorState from "../components/ErrorState";
 import { cancelOrder, fetchOrderById, rateOrder } from "../api/ordersApi";
 import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
+import { shareOrder } from "../utils/shareOrder";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const STEP_ICON = {
@@ -120,6 +122,18 @@ export default function OrderDetailScreen({ navigation, route }) {
     );
   }
 
+  async function onShare() {
+    if (!order) return;
+    try {
+      await shareOrder(order);
+    } catch (err) {
+      // User dismisses sheet → often no error; real failures only
+      if (err?.message && !/dismiss|cancel/i.test(String(err.message))) {
+        Alert.alert("Could not share", err.message);
+      }
+    }
+  }
+
   async function onSubmitRating() {
     if (!user?.phone || submittingRate) return;
     if (ratingStars < 1) {
@@ -186,9 +200,23 @@ export default function OrderDetailScreen({ navigation, route }) {
           <ChevronLeft size={24} color={colors.text} strokeWidth={2.4} />
         </Pressable>
         <Text style={styles.headerTitle}>Track order</Text>
-        <Pressable onPress={load} style={styles.iconBtn}>
-          <RefreshCw size={18} color={colors.text} strokeWidth={2.2} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            onPress={onShare}
+            style={styles.iconBtn}
+            disabled={!order}
+            hitSlop={6}
+          >
+            <Share2
+              size={18}
+              color={order ? colors.text : colors.textMuted}
+              strokeWidth={2.2}
+            />
+          </Pressable>
+          <Pressable onPress={load} style={styles.iconBtn}>
+            <RefreshCw size={18} color={colors.text} strokeWidth={2.2} />
+          </Pressable>
+        </View>
       </View>
       <View style={styles.curve} />
 
@@ -215,6 +243,11 @@ export default function OrderDetailScreen({ navigation, route }) {
               </Text>
             ) : null}
           </View>
+
+          <Pressable style={[styles.shareBtn, shadows.soft]} onPress={onShare}>
+            <Share2 size={16} color={colors.accent} strokeWidth={2.3} />
+            <Text style={styles.shareBtnText}>Share order summary</Text>
+          </Pressable>
 
           {order.canCancel ? (
             <Pressable
@@ -434,6 +467,10 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: colors.text,
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   curve: {
     height: 14,
     backgroundColor: colors.background,
@@ -483,6 +520,23 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: "500",
     lineHeight: 16,
+  },
+  shareBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: colors.white,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 12,
+    marginBottom: spacing.md,
+  },
+  shareBtnText: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.accent,
   },
   cancelBtn: {
     borderWidth: 1.5,

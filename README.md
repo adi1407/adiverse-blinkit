@@ -73,11 +73,11 @@ Scan the QR with Expo Go. Keep the backend running.
 | **Home** | Yellow header, search, categories, featured rows, recently viewed, splash |
 | **Catalog** | 12 categories, mega snack/drink pack, pagination, brand chips + price sort |
 | **Product** | Product detail page, similar items, ADD / qty |
-| **Search** | Debounced live search |
+| **Search** | Debounced live search, recent history on device |
 | **Cart** | Shared context, AsyncStorage persist, bill, coupons, tip, free-delivery progress, checkout |
 | **Auth** | Guest login (name + phone), edit display name, session on device |
 | **Addresses** | Save / pick delivery address |
-| **Orders** | Place order, history, live timeline, cancel while confirmed, rate after delivery, Order Again, in-app status alerts |
+| **Orders** | Place order, history, live timeline, cancel while confirmed, rate after delivery, Order Again, in-app status alerts, share summary |
 | **Print** | Pick docs/photos, quote, place print job, job list |
 | **Wishlist** | Heart on cards / PDP, saved list, add all to cart |
 | **UI** | Custom Blinkit tab bar (Lucide), floating cart bar, branded yellow icon/splash |
@@ -192,6 +192,8 @@ scripts/
 27. Edit profile (display name)  
 28. Free-delivery progress bar (cart + floating bar)  
 29. In-app order notifications  
+30. Search history (recent queries)  
+31. Share order summary  
 
 ---
 

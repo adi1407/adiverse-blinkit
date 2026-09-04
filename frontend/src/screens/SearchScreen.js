@@ -11,10 +11,11 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import { ChevronLeft, Search, X } from "../utils/lucideIcons";
+import { ChevronLeft, Search, X, Clock } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
 import ErrorState from "../components/ErrorState";
 import { fetchSearch } from "../api/catalogApi";
+import { useSearchHistory } from "../context/SearchHistoryContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const SUGGESTIONS = ["milk", "bread", "chips", "onion", "coke", "atta", "soap"];
@@ -28,39 +29,55 @@ export default function SearchScreen({ navigation, route }) {
   const [searched, setSearched] = useState(false);
   const inputRef = useRef(null);
   const requestId = useRef(0);
+  const historyTimer = useRef(null);
+  const { recent, addQuery, removeQuery, clearHistory } = useSearchHistory();
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 250);
     return () => clearTimeout(t);
   }, []);
 
-  const runSearch = useCallback(async (raw) => {
-    const q = String(raw || "").trim();
-    if (!q) {
-      setProducts([]);
-      setError("");
-      setLoading(false);
-      setSearched(false);
-      return;
-    }
-
-    const id = ++requestId.current;
-    setLoading(true);
-    setError("");
-    setSearched(true);
-
-    try {
-      const data = await fetchSearch(q);
-      if (id !== requestId.current) return;
-      setProducts(data.products || []);
-    } catch (err) {
-      if (id !== requestId.current) return;
-      setProducts([]);
-      setError(err.message || "Search failed");
-    } finally {
-      if (id === requestId.current) setLoading(false);
-    }
+  useEffect(() => {
+    return () => {
+      if (historyTimer.current) clearTimeout(historyTimer.current);
+    };
   }, []);
+
+  const runSearch = useCallback(
+    async (raw) => {
+      const q = String(raw || "").trim();
+      if (!q) {
+        setProducts([]);
+        setError("");
+        setLoading(false);
+        setSearched(false);
+        return;
+      }
+
+      const id = ++requestId.current;
+      setLoading(true);
+      setError("");
+      setSearched(true);
+
+      try {
+        const data = await fetchSearch(q);
+        if (id !== requestId.current) return;
+        setProducts(data.products || []);
+        // Wait until typing pauses so we don't store "mi" / "mil" mid-word
+        if (historyTimer.current) clearTimeout(historyTimer.current);
+        historyTimer.current = setTimeout(() => {
+          if (id === requestId.current) addQuery(q);
+        }, 700);
+      } catch (err) {
+        if (id !== requestId.current) return;
+        setProducts([]);
+        setError(err.message || "Search failed");
+      } finally {
+        if (id === requestId.current) setLoading(false);
+      }
+    },
+    [addQuery]
+  );
 
   // Debounce API calls while typing
   useEffect(() => {
@@ -126,6 +143,47 @@ export default function SearchScreen({ navigation, route }) {
             <View style={styles.listHeader}>
               {!searched || query.trim().length === 0 ? (
                 <View>
+                  {recent.length > 0 ? (
+                    <View style={styles.recentBlock}>
+                      <View style={styles.sectionRow}>
+                        <Text style={[styles.sectionLabel, styles.sectionLabelInline]}>
+                          Recent searches
+                        </Text>
+                        <Pressable onPress={clearHistory} hitSlop={8}>
+                          <Text style={styles.clearHistory}>Clear</Text>
+                        </Pressable>
+                      </View>
+                      <View style={styles.chips}>
+                        {recent.map((term) => (
+                          <View key={term} style={styles.recentChip}>
+                            <Pressable
+                              style={styles.recentMain}
+                              onPress={() => applySuggestion(term)}
+                            >
+                              <Clock
+                                size={12}
+                                color={colors.textSecondary}
+                                strokeWidth={2.2}
+                              />
+                              <Text style={styles.chipText}>{term}</Text>
+                            </Pressable>
+                            <Pressable
+                              onPress={() => removeQuery(term)}
+                              hitSlop={6}
+                              style={styles.recentRemove}
+                            >
+                              <X
+                                size={12}
+                                color={colors.textMuted}
+                                strokeWidth={2.4}
+                              />
+                            </Pressable>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  ) : null}
+
                   <Text style={styles.sectionLabel}>Popular searches</Text>
                   <View style={styles.chips}>
                     {SUGGESTIONS.map((term) => (
@@ -134,7 +192,11 @@ export default function SearchScreen({ navigation, route }) {
                         style={styles.chip}
                         onPress={() => applySuggestion(term)}
                       >
-                        <Search size={12} color={colors.textSecondary} strokeWidth={2.2} />
+                        <Search
+                          size={12}
+                          color={colors.textSecondary}
+                          strokeWidth={2.2}
+                        />
                         <Text style={styles.chipText}>{term}</Text>
                       </Pressable>
                     ))}
@@ -244,6 +306,23 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.sm,
   },
+  sectionLabelInline: {
+    marginBottom: 0,
+  },
+  sectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+  clearHistory: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.accent,
+  },
+  recentBlock: {
+    marginBottom: spacing.lg,
+  },
   resultMeta: {
     flexDirection: "row",
     alignItems: "center",
@@ -265,6 +344,31 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  recentChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    paddingLeft: 12,
+    paddingRight: 4,
+    paddingVertical: 4,
+    gap: 2,
+  },
+  recentMain: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 4,
+  },
+  recentRemove: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
   },
   chipText: {
     fontSize: 13,

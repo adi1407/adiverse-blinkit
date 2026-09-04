@@ -43,6 +43,7 @@ export { default as RefreshCw } from "lucide-react-native/icons/refresh-cw";
 export { default as RotateCcw } from "lucide-react-native/icons/rotate-ccw";
 export { default as Salad } from "lucide-react-native/icons/salad";
 export { default as Search } from "lucide-react-native/icons/search";
+export { default as Share2 } from "lucide-react-native/icons/share-2";
 export { default as ShieldCheck } from "lucide-react-native/icons/shield-check";
 export { default as ShoppingBag } from "lucide-react-native/icons/shopping-bag";
 export { default as ShoppingCart } from "lucide-react-native/icons/shopping-cart";
