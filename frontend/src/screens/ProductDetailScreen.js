@@ -19,6 +19,7 @@ import {
   Share2,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
+import ProductImageGallery from "../components/ProductImageGallery";
 import ProductRow from "../components/ProductRow";
 import QtyStepper from "../components/QtyStepper";
 import LoadingState from "../components/LoadingState";
@@ -140,22 +141,26 @@ export default function ProductDetailScreen({ navigation, route }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.hero, shadows.soft]}>
-          {discountPct > 0 ? (
-            <View style={styles.discountBadge}>
+        <ProductImageGallery
+          images={product.images}
+          fallbackUri={product.image}
+          discountPct={discountPct}
+          badge={
+            discountPct > 0 ? (
               <Text style={styles.discountText}>{discountPct}% OFF</Text>
-            </View>
-          ) : null}
+            ) : null
+          }
+        />
 
-          <ProductImage uri={product.image} style={styles.heroImage} iconSize={56} />
-
-          <View style={styles.etaChip}>
-            <Zap size={11} color={colors.accent} fill={colors.accent} />
-            <Text style={styles.etaText}>8 MINS</Text>
-          </View>
+        <View style={styles.etaChipFloat}>
+          <Zap size={11} color={colors.accent} fill={colors.accent} />
+          <Text style={styles.etaText}>8 MINS</Text>
         </View>
 
         <View style={styles.info}>
+          {product.brand ? (
+            <Text style={styles.brand}>{product.brand}</Text>
+          ) : null}
           <Text style={styles.unit}>{product.unit}</Text>
           <Text style={styles.name}>{product.name}</Text>
 
@@ -318,6 +323,18 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 11,
     fontWeight: "900",
+  },
+  etaChipFloat: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: 4,
+    marginLeft: spacing.lg,
+    marginBottom: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.pill,
   },
   etaChip: {
     position: "absolute",

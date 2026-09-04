@@ -17,6 +17,10 @@ import {
   Cross,
   Pill,
   ShoppingBag,
+  PenLine,
+  Battery,
+  Lightbulb,
+  Coins,
 } from "./lucideIcons";
 
 const MAP = {
@@ -38,6 +42,10 @@ const MAP = {
   Cross,
   Pill,
   ShoppingBag,
+  PenLine,
+  Battery,
+  Lightbulb,
+  Coins,
 };
 
 export function getLucideIcon(name) {
