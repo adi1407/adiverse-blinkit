@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as NativeSplash from "expo-splash-screen";
 import { Zap } from "../utils/lucideIcons";
+import { fonts } from "../theme/typography";
 import { colors, radii, spacing } from "../theme/colors";
 
 const INTRO_MIN_MS = 1750;
@@ -203,7 +204,14 @@ export default function AnimatedSplash({ ready, children }) {
 
   return (
     <View style={styles.root}>
-      {children}
+      <View
+        style={styles.children}
+        pointerEvents={mounted ? "none" : "auto"}
+        // Keep tree warm under splash, but never let Home peek through.
+        collapsable={false}
+      >
+        {children}
+      </View>
 
       {mounted ? (
         <Animated.View
@@ -218,14 +226,6 @@ export default function AnimatedSplash({ ready, children }) {
                 inputRange: [0, 1],
                 outputRange: [1, 0],
               }),
-              transform: [
-                {
-                  scale: exit.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.08],
-                  }),
-                },
-              ],
             },
           ]}
         >
@@ -344,8 +344,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
   },
+  children: {
+    flex: 1,
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
+    elevation: 1000,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -402,7 +407,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     fontSize: 44,
     lineHeight: 50,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     letterSpacing: -1.8,
     color: colors.text,
   },
@@ -418,7 +423,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontSize: 12.5,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     letterSpacing: -0.2,
     color: colors.accent,
   },
@@ -440,7 +445,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 12.5,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     letterSpacing: 0.3,
     color: "rgba(31,31,31,0.55)",
   },

@@ -13,12 +13,13 @@ import {
 } from "react-native";
 import { ChevronLeft, Search } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
-import LoadingState from "../components/LoadingState";
+import { ProductCardSkeleton } from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchCategoryProducts } from "../api/catalogApi";
 import { categoryTitle } from "../utils/category";
 import { getLucideIcon } from "../utils/icons";
 import { colors, spacing, radii } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const PAGE_SIZE = 40;
 
@@ -256,8 +257,14 @@ export default function CategoryProductsScreen({ navigation, route }) {
         </ScrollView>
       </View>
 
-      {loading ? (
-        <LoadingState message="Loading products..." />
+      {loading && products.length === 0 ? (
+        <View style={styles.skeletonGrid}>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <View key={i} style={styles.skeletonCell}>
+              <ProductCardSkeleton variant="grid" />
+            </View>
+          ))}
+        </View>
       ) : error ? (
         <ErrorState message={error} onRetry={() => loadPage(1)} />
       ) : (
@@ -344,7 +351,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.2,
     flexShrink: 1,
@@ -353,7 +360,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 11,
     color: colors.textSecondary,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
   },
   curve: {
     height: 14,
@@ -362,20 +369,21 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 18,
   },
   filtersWrap: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.white,
     paddingTop: spacing.sm,
-    gap: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    gap: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderStrong,
     paddingBottom: spacing.sm,
+    zIndex: 2,
   },
   chipRow: {
     paddingHorizontal: spacing.lg,
-    gap: 8,
+    gap: 6,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: radii.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -386,12 +394,13 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   chipText: {
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 11,
+    fontFamily: fonts.semiBold,
     color: colors.textSecondary,
   },
   chipTextActive: {
     color: colors.accentDark,
+    fontFamily: fonts.bold,
   },
   list: {
     flexGrow: 1,
@@ -409,14 +418,14 @@ const styles = StyleSheet.create({
   stripText: {
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
     flexShrink: 1,
     paddingRight: 8,
   },
   stripLink: {
     fontSize: 12,
     color: colors.accent,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
   },
   row: {
     gap: spacing.md,
@@ -424,12 +433,26 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
   },
+  skeletonGrid: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    gap: spacing.md,
+  },
+  skeletonCell: {
+    width: "47%",
+    flexGrow: 1,
+  },
   empty: {
     textAlign: "center",
     color: colors.textSecondary,
     marginTop: 40,
     paddingHorizontal: spacing.lg,
     lineHeight: 20,
+    fontFamily: fonts.medium,
   },
   footerLoader: {
     paddingVertical: 16,

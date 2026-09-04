@@ -7,8 +7,10 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  Animated,
 } from "react-native";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const W = Dimensions.get("window").width;
 const CARD_W = W - spacing.lg * 2;
@@ -16,6 +18,9 @@ const CARD_W = W - spacing.lg * 2;
 export default function HomeHeroBanner({ banners = [], onCta }) {
   const scrollRef = useRef(null);
   const [index, setIndex] = useState(0);
+  const dotAnims = useRef(
+    banners.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))
+  ).current;
 
   useEffect(() => {
     if (banners.length < 2) return undefined;
@@ -32,6 +37,16 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
     return () => clearInterval(id);
   }, [banners.length]);
 
+  useEffect(() => {
+    dotAnims.forEach((anim, i) => {
+      Animated.spring(anim, {
+        toValue: i === index ? 1 : 0,
+        friction: 7,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [index, dotAnims]);
+
   if (!banners.length) return null;
 
   return (
@@ -39,7 +54,6 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
       <ScrollView
         ref={scrollRef}
         horizontal
-        pagingEnabled={false}
         decelerationRate="fast"
         snapToInterval={CARD_W + spacing.md}
         showsHorizontalScrollIndicator={false}
@@ -76,9 +90,21 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
       </ScrollView>
       <View style={styles.dots}>
         {banners.map((b, i) => (
-          <View
+          <Animated.View
             key={b.id}
-            style={[styles.dot, i === index && styles.dotActive]}
+            style={[
+              styles.dot,
+              {
+                width: dotAnims[i]?.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [6, 16],
+                }),
+                backgroundColor: dotAnims[i]?.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [colors.borderStrong, colors.primaryDark],
+                }),
+              },
+            ]}
           />
         ))}
       </View>
@@ -88,7 +114,8 @@ export default function HomeHeroBanner({ banners = [], onCta }) {
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingTop: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
     backgroundColor: colors.background,
   },
   row: {
@@ -97,7 +124,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_W,
-    height: 168,
+    height: 210,
     borderRadius: radii.lg,
     overflow: "hidden",
     backgroundColor: colors.surface,
@@ -108,8 +135,12 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   scrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.38)",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "52%",
+    backgroundColor: "rgba(0,0,0,0.42)",
   },
   copy: {
     flex: 1,
@@ -118,43 +149,37 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.white,
-    fontSize: 22,
-    fontWeight: "900",
-    letterSpacing: -0.4,
+    fontSize: 24,
+    fontFamily: fonts.extraBold,
+    letterSpacing: -0.5,
   },
   subtitle: {
     marginTop: 4,
-    color: "rgba(255,255,255,0.9)",
+    color: "rgba(255,255,255,0.92)",
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     lineHeight: 18,
   },
   cta: {
     alignSelf: "flex-start",
-    marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    marginTop: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: radii.pill,
   },
   ctaText: {
     color: colors.text,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 12,
   },
   dots: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 6,
-    marginTop: 10,
+    marginTop: 12,
   },
   dot: {
-    width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.borderStrong,
-  },
-  dotActive: {
-    width: 16,
-    backgroundColor: colors.primaryDark,
   },
 });

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import catalogRoutes from "./routes/catalogRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import printRoutes from "./routes/printRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.use("/api", authRoutes);
 app.use("/api", catalogRoutes);
 app.use("/api", orderRoutes);
 app.use("/api", printRoutes);

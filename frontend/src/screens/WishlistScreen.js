@@ -9,49 +9,13 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import { Heart, Trash2, ShoppingCart } from "../utils/lucideIcons";
+import { Heart, ShoppingCart } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
-import ProductImage from "../components/ProductImage";
-import QtyStepper from "../components/QtyStepper";
+import ProductCard from "../components/ProductCard";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
-
-function WishlistRow({ item }) {
-  const { removeItem } = useWishlist();
-  const { getQty, addItem, increaseQty, decreaseQty } = useCart();
-  const qty = getQty(item.id);
-
-  return (
-    <View style={[styles.row, shadows.soft]}>
-      <ProductImage uri={item.image} style={styles.thumb} iconSize={22} />
-      <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <Text style={styles.unit}>{item.unit}</Text>
-        <Text style={styles.price}>₹{item.price}</Text>
-      </View>
-      <View style={styles.actions}>
-        {qty > 0 ? (
-          <QtyStepper
-            qty={qty}
-            compact
-            onIncrease={() => increaseQty(item.id)}
-            onDecrease={() => decreaseQty(item.id)}
-          />
-        ) : (
-          <Pressable style={styles.addBtn} onPress={() => addItem(item)}>
-            <Text style={styles.addText}>ADD</Text>
-          </Pressable>
-        )}
-        <Pressable onPress={() => removeItem(item.id)} hitSlop={8} style={styles.trash}>
-          <Trash2 size={14} color={colors.danger} strokeWidth={2.2} />
-        </Pressable>
-      </View>
-    </View>
-  );
-}
+import { fonts } from "../theme/typography";
 
 export default function WishlistScreen({ navigation }) {
   const { items, count, clearWishlist } = useWishlist();
@@ -106,18 +70,27 @@ export default function WishlistScreen({ navigation }) {
           <FlatList
             data={items}
             keyExtractor={(item) => item.id}
+            numColumns={2}
+            columnWrapperStyle={styles.gridRow}
             contentContainerStyle={styles.list}
-            renderItem={({ item }) => <WishlistRow item={item} />}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+              <View style={styles.actionsBar}>
+                <Pressable style={styles.clearBtn} onPress={onClear}>
+                  <Text style={styles.clearText}>Clear</Text>
+                </Pressable>
+                <Pressable style={styles.addAllBtn} onPress={onAddAll}>
+                  <ShoppingCart size={15} color={colors.white} strokeWidth={2.2} />
+                  <Text style={styles.addAllText}>Add all</Text>
+                </Pressable>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <View style={styles.cell}>
+                <ProductCard product={item} variant="grid" />
+              </View>
+            )}
           />
-          <View style={styles.footer}>
-            <Pressable style={styles.clearBtn} onPress={onClear}>
-              <Text style={styles.clearText}>Clear</Text>
-            </Pressable>
-            <Pressable style={styles.addAllBtn} onPress={onAddAll}>
-              <ShoppingCart size={16} color={colors.white} strokeWidth={2.2} />
-              <Text style={styles.addAllText}>Add all to cart</Text>
-            </Pressable>
-          </View>
         </View>
       )}
     </SafeAreaView>
@@ -161,7 +134,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     marginTop: spacing.md,
     fontSize: 17,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   emptyText: {
@@ -170,6 +143,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 19,
+    fontFamily: fonts.medium,
   },
   shopBtn: {
     marginTop: spacing.lg,
@@ -180,106 +154,51 @@ const styles = StyleSheet.create({
   },
   shopText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
   },
   filled: {
     flex: 1,
     backgroundColor: colors.background,
   },
   list: {
-    padding: spacing.lg,
-    paddingBottom: 24,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  thumb: {
-    width: 60,
-    height: 60,
-    borderRadius: radii.sm,
-    overflow: "hidden",
-  },
-  info: {
-    flex: 1,
-    marginHorizontal: spacing.md,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  unit: {
-    marginTop: 2,
-    fontSize: 12,
-    color: colors.textMuted,
-    fontWeight: "600",
-  },
-  price: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: "900",
-    color: colors.text,
-  },
-  actions: {
-    alignItems: "flex-end",
-    gap: spacing.sm,
-  },
-  addBtn: {
-    borderWidth: 1.2,
-    borderColor: colors.accent,
-    borderRadius: radii.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.white,
-    minWidth: 54,
-    alignItems: "center",
-  },
-  addText: {
-    color: colors.accent,
-    fontWeight: "900",
-    fontSize: 12,
-  },
-  trash: {
-    padding: 4,
-  },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: 40,
+  },
+  actionsBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
     gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   clearBtn: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: 10,
   },
   clearText: {
     color: colors.textSecondary,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
+    fontSize: 14,
   },
   addAllBtn: {
-    flex: 1,
-    backgroundColor: colors.accent,
-    borderRadius: radii.md,
-    paddingVertical: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
+    gap: 6,
+    backgroundColor: colors.accent,
+    borderRadius: radii.md,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   addAllText: {
     color: colors.white,
-    fontWeight: "900",
-    fontSize: 15,
+    fontFamily: fonts.extraBold,
+    fontSize: 14,
+  },
+  gridRow: {
+    gap: spacing.md,
+  },
+  cell: {
+    flex: 1,
   },
 });

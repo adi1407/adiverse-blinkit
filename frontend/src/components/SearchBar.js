@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
 import { Search, Mic, Volume2 } from "../utils/lucideIcons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const HINTS = [
   'Search "milk"',
@@ -11,28 +12,45 @@ const HINTS = [
   'Search "shampoo"',
 ];
 
-export default function SearchBar({ onPress }) {
+export default function SearchBar({ onPress, onMicPress }) {
   const [hintIndex, setHintIndex] = useState(0);
-  const hint = HINTS[hintIndex];
+  const fade = useRef(new Animated.Value(1)).current;
+  const slide = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const id = setInterval(() => {
-      setHintIndex((i) => (i + 1) % HINTS.length);
-    }, 2200);
+      Animated.parallel([
+        Animated.timing(fade, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slide, {
+          toValue: -8,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setHintIndex((i) => (i + 1) % HINTS.length);
+        slide.setValue(8);
+        Animated.parallel([
+          Animated.timing(fade, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slide, {
+            toValue: 0,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
+    }, 2400);
     return () => clearInterval(id);
-  }, []);
+  }, [fade, slide]);
 
-  function onMic() {
-    Alert.alert(
-      "Voice search",
-      "Voice typing isn’t available in Expo Go yet. Opening search — try speaking your query aloud while you type!",
-      [{ text: "Open search", onPress }]
-    );
-  }
-
-  function onSpeaker() {
-    Alert.alert("Try saying", hint.replace(/^Search\s*/i, "").replace(/"/g, ""));
-  }
+  const hint = HINTS[hintIndex];
 
   return (
     <View style={styles.wrap}>
@@ -43,12 +61,20 @@ export default function SearchBar({ onPress }) {
         accessibilityLabel="Open search"
       >
         <Search size={20} color={colors.textSecondary} strokeWidth={2.2} />
-        <Text style={styles.placeholder}>{hint}</Text>
+        <Animated.Text
+          style={[
+            styles.placeholder,
+            { opacity: fade, transform: [{ translateY: slide }] },
+          ]}
+          numberOfLines={1}
+        >
+          {hint}
+        </Animated.Text>
         <Pressable
           hitSlop={8}
           onPress={(e) => {
             e?.stopPropagation?.();
-            onSpeaker();
+            onPress?.();
           }}
           style={styles.sideBtn}
           accessibilityLabel="Hear search hint"
@@ -60,7 +86,7 @@ export default function SearchBar({ onPress }) {
           hitSlop={8}
           onPress={(e) => {
             e?.stopPropagation?.();
-            onMic();
+            (onMicPress || onPress)?.();
           }}
           style={styles.sideBtn}
           accessibilityLabel="Voice search"
@@ -84,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    height: 48,
+    height: 52,
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.05)",
@@ -93,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   sideBtn: {
     width: 32,

@@ -29,6 +29,7 @@ import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
 import { shareOrder } from "../utils/share";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const STEP_ICON = {
   confirmed: CircleCheck,
@@ -50,6 +51,27 @@ function formatWhen(iso) {
   } catch {
     return "";
   }
+}
+
+/** Prefer explicit ETA fields; otherwise a soft fallback. */
+function orderEtaLabel(order) {
+  if (!order || order.status === "delivered" || order.status === "cancelled") {
+    return null;
+  }
+
+  const raw =
+    order.deliveryMinutes ??
+    order.etaMinutes ??
+    order.eta?.minutes ??
+    order.estimatedMinutes;
+
+  const mins = Number(raw);
+  if (Number.isFinite(mins) && mins > 0) {
+    const rounded = Math.max(1, Math.round(mins));
+    return `Arriving in ${rounded} min`;
+  }
+
+  return "Arriving soon";
 }
 
 function StarsRow({ value, onChange, size = 28, interactive = true }) {
@@ -192,6 +214,7 @@ export default function OrderDetailScreen({ navigation, route }) {
   const cancelled = order?.status === "cancelled";
   const delivered = order?.status === "delivered";
   const alreadyRated = Boolean(order?.rating?.stars);
+  const etaLabel = order ? orderEtaLabel(order) : null;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -227,19 +250,18 @@ export default function OrderDetailScreen({ navigation, route }) {
       ) : (
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
           <View style={[styles.hero, cancelled && styles.heroCancelled, shadows.soft]}>
+            <Text style={styles.heroEyebrow}>
+              {cancelled ? "Order status" : "Live status"}
+            </Text>
             <Text style={[styles.heroStatus, cancelled && styles.heroStatusCancelled]}>
               {statusLabel(order.status)}
             </Text>
+            {etaLabel ? <Text style={styles.heroEta}>{etaLabel}</Text> : null}
             <Text style={styles.heroId}>{order.id}</Text>
             <Text style={styles.heroWhen}>Placed {formatWhen(order.createdAt)}</Text>
             {cancelled && order.cancelledAt ? (
               <Text style={styles.heroHint}>
                 Cancelled {formatWhen(order.cancelledAt)}
-              </Text>
-            ) : null}
-            {!cancelled && order.status !== "delivered" ? (
-              <Text style={styles.heroHint}>
-                Demo tracker: packing ~20s · on the way ~50s · delivered ~90s
               </Text>
             ) : null}
           </View>
@@ -315,7 +337,7 @@ export default function OrderDetailScreen({ navigation, route }) {
 
           {!cancelled ? (
             <>
-              <Text style={styles.section}>Live timeline</Text>
+              <Text style={styles.section}>Order status</Text>
               <View style={[styles.timelineCard, shadows.soft]}>
                 {(order.timeline || []).map((step, index, arr) => {
                   const Icon = STEP_ICON[step.key] || Package;
@@ -464,8 +486,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.2,
   },
   headerActions: {
     flexDirection: "row",
@@ -483,17 +506,26 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   hero: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.primarySoft,
     borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(0,0,0,0.05)",
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
+  heroEyebrow: {
+    fontSize: 11,
+    fontFamily: fonts.bold,
+    color: colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
   heroStatus: {
     fontSize: 22,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.accentDark,
+    letterSpacing: -0.5,
   },
   heroCancelled: {
     borderColor: "#F8C9CD",
@@ -502,23 +534,30 @@ const styles = StyleSheet.create({
   heroStatusCancelled: {
     color: colors.danger,
   },
+  heroEta: {
+    marginTop: 6,
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    letterSpacing: -0.4,
+  },
   heroId: {
-    marginTop: 4,
+    marginTop: spacing.sm,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textSecondary,
   },
   heroWhen: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   heroHint: {
     marginTop: spacing.sm,
     fontSize: 11,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
     lineHeight: 16,
   },
   shareBtn: {
@@ -535,7 +574,7 @@ const styles = StyleSheet.create({
   },
   shareBtnText: {
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.accent,
   },
   cancelBtn: {
@@ -549,7 +588,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: colors.danger,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 14,
   },
   rateCard: {
@@ -563,15 +602,16 @@ const styles = StyleSheet.create({
   },
   rateTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.2,
   },
   rateHint: {
     marginTop: 4,
     marginBottom: spacing.md,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     textAlign: "center",
   },
   starsRow: {
@@ -603,7 +643,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textSecondary,
   },
   chipTextOn: {
@@ -619,13 +659,13 @@ const styles = StyleSheet.create({
   },
   rateBtnText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 14,
   },
   reviewText: {
     marginTop: spacing.md,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.textSecondary,
     textAlign: "center",
   },
@@ -639,7 +679,7 @@ const styles = StyleSheet.create({
   },
   cancelledNoteTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: 4,
   },
@@ -647,13 +687,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     lineHeight: 19,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   section: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: spacing.sm,
+    letterSpacing: -0.15,
   },
   timelineCard: {
     backgroundColor: colors.white,
@@ -705,7 +746,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.textSecondary,
   },
   stepTitleActive: {
@@ -715,7 +756,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   addressCard: {
     flexDirection: "row",
@@ -730,14 +771,14 @@ const styles = StyleSheet.create({
   },
   addressLabel: {
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   addressLine: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   itemsCard: {
     backgroundColor: colors.white,
@@ -761,18 +802,18 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.text,
   },
   itemMeta: {
     marginTop: 2,
     fontSize: 11,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   itemPrice: {
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   billDivider: {
@@ -788,21 +829,21 @@ const styles = StyleSheet.create({
   billLabel: {
     fontSize: 13,
     color: colors.textSecondary,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   billValue: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   grandLabel: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   grandValue: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
 });

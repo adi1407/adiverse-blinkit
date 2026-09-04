@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import {
   SafeAreaView,
-  ScrollView,
+  FlatList,
   StyleSheet,
   StatusBar,
   Platform,
@@ -14,6 +14,7 @@ import {
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RotateCcw, Search } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
+import ProductCard from "../components/ProductCard";
 import ProductRow from "../components/ProductRow";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -21,6 +22,7 @@ import { useAuth } from "../context/AuthContext";
 import { fetchHomeData } from "../api/catalogApi";
 import { fetchReorderProducts } from "../api/ordersApi";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 export default function OrderAgainScreen() {
   const navigation = useNavigation();
@@ -79,6 +81,70 @@ export default function OrderAgainScreen() {
   }, [pastProducts, query]);
 
   const hasPast = pastProducts.length > 0;
+  const showEmptySearch = hasPast && Boolean(query.trim()) && filteredPast.length === 0;
+
+  const listHeader = (
+    <View>
+      <View style={[styles.hero, shadows.soft]}>
+        <View style={styles.heroIcon}>
+          <RotateCcw size={22} color={colors.text} strokeWidth={2.3} />
+        </View>
+        <View style={styles.heroCopy}>
+          <Text style={styles.heroTitle}>
+            {hasPast
+              ? "Buy again from past orders"
+              : isLoggedIn
+                ? "No past orders yet"
+                : "Login to reorder faster"}
+          </Text>
+          <Text style={styles.heroText}>
+            {hasPast
+              ? `${pastProducts.length} items you’ve bought before`
+              : isLoggedIn
+                ? "Place an order from Cart — they’ll land here."
+                : "Sign in, checkout once, then reorder in seconds."}
+          </Text>
+          {!isLoggedIn ? (
+            <Pressable
+              style={styles.loginBtn}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text style={styles.loginBtnText}>Login</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+
+      {hasPast ? (
+        <View style={styles.searchWrap}>
+          <Search size={16} color={colors.textMuted} strokeWidth={2.2} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search past orders"
+            placeholderTextColor={colors.textMuted}
+            value={query}
+            onChangeText={setQuery}
+          />
+        </View>
+      ) : null}
+
+      {hasPast && filteredPast.length > 0 ? (
+        <Text style={styles.sectionTitle}>From your orders</Text>
+      ) : null}
+
+      {showEmptySearch ? (
+        <Text style={styles.emptySearch}>No matches for “{query}”</Text>
+      ) : null}
+    </View>
+  );
+
+  const listFooter = (
+    <View style={styles.footer}>
+      {rows.map((row) => (
+        <ProductRow key={row.id} title={row.title} products={row.products} />
+      ))}
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -93,10 +159,23 @@ export default function OrderAgainScreen() {
       ) : error && !hasContent ? (
         <ErrorState message={error} onRetry={() => load()} />
       ) : (
-        <ScrollView
-          style={styles.scroll}
+        <FlatList
+          style={styles.list}
+          data={hasPast ? filteredPast : []}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={
+            hasPast && filteredPast.length > 0 ? styles.gridRow : undefined
+          }
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={listHeader}
+          ListFooterComponent={listFooter}
+          renderItem={({ item }) => (
+            <View style={styles.cell}>
+              <ProductCard product={item} variant="grid" />
+            </View>
+          )}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -106,62 +185,7 @@ export default function OrderAgainScreen() {
               progressBackgroundColor={colors.white}
             />
           }
-        >
-          <View style={[styles.hero, shadows.soft]}>
-            <View style={styles.heroIcon}>
-              <RotateCcw size={22} color={colors.text} strokeWidth={2.3} />
-            </View>
-            <View style={styles.heroCopy}>
-              <Text style={styles.heroTitle}>
-                {hasPast
-                  ? "Buy again from past orders"
-                  : isLoggedIn
-                    ? "No past orders yet"
-                    : "Login to reorder faster"}
-              </Text>
-              <Text style={styles.heroText}>
-                {hasPast
-                  ? `${pastProducts.length} items you’ve bought before`
-                  : isLoggedIn
-                    ? "Place an order from Cart — they’ll land here."
-                    : "Sign in, checkout once, then reorder in seconds."}
-              </Text>
-              {!isLoggedIn ? (
-                <Pressable
-                  style={styles.loginBtn}
-                  onPress={() => navigation.navigate("Login")}
-                >
-                  <Text style={styles.loginBtnText}>Login</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          </View>
-
-          {hasPast ? (
-            <View style={styles.searchWrap}>
-              <Search size={16} color={colors.textMuted} strokeWidth={2.2} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search past orders"
-                placeholderTextColor={colors.textMuted}
-                value={query}
-                onChangeText={setQuery}
-              />
-            </View>
-          ) : null}
-
-          {hasPast ? (
-            <ProductRow title="From your orders" products={filteredPast} />
-          ) : null}
-
-          {hasPast && query && filteredPast.length === 0 ? (
-            <Text style={styles.emptySearch}>No matches for “{query}”</Text>
-          ) : null}
-
-          {rows.map((row) => (
-            <ProductRow key={row.id} title={row.title} products={row.products} />
-          ))}
-        </ScrollView>
+        />
       )}
     </SafeAreaView>
   );
@@ -179,12 +203,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
-  scroll: {
+  list: {
     flex: 1,
     backgroundColor: colors.background,
   },
   content: {
     paddingBottom: 110,
+    flexGrow: 1,
   },
   hero: {
     margin: spacing.lg,
@@ -209,27 +234,28 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.25,
     marginBottom: 4,
   },
   heroText: {
-    fontSize: 12,
+    fontSize: 13,
+    fontFamily: fonts.medium,
     color: colors.textSecondary,
-    lineHeight: 17,
-    fontWeight: "500",
+    lineHeight: 18,
   },
   loginBtn: {
-    marginTop: 10,
+    marginTop: 12,
     alignSelf: "flex-start",
     backgroundColor: colors.text,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: radii.pill,
   },
   loginBtnText: {
     color: colors.primary,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 13,
   },
   searchWrap: {
@@ -249,12 +275,33 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: colors.text,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
+  },
+  sectionTitle: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    letterSpacing: -0.35,
+  },
+  gridRow: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  cell: {
+    flex: 1,
   },
   emptySearch: {
     textAlign: "center",
     color: colors.textMuted,
-    fontWeight: "600",
-    padding: spacing.lg,
+    fontFamily: fonts.semiBold,
+    fontSize: 13,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+  },
+  footer: {
+    paddingTop: spacing.sm,
   },
 });

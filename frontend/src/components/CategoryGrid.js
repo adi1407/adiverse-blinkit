@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 import { getLucideIcon } from "../utils/icons";
 
 export default function CategoryGrid({
@@ -22,7 +23,10 @@ export default function CategoryGrid({
           return (
             <Pressable
               key={cat.id}
-              style={styles.item}
+              style={({ pressed }) => [
+                styles.item,
+                pressed && { opacity: 0.88, transform: [{ scale: 0.97 }] },
+              ]}
               onPress={() => onSelectCategory?.(cat)}
             >
               <View
@@ -32,13 +36,21 @@ export default function CategoryGrid({
                   shadows.soft,
                 ]}
               >
-                <View style={styles.iconCircle}>
-                  <Icon
-                    size={26}
-                    color={cat.color || colors.accent}
-                    strokeWidth={2.1}
+                {cat.image ? (
+                  <Image
+                    source={{ uri: cat.image }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
                   />
-                </View>
+                ) : (
+                  <View style={styles.iconCircle}>
+                    <Icon
+                      size={26}
+                      color={cat.color || colors.accent}
+                      strokeWidth={2.1}
+                    />
+                  </View>
+                )}
               </View>
               <Text style={styles.name}>{cat.name}</Text>
             </Pressable>
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.3,
   },
@@ -68,7 +80,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   grid: {
     flexDirection: "row",
@@ -87,8 +99,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
+    overflow: "hidden",
+  },
+  tileImage: {
+    width: "100%",
+    height: "100%",
   },
   iconCircle: {
     width: 46,
@@ -103,6 +118,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.text,
     lineHeight: 14,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
 });

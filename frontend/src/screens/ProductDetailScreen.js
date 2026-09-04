@@ -30,6 +30,7 @@ import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import { categoryTitle } from "../utils/category";
 import { shareProduct } from "../utils/share";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 export default function ProductDetailScreen({ navigation, route }) {
   const { productId } = route.params;
@@ -163,13 +164,16 @@ export default function ProductDetailScreen({ navigation, route }) {
           <Text style={styles.unit}>{product.unit}</Text>
           <Text style={styles.name}>{product.name}</Text>
 
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>₹{product.price}</Text>
-            {showMrp ? <Text style={styles.mrp}>₹{product.mrp}</Text> : null}
+          <View style={styles.priceBlock}>
+            <View style={styles.priceRow}>
+              <Text style={styles.price}>₹{product.price}</Text>
+              {showMrp ? <Text style={styles.mrp}>₹{product.mrp}</Text> : null}
+              {discountPct > 0 ? (
+                <Text style={styles.discountInline}>{discountPct}% OFF</Text>
+              ) : null}
+            </View>
             {youSave > 0 ? (
-              <View style={styles.savePill}>
-                <Text style={styles.saveText}>Save ₹{youSave}</Text>
-              </View>
+              <Text style={styles.youSave}>You save ₹{youSave}</Text>
             ) : null}
           </View>
 
@@ -281,7 +285,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
     color: colors.text,
   },
   scroll: {
@@ -293,35 +297,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: spacing.lg,
   },
-  hero: {
-    margin: spacing.lg,
-    height: 280,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  heroImage: {
-    width: "88%",
-    height: "88%",
-  },
-  discountBadge: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 2,
-    backgroundColor: colors.discount,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderBottomRightRadius: 10,
-  },
   discountText: {
     color: colors.white,
     fontSize: 11,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
   },
   etaChipFloat: {
     flexDirection: "row",
@@ -335,24 +314,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: radii.pill,
   },
-  etaChip: {
-    position: "absolute",
-    left: 12,
-    bottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: colors.white,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-    zIndex: 2,
-  },
   etaText: {
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
     color: colors.text,
   },
   info: {
@@ -360,7 +324,7 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
     color: colors.accent,
     marginBottom: 4,
     textTransform: "uppercase",
@@ -368,19 +332,21 @@ const styles = StyleSheet.create({
   },
   unit: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.textMuted,
   },
   name: {
     marginTop: 4,
     fontSize: 22,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.4,
     lineHeight: 28,
   },
-  priceRow: {
+  priceBlock: {
     marginTop: spacing.md,
+  },
+  priceRow: {
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
@@ -388,24 +354,24 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 24,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   mrp: {
     fontSize: 15,
     color: colors.textMuted,
     textDecorationLine: "line-through",
-    fontWeight: "600",
+    fontFamily: fonts.medium,
   },
-  savePill: {
-    backgroundColor: colors.accentSoft,
-    borderRadius: radii.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  saveText: {
+  discountInline: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
+    color: colors.discount,
+  },
+  youSave: {
+    marginTop: 4,
+    fontSize: 13,
+    fontFamily: fonts.semiBold,
     color: colors.accent,
   },
   trustRow: {
@@ -426,7 +392,7 @@ const styles = StyleSheet.create({
   },
   trustText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.textSecondary,
   },
   section: {
@@ -435,7 +401,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: spacing.md,
   },
@@ -454,14 +420,14 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
     color: colors.textMuted,
   },
   detailValue: {
     flex: 1,
     textAlign: "right",
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.text,
   },
   about: {
@@ -469,6 +435,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     color: colors.textSecondary,
+    fontFamily: fonts.medium,
   },
   footer: {
     position: "absolute",
@@ -487,13 +454,13 @@ const styles = StyleSheet.create({
   },
   footerHint: {
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
     color: colors.textMuted,
   },
   footerPrice: {
     marginTop: 2,
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   addBtn: {
@@ -507,7 +474,7 @@ const styles = StyleSheet.create({
   },
   addText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 15,
     letterSpacing: 0.4,
   },

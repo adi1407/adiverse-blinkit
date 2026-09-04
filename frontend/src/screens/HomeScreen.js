@@ -18,11 +18,12 @@ import HomeHeroBanner from "../components/HomeHeroBanner";
 import CategoryBlock from "../components/CategoryBlock";
 import DealsGrid from "../components/DealsGrid";
 import ProductRow from "../components/ProductRow";
-import LoadingState from "../components/LoadingState";
+import { HomeFeedSkeleton } from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchHomeData } from "../api/catalogApi";
 import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import { colors, spacing } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const PAGE_SIZE = 4;
 
@@ -146,7 +147,16 @@ export default function HomeScreen() {
   if (loading && !data) {
     return (
       <SafeAreaView style={styles.safe}>
-        <LoadingState message="Loading home..." />
+        <View style={styles.chrome}>
+          <HomeHeader minutes={8} />
+          <SearchBar
+            onPress={() => navigation.navigate("Search")}
+            onMicPress={() => navigation.navigate("Search", { voice: true })}
+          />
+          <LifestyleChips selectedId={hub} onSelect={onSelectHub} />
+          <View style={styles.heroCurve} />
+        </View>
+        <HomeFeedSkeleton />
       </SafeAreaView>
     );
   }
@@ -164,7 +174,10 @@ export default function HomeScreen() {
       <ExpoStatusBar style="dark" />
       <View style={styles.chrome}>
         <HomeHeader minutes={data?.deliveryInfo?.minutes || 8} />
-        <SearchBar onPress={() => navigation.navigate("Search")} />
+        <SearchBar
+          onPress={() => navigation.navigate("Search")}
+          onMicPress={() => navigation.navigate("Search", { voice: true })}
+        />
         <LifestyleChips
           hubs={data?.lifestyleHubs}
           selectedId={hub}
@@ -233,14 +246,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: spacing.lg,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     fontSize: 12,
   },
   end: {
     textAlign: "center",
     paddingVertical: spacing.xl,
     color: colors.textMuted,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     fontSize: 12,
   },
 });

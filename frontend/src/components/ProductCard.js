@@ -1,18 +1,21 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Zap, Heart } from "../utils/lucideIcons";
+import { Zap } from "../utils/lucideIcons";
+import { hapticLight } from "../utils/haptics";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 import { useCart } from "../context/CartContext";
-import { useWishlist } from "../context/WishlistContext";
 import QtyStepper from "./QtyStepper";
 import ProductImage from "./ProductImage";
 
-export default function ProductCard({ product, variant = "carousel" }) {
+export default function ProductCard({
+  product,
+  variant = "carousel",
+  showWishlist = false,
+}) {
   const navigation = useNavigation();
   const { getQty, addItem, increaseQty, decreaseQty } = useCart();
-  const { isSaved, toggleItem } = useWishlist();
   const qty = getQty(product.id);
-  const saved = isSaved(product.id);
   const showMrp = product.mrp > product.price;
   const discountPct = showMrp
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
@@ -26,7 +29,11 @@ export default function ProductCard({ product, variant = "carousel" }) {
   return (
     <Pressable
       onPress={openDetail}
-      style={[styles.card, isGrid && styles.cardGrid, shadows.soft]}
+      style={({ pressed }) => [
+        styles.card,
+        isGrid && styles.cardGrid,
+        pressed ? shadows.pressed : null,
+      ]}
     >
       <View style={styles.imageBox}>
         {discountPct > 0 ? (
@@ -34,22 +41,6 @@ export default function ProductCard({ product, variant = "carousel" }) {
             <Text style={styles.discountText}>{discountPct}% OFF</Text>
           </View>
         ) : null}
-
-        <Pressable
-          style={styles.heartBtn}
-          hitSlop={8}
-          onPress={(e) => {
-            e?.stopPropagation?.();
-            toggleItem(product);
-          }}
-        >
-          <Heart
-            size={15}
-            color={saved ? colors.danger : colors.textMuted}
-            fill={saved ? colors.danger : "transparent"}
-            strokeWidth={2.2}
-          />
-        </Pressable>
 
         <ProductImage uri={product.image} style={styles.image} iconSize={32} />
 
@@ -60,6 +51,11 @@ export default function ProductCard({ product, variant = "carousel" }) {
       </View>
 
       <Text style={styles.unit}>{product.unit}</Text>
+      {product.brand ? (
+        <Text style={styles.brand} numberOfLines={1}>
+          {product.brand}
+        </Text>
+      ) : null}
       <Text style={styles.name} numberOfLines={2}>
         {product.name}
       </Text>
@@ -73,15 +69,25 @@ export default function ProductCard({ product, variant = "carousel" }) {
         {qty > 0 ? (
           <QtyStepper
             qty={qty}
-            compact
-            onIncrease={() => increaseQty(product.id)}
-            onDecrease={() => decreaseQty(product.id)}
+            size="sm"
+            onIncrease={() => {
+              hapticLight();
+              increaseQty(product.id);
+            }}
+            onDecrease={() => {
+              hapticLight();
+              decreaseQty(product.id);
+            }}
           />
         ) : (
           <Pressable
-            style={styles.addBtn}
+            style={({ pressed }) => [
+              styles.addBtn,
+              pressed && styles.addBtnPressed,
+            ]}
             onPress={(e) => {
               e?.stopPropagation?.();
+              hapticLight();
               addItem(product);
             }}
           >
@@ -99,8 +105,6 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
     backgroundColor: colors.white,
     borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: 10,
   },
   cardGrid: {
@@ -110,11 +114,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageBox: {
-    height: 108,
+    height: 112,
     borderRadius: radii.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
     marginBottom: spacing.sm,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   image: {
     width: "100%",
@@ -133,21 +139,7 @@ const styles = StyleSheet.create({
   discountText: {
     color: colors.white,
     fontSize: 9,
-    fontWeight: "900",
-  },
-  heartBtn: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    zIndex: 3,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
+    fontFamily: fonts.extraBold,
   },
   etaChip: {
     position: "absolute",
@@ -166,22 +158,29 @@ const styles = StyleSheet.create({
   },
   etaText: {
     fontSize: 9,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   unit: {
     fontSize: 11,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
+    marginBottom: 1,
+  },
+  brand: {
+    fontSize: 10,
+    color: colors.textSecondary,
+    fontFamily: fonts.medium,
     marginBottom: 2,
   },
   name: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.text,
     minHeight: 34,
     lineHeight: 17,
     marginBottom: spacing.sm,
+    letterSpacing: -0.15,
   },
   footer: {
     flexDirection: "row",
@@ -194,7 +193,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   mrp: {
@@ -202,9 +201,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textDecorationLine: "line-through",
     marginTop: 1,
+    fontFamily: fonts.medium,
   },
   addBtn: {
-    borderWidth: 1.2,
+    borderWidth: 1.4,
     borderColor: colors.accent,
     borderRadius: radii.sm,
     paddingHorizontal: 12,
@@ -213,9 +213,12 @@ const styles = StyleSheet.create({
     minWidth: 54,
     alignItems: "center",
   },
+  addBtnPressed: {
+    backgroundColor: colors.accent,
+  },
   addText: {
     color: colors.accent,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 12,
     letterSpacing: 0.3,
   },

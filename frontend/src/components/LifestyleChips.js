@@ -1,6 +1,7 @@
 import { ScrollView, Pressable, Text, StyleSheet, View } from "react-native";
 import { getLucideIcon } from "../utils/icons";
 import { colors, spacing, radii } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const FALLBACK_HUBS = [
   { id: "all", label: "All", icon: "LayoutGrid" },
@@ -45,6 +46,8 @@ export default function LifestyleChips({ hubs, selectedId, onSelect }) {
           );
         })}
       </ScrollView>
+      <View pointerEvents="none" style={styles.fadeLeft} />
+      <View pointerEvents="none" style={styles.fadeRight} />
     </View>
   );
 }
@@ -53,6 +56,7 @@ const styles = StyleSheet.create({
   wrap: {
     backgroundColor: colors.primary,
     paddingBottom: spacing.sm,
+    position: "relative",
   },
   row: {
     paddingHorizontal: spacing.lg,
@@ -62,10 +66,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: radii.pill,
-    backgroundColor: "rgba(255,255,255,0.45)",
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
   },
@@ -75,11 +79,27 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textSecondary,
   },
   labelActive: {
     color: colors.text,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
+  },
+  fadeLeft: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: spacing.sm,
+    width: 16,
+    backgroundColor: "transparent",
+  },
+  fadeRight: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: spacing.sm,
+    width: 20,
+    backgroundColor: "transparent",
   },
 });

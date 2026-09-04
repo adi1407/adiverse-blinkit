@@ -29,6 +29,7 @@ import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
 import { placePrintJob } from "../api/printApi";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const DOC_BW = 3;
 const DOC_COLOR = 8;
@@ -291,36 +292,41 @@ export default function PrintScreen({ navigation }) {
         </Pressable>
 
         {!kind ? (
-          <>
+          <View style={styles.serviceGrid}>
             <Pressable
-              style={[styles.action, shadows.soft]}
+              style={[styles.serviceCard, shadows.soft]}
               onPress={pickDocuments}
             >
-              <View style={styles.actionIcon}>
-                <FileText size={20} color={colors.accent} />
+              <View style={styles.serviceIcon}>
+                <FileText size={28} color={colors.accent} strokeWidth={1.9} />
               </View>
-              <View style={styles.actionCopy}>
-                <Text style={styles.actionTitle}>Print documents</Text>
-                <Text style={styles.actionHint}>
-                  PDF, DOC · ₹{DOC_BW}/B&W · ₹{DOC_COLOR}/color page
-                </Text>
+              <Text style={styles.serviceTitle}>Documents</Text>
+              <Text style={styles.serviceHint}>
+                PDF, DOC · ₹{DOC_BW}/B&W · ₹{DOC_COLOR}/color
+              </Text>
+              <View style={styles.serviceCta}>
+                <Upload size={14} color={colors.accent} strokeWidth={2.4} />
+                <Text style={styles.serviceCtaText}>Upload files</Text>
               </View>
-              <Upload size={18} color={colors.textMuted} />
             </Pressable>
 
-            <Pressable style={[styles.action, shadows.soft]} onPress={pickPhotos}>
-              <View style={styles.actionIcon}>
-                <ImageIcon size={20} color={colors.accent} />
+            <Pressable
+              style={[styles.serviceCard, shadows.soft]}
+              onPress={pickPhotos}
+            >
+              <View style={[styles.serviceIcon, styles.serviceIconPhoto]}>
+                <ImageIcon size={28} color={colors.accent} strokeWidth={1.9} />
               </View>
-              <View style={styles.actionCopy}>
-                <Text style={styles.actionTitle}>Print photos</Text>
-                <Text style={styles.actionHint}>
-                  4×6 ₹{PHOTO_4X6} · Polaroid ₹{PHOTO_POLAROID}
-                </Text>
+              <Text style={styles.serviceTitle}>Photos</Text>
+              <Text style={styles.serviceHint}>
+                4×6 ₹{PHOTO_4X6} · Polaroid ₹{PHOTO_POLAROID}
+              </Text>
+              <View style={styles.serviceCta}>
+                <Upload size={14} color={colors.accent} strokeWidth={2.4} />
+                <Text style={styles.serviceCtaText}>Choose photos</Text>
               </View>
-              <Upload size={18} color={colors.textMuted} />
             </Pressable>
-          </>
+          </View>
         ) : (
           <View style={[styles.composer, shadows.soft]}>
             <View style={styles.composerHeader}>
@@ -545,12 +551,14 @@ const styles = StyleSheet.create({
   title: {
     marginTop: spacing.md,
     fontSize: 20,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.4,
   },
   text: {
     marginTop: spacing.sm,
     fontSize: 13,
+    fontFamily: fonts.medium,
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 19,
@@ -563,7 +571,7 @@ const styles = StyleSheet.create({
   },
   jobsLinkText: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.accent,
   },
   stationeryCard: {
@@ -590,47 +598,66 @@ const styles = StyleSheet.create({
   },
   stationeryTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.2,
   },
   stationeryHint: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
-  action: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.white,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+  serviceGrid: {
     gap: spacing.md,
   },
-  actionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: colors.accentSoft,
+  serviceCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+    minHeight: 168,
     alignItems: "center",
     justifyContent: "center",
   },
-  actionCopy: {
-    flex: 1,
+  serviceIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
-  actionTitle: {
-    fontSize: 15,
-    fontWeight: "800",
+  serviceIconPhoto: {
+    backgroundColor: colors.surfaceWarm,
+  },
+  serviceTitle: {
+    fontSize: 17,
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.3,
   },
-  actionHint: {
-    marginTop: 2,
+  serviceHint: {
+    marginTop: 6,
     fontSize: 12,
+    fontFamily: fonts.medium,
     color: colors.textMuted,
-    fontWeight: "500",
+    textAlign: "center",
+    lineHeight: 17,
+  },
+  serviceCta: {
+    marginTop: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  serviceCtaText: {
+    fontSize: 13,
+    fontFamily: fonts.extraBold,
+    color: colors.accent,
   },
   composer: {
     backgroundColor: colors.white,
@@ -647,12 +674,13 @@ const styles = StyleSheet.create({
   },
   composerTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.25,
   },
   clearText: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textMuted,
   },
   fileRow: {
@@ -823,12 +851,12 @@ const styles = StyleSheet.create({
   },
   grandLabel: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   grandValue: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   placeBtn: {
@@ -843,7 +871,7 @@ const styles = StyleSheet.create({
   },
   placeText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 15,
   },
 });

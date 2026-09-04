@@ -20,6 +20,7 @@ export const colors = {
   danger: "#E23744",
   discount: "#256FEF",
   overlay: "rgba(0,0,0,0.04)",
+  pressed: "rgba(0,0,0,0.06)",
 };
 
 export const spacing = {
@@ -29,6 +30,7 @@ export const spacing = {
   lg: 16,
   xl: 20,
   xxl: 24,
+  section: 22,
 };
 
 export const radii = {
@@ -42,16 +44,32 @@ export const radii = {
 export const shadows = {
   soft: {
     shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
   card: {
     shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  float: {
+    shadowColor: "#0C831F",
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 10,
+  },
+  pressed: {
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
 };
+
+export { fonts, typography } from "./typography";

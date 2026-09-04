@@ -1,7 +1,11 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ProductImage from "./ProductImage";
-import { colors, spacing, radii, shadows } from "../theme/colors";
+import QtyStepper from "./QtyStepper";
+import { useCart } from "../context/CartContext";
+import { hapticLight } from "../utils/haptics";
+import { colors, spacing, radii } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 function discountPct(product) {
   const mrp = Number(product.mrp) || 0;
@@ -10,8 +14,69 @@ function discountPct(product) {
   return Math.round(((mrp - price) / mrp) * 100);
 }
 
-export default function DealsGrid({ title, subtitle, products = [] }) {
+function DealCell({ product }) {
   const navigation = useNavigation();
+  const { getQty, addItem, increaseQty, decreaseQty } = useCart();
+  const qty = getQty(product.id);
+  const off = discountPct(product);
+
+  return (
+    <Pressable
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate("ProductDetail", { productId: product.id })
+      }
+    >
+      {off > 0 ? (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{off}% OFF</Text>
+        </View>
+      ) : null}
+      <ProductImage uri={product.image} style={styles.image} iconSize={28} />
+      <Text style={styles.name} numberOfLines={2}>
+        {product.name}
+      </Text>
+      <View style={styles.priceRow}>
+        <Text style={styles.price}>₹{product.price}</Text>
+        {product.mrp > product.price ? (
+          <Text style={styles.mrp}>₹{product.mrp}</Text>
+        ) : null}
+      </View>
+      <View style={styles.action}>
+        {qty > 0 ? (
+          <QtyStepper
+            qty={qty}
+            size="sm"
+            onIncrease={() => {
+              hapticLight();
+              increaseQty(product.id);
+            }}
+            onDecrease={() => {
+              hapticLight();
+              decreaseQty(product.id);
+            }}
+          />
+        ) : (
+          <Pressable
+            style={({ pressed }) => [
+              styles.addBtn,
+              pressed && styles.addBtnPressed,
+            ]}
+            onPress={(e) => {
+              e?.stopPropagation?.();
+              hapticLight();
+              addItem(product);
+            }}
+          >
+            <Text style={styles.addText}>ADD</Text>
+          </Pressable>
+        )}
+      </View>
+    </Pressable>
+  );
+}
+
+export default function DealsGrid({ title, subtitle, products = [] }) {
   if (!products.length) return null;
 
   return (
@@ -19,34 +84,9 @@ export default function DealsGrid({ title, subtitle, products = [] }) {
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       <View style={styles.grid}>
-        {products.slice(0, 8).map((product) => {
-          const off = discountPct(product);
-          return (
-            <Pressable
-              key={product.id}
-              style={[styles.card, shadows.soft]}
-              onPress={() =>
-                navigation.navigate("ProductDetail", { productId: product.id })
-              }
-            >
-              {off > 0 ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{off}% OFF</Text>
-                </View>
-              ) : null}
-              <ProductImage uri={product.image} style={styles.image} iconSize={28} />
-              <Text style={styles.name} numberOfLines={2}>
-                {product.name}
-              </Text>
-              <View style={styles.priceRow}>
-                <Text style={styles.price}>₹{product.price}</Text>
-                {product.mrp > product.price ? (
-                  <Text style={styles.mrp}>₹{product.mrp}</Text>
-                ) : null}
-              </View>
-            </Pressable>
-          );
-        })}
+        {products.slice(0, 8).map((product) => (
+          <DealCell key={product.id} product={product} />
+        ))}
       </View>
     </View>
   );
@@ -61,7 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.3,
   },
@@ -70,13 +110,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: spacing.sm,
   },
   card: {
     width: "48%",
@@ -84,8 +123,6 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.sm,
     marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   badge: {
     alignSelf: "flex-start",
@@ -98,18 +135,18 @@ const styles = StyleSheet.create({
   badgeText: {
     color: colors.white,
     fontSize: 10,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
   },
   image: {
     width: "100%",
-    height: 88,
+    height: 118,
     borderRadius: radii.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.white,
   },
   name: {
     marginTop: 8,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.text,
     minHeight: 32,
   },
@@ -121,13 +158,33 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   mrp: {
     fontSize: 11,
     color: colors.textMuted,
     textDecorationLine: "line-through",
-    fontWeight: "600",
+    fontFamily: fonts.medium,
+  },
+  action: {
+    marginTop: 8,
+    alignItems: "flex-start",
+  },
+  addBtn: {
+    borderWidth: 1.4,
+    borderColor: colors.accent,
+    borderRadius: radii.sm,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    backgroundColor: colors.white,
+  },
+  addBtnPressed: {
+    backgroundColor: colors.accent,
+  },
+  addText: {
+    color: colors.accent,
+    fontFamily: fonts.extraBold,
+    fontSize: 12,
   },
 });

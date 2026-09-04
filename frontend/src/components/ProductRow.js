@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import { ChevronRight } from "../utils/lucideIcons";
 import ProductCard from "./ProductCard";
 import { colors, spacing } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
-/** Horizontal product rail with optional auto-scroll (Blinkit “moving” strip). */
 export default function ProductRow({
   title,
   subtitle,
@@ -19,11 +19,11 @@ export default function ProductRow({
   useEffect(() => {
     if (!autoScroll || products.length < 3) return undefined;
     const id = setInterval(() => {
-      offset.current += 118;
-      const max = products.length * 118;
+      offset.current += 60;
+      const max = products.length * 148;
       if (offset.current > max - 280) offset.current = 0;
       scrollRef.current?.scrollTo({ x: offset.current, animated: true });
-    }, 2800);
+    }, 2200);
     return () => clearInterval(id);
   }, [autoScroll, products.length]);
 
@@ -34,9 +34,7 @@ export default function ProductRow({
       <View style={styles.header}>
         <View style={styles.titleBlock}>
           <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>
-            {subtitle || `${products.length} products`}
-          </Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
         {onSeeAll ? (
           <Pressable style={styles.seeAll} onPress={onSeeAll}>
@@ -64,7 +62,8 @@ export default function ProductRow({
 const styles = StyleSheet.create({
   wrap: {
     marginTop: spacing.sm,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
     backgroundColor: colors.background,
   },
   header: {
@@ -79,16 +78,16 @@ const styles = StyleSheet.create({
     paddingRight: spacing.md,
   },
   title: {
-    fontSize: 17,
-    fontWeight: "900",
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
     color: colors.text,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    marginTop: 2,
-    fontSize: 11,
+    marginTop: 3,
+    fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
   },
   seeAll: {
     flexDirection: "row",
@@ -98,7 +97,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     color: colors.accent,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     fontSize: 12,
   },
   list: {

@@ -1,8 +1,17 @@
+import { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as NativeSplash from "expo-splash-screen";
+import {
+  useFonts,
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from "@expo-google-fonts/plus-jakarta-sans";
 import { CartProvider, useCart } from "./src/context/CartContext";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { AddressProvider, useAddress } from "./src/context/AddressContext";
@@ -25,7 +34,7 @@ import { colors } from "./src/theme/colors";
 
 NativeSplash.preventAutoHideAsync().catch(() => {});
 
-function Root() {
+function Root({ fontsReady }) {
   const { ready: authReady } = useAuth();
   const { ready: addressReady } = useAddress();
   const { ready: cartReady } = useCart();
@@ -34,6 +43,7 @@ function Root() {
   const { ready: notifReady } = useNotifications();
   const { ready: searchReady } = useSearchHistory();
   const ready =
+    fontsReady &&
     authReady &&
     addressReady &&
     cartReady &&
@@ -56,6 +66,14 @@ function Root() {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+  });
+
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
@@ -66,7 +84,7 @@ export default function App() {
               <WishlistProvider>
                 <RecentlyViewedProvider>
                   <SearchHistoryProvider>
-                    <Root />
+                    <Root fontsReady={fontsLoaded} />
                   </SearchHistoryProvider>
                 </RecentlyViewedProvider>
               </WishlistProvider>

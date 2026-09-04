@@ -7,25 +7,32 @@ import {
   Platform,
   View,
   Text,
-  TextInput,
+  Pressable,
+  Image,
   RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Search } from "../utils/lucideIcons";
 import ScreenHeader from "../components/ScreenHeader";
-import CategoryGrid from "../components/CategoryGrid";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchCategories } from "../api/catalogApi";
-import { colors, spacing, radii } from "../theme/colors";
+import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
+
+const GROUPS = [
+  { id: "grocery", label: "Grocery", ids: ["c1", "c2", "c3", "c4", "c5", "c6"] },
+  { id: "snacks", label: "Snacks", ids: ["c7", "c8"] },
+  { id: "beauty", label: "Beauty", ids: ["c9", "c11"] },
+  { id: "home", label: "Household", ids: ["c10", "c12", "c13", "c14", "c15", "c16"] },
+];
 
 export default function CategoriesScreen() {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
 
   const loadCategories = useCallback(async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
@@ -34,6 +41,7 @@ export default function CategoriesScreen() {
     try {
       const data = await fetchCategories();
       setCategories(data);
+      setSelectedId((prev) => prev || data[0]?.id || null);
     } catch (err) {
       setError(err.message || "Failed to load categories");
     } finally {
@@ -46,13 +54,19 @@ export default function CategoriesScreen() {
     loadCategories();
   }, [loadCategories]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return categories;
-    return categories.filter((c) =>
-      String(c.name).replace(/\n/g, " ").toLowerCase().includes(q)
-    );
-  }, [categories, query]);
+  const byId = useMemo(() => {
+    const map = {};
+    categories.forEach((c) => {
+      map[c.id] = c;
+    });
+    return map;
+  }, [categories]);
+
+  const selected = byId[selectedId];
+  const siblingIds =
+    GROUPS.find((g) => g.ids.includes(selectedId))?.ids ||
+    categories.map((c) => c.id);
+  const rightTiles = siblingIds.map((id) => byId[id]).filter(Boolean);
 
   function openCategory(cat) {
     navigation.navigate("CategoryProducts", { categoryId: cat.id });
@@ -62,7 +76,8 @@ export default function CategoriesScreen() {
     <SafeAreaView style={styles.safe}>
       <ScreenHeader
         title="Categories"
-        subtitle="Browse every aisle in minutes"
+        subtitle="Browse every aisle"
+        compact
       />
       <View style={styles.curve} />
 
@@ -71,46 +86,96 @@ export default function CategoriesScreen() {
       ) : error && categories.length === 0 ? (
         <ErrorState message={error} onRetry={() => loadCategories()} />
       ) : (
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => loadCategories({ silent: true })}
-              tintColor={colors.accent}
-              colors={[colors.accent]}
-              progressBackgroundColor={colors.white}
-            />
-          }
-        >
-          <View style={styles.searchWrap}>
-            <Search size={16} color={colors.textMuted} strokeWidth={2.2} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search categories"
-              placeholderTextColor={colors.textMuted}
-              value={query}
-              onChangeText={setQuery}
-            />
-          </View>
+        <View style={styles.split}>
+          <ScrollView
+            style={styles.rail}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.railContent}
+          >
+            {categories.map((cat) => {
+              const active = cat.id === selectedId;
+              const label = String(cat.name).replace(/\n/g, " ");
+              return (
+                <Pressable
+                  key={cat.id}
+                  style={[styles.railItem, active && styles.railItemActive]}
+                  onPress={() => setSelectedId(cat.id)}
+                >
+                  {active ? <View style={styles.railBar} /> : null}
+                  <Text
+                    style={[styles.railLabel, active && styles.railLabelActive]}
+                    numberOfLines={3}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
 
-          <View style={styles.note}>
-            <Text style={styles.noteTitle}>
-              {filtered.length} categor{filtered.length === 1 ? "y" : "ies"}
-            </Text>
-            <Text style={styles.noteText}>
-              Tap an aisle — fresh stock, same-day delivery feel
-            </Text>
-          </View>
+          <ScrollView
+            style={styles.pane}
+            contentContainerStyle={styles.paneContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => loadCategories({ silent: true })}
+                tintColor={colors.accent}
+                colors={[colors.accent]}
+              />
+            }
+          >
+            {selected ? (
+              <Pressable
+                style={[styles.hero, shadows.soft]}
+                onPress={() => openCategory(selected)}
+              >
+                {selected.image ? (
+                  <Image
+                    source={{ uri: selected.image }}
+                    style={styles.heroImage}
+                  />
+                ) : (
+                  <View
+                    style={[styles.heroImage, { backgroundColor: selected.bg }]}
+                  />
+                )}
+                <View style={styles.heroCopy}>
+                  <Text style={styles.heroTitle}>
+                    {String(selected.name).replace(/\n/g, " ")}
+                  </Text>
+                  <Text style={styles.heroCta}>Shop aisle →</Text>
+                </View>
+              </Pressable>
+            ) : null}
 
-          <CategoryGrid
-            categories={filtered}
-            onSelectCategory={openCategory}
-            showTitle={false}
-          />
-        </ScrollView>
+            <Text style={styles.paneTitle}>In this section</Text>
+            <View style={styles.grid}>
+              {rightTiles.map((cat) => (
+                <Pressable
+                  key={cat.id}
+                  style={styles.tileWrap}
+                  onPress={() => openCategory(cat)}
+                >
+                  <View
+                    style={[styles.tile, { backgroundColor: cat.bg }, shadows.soft]}
+                  >
+                    {cat.image ? (
+                      <Image
+                        source={{ uri: cat.image }}
+                        style={styles.tileImage}
+                      />
+                    ) : null}
+                  </View>
+                  <Text style={styles.tileName} numberOfLines={2}>
+                    {String(cat.name).replace(/\n/g, " ")}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -128,47 +193,116 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
-  scroll: {
+  split: {
     flex: 1,
+    flexDirection: "row",
     backgroundColor: colors.background,
   },
-  content: {
+  rail: {
+    width: 92,
+    backgroundColor: colors.surface,
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
+  },
+  railContent: {
     paddingBottom: 110,
   },
-  searchWrap: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    flexDirection: "row",
+  railItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 8,
     alignItems: "center",
-    gap: 8,
-    backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    height: 44,
-    borderWidth: 1,
-    borderColor: colors.border,
+    justifyContent: "center",
+    minHeight: 72,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.text,
-    fontWeight: "500",
+  railItemActive: {
+    backgroundColor: colors.white,
   },
-  note: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
+  railBar: {
+    position: "absolute",
+    left: 0,
+    top: 10,
+    bottom: 10,
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: colors.primary,
   },
-  noteTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: colors.text,
-    letterSpacing: -0.3,
-  },
-  noteText: {
-    marginTop: 2,
-    fontSize: 12,
+  railLabel: {
+    fontSize: 11,
+    textAlign: "center",
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.semiBold,
+    lineHeight: 14,
+  },
+  railLabelActive: {
+    color: colors.text,
+    fontFamily: fonts.extraBold,
+  },
+  pane: {
+    flex: 1,
+  },
+  paneContent: {
+    padding: spacing.md,
+    paddingBottom: 110,
+  },
+  hero: {
+    height: 120,
+    borderRadius: radii.lg,
+    overflow: "hidden",
+    marginBottom: spacing.lg,
+    backgroundColor: colors.surface,
+  },
+  heroImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+  },
+  heroCopy: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: spacing.md,
+    backgroundColor: "rgba(0,0,0,0.28)",
+  },
+  heroTitle: {
+    color: colors.white,
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
+  },
+  heroCta: {
+    marginTop: 4,
+    color: colors.primary,
+    fontFamily: fonts.extraBold,
+    fontSize: 13,
+  },
+  paneTitle: {
+    fontSize: 15,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  tileWrap: {
+    width: "48%",
+    marginBottom: spacing.md,
+  },
+  tile: {
+    width: "100%",
+    aspectRatio: 1.05,
+    borderRadius: radii.md,
+    overflow: "hidden",
+    marginBottom: 6,
+  },
+  tileImage: {
+    width: "100%",
+    height: "100%",
+  },
+  tileName: {
+    fontSize: 12,
+    fontFamily: fonts.semiBold,
+    color: colors.text,
+    textAlign: "center",
   },
 });

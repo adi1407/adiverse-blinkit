@@ -4,13 +4,12 @@ import {
   Bell,
   MapPin,
   ChevronDown,
-  ShoppingCart,
   UserRound,
 } from "../utils/lucideIcons";
-import { useCart } from "../context/CartContext";
 import { useAddress } from "../context/AddressContext";
 import { useNotifications } from "../context/NotificationContext";
 import { colors, spacing, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 function IconButton({ onPress, children, accessibilityLabel }) {
   return (
@@ -30,7 +29,6 @@ function IconButton({ onPress, children, accessibilityLabel }) {
 
 export default function HomeHeader({ minutes }) {
   const navigation = useNavigation();
-  const { totalItems } = useCart();
   const { selectedAddress } = useAddress();
   const { unreadCount } = useNotifications();
 
@@ -46,10 +44,8 @@ export default function HomeHeader({ minutes }) {
           accessibilityRole="button"
           accessibilityLabel="Change delivery address"
         >
-          <View style={styles.etaRow}>
-            <Text style={styles.etaLabel}>Delivery in </Text>
-            <Text style={styles.etaValue}>{minutes} mins</Text>
-          </View>
+          <Text style={styles.etaLabel}>Delivery in</Text>
+          <Text style={styles.etaValue}>{minutes} minutes</Text>
           <View style={styles.addressRow}>
             <MapPin size={14} color={colors.text} strokeWidth={2.4} />
             <Text style={styles.addressLabel} numberOfLines={1}>
@@ -80,20 +76,6 @@ export default function HomeHeader({ minutes }) {
           >
             <UserRound size={18} color={colors.text} strokeWidth={2.2} />
           </IconButton>
-
-          <IconButton
-            accessibilityLabel="Cart"
-            onPress={() => navigation.navigate("Cart")}
-          >
-            <ShoppingCart size={18} color={colors.text} strokeWidth={2.2} />
-            {totalItems > 0 ? (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  {totalItems > 99 ? "99+" : totalItems}
-                </Text>
-              </View>
-            ) : null}
-          </IconButton>
         </View>
       </View>
     </View>
@@ -117,20 +99,17 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  etaRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
   etaLabel: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   etaValue: {
-    fontSize: 18,
-    fontWeight: "900",
+    fontSize: 22,
+    fontFamily: fonts.extraBold,
     color: colors.text,
-    letterSpacing: -0.4,
+    letterSpacing: -0.6,
+    marginTop: -1,
   },
   addressRow: {
     marginTop: 2,
@@ -141,7 +120,7 @@ const styles = StyleSheet.create({
   addressLabel: {
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.text,
   },
   right: {
@@ -150,17 +129,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255,255,255,0.62)",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.72)",
     alignItems: "center",
     justifyContent: "center",
     ...shadows.soft,
   },
   iconBtnPressed: {
+    opacity: 0.75,
     backgroundColor: colors.primarySoft,
-    transform: [{ scale: 0.94 }],
   },
   badge: {
     position: "absolute",
@@ -179,6 +158,6 @@ const styles = StyleSheet.create({
   badgeText: {
     color: colors.white,
     fontSize: 9,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
   },
 });

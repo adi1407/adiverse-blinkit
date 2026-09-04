@@ -35,6 +35,7 @@ import { placeOrder } from "../api/ordersApi";
 import { COUPONS, evaluateCoupon } from "../data/coupons";
 import { PAYMENT_METHODS } from "../data/payments";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 import FreeDeliveryBanner from "../components/FreeDeliveryBanner";
 import {
   FREE_DELIVERY_MIN,
@@ -98,6 +99,15 @@ export default function CartScreen({ navigation }) {
 
   const TIP_OPTIONS = [0, 10, 20, 30, 50];
 
+  const mrpSavings = useMemo(
+    () =>
+      items.reduce((sum, item) => {
+        if (!(item.mrp > item.price)) return sum;
+        return sum + (item.mrp - item.price) * item.qty;
+      }, 0),
+    [items]
+  );
+
   const baseDeliveryFee = totalPrice >= FREE_DELIVERY_MIN ? 0 : BASE_DELIVERY_FEE;
 
   const couponResult = useMemo(() => {
@@ -140,6 +150,12 @@ export default function CartScreen({ navigation }) {
       return;
     }
     setCouponCode(code);
+  }
+
+  function onClearCart() {
+    clearCart();
+    setCouponCode(null);
+    setTipAmount(0);
   }
 
   async function onProceed() {
@@ -257,10 +273,24 @@ export default function CartScreen({ navigation }) {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
             ListHeaderComponent={
-              <FreeDeliveryBanner
-                itemTotal={totalPrice}
-                forceUnlocked={deliveryFee === 0}
-              />
+              <View>
+                <View style={styles.clearRow}>
+                  <Pressable onPress={onClearCart} hitSlop={8}>
+                    <Text style={styles.clearLink}>Clear cart</Text>
+                  </Pressable>
+                </View>
+                <FreeDeliveryBanner
+                  itemTotal={totalPrice}
+                  forceUnlocked={deliveryFee === 0}
+                />
+                {mrpSavings > 0 ? (
+                  <View style={styles.savingsHero}>
+                    <Text style={styles.savingsText}>
+                      You save ₹{mrpSavings} on this order
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
             }
             renderItem={({ item }) => <CartRow item={item} />}
             ListFooterComponent={
@@ -481,16 +511,6 @@ export default function CartScreen({ navigation }) {
 
           <View style={styles.footer}>
             <Pressable
-              style={styles.clearBtn}
-              onPress={() => {
-                clearCart();
-                setCouponCode(null);
-                setTipAmount(0);
-              }}
-            >
-              <Text style={styles.clearText}>Clear</Text>
-            </Pressable>
-            <Pressable
               style={[styles.checkoutBtn, placing && styles.checkoutDisabled]}
               onPress={onProceed}
               disabled={placing}
@@ -530,6 +550,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
+  clearRow: {
+    alignItems: "flex-end",
+    marginBottom: spacing.sm,
+  },
+  clearLink: {
+    fontSize: 13,
+    fontFamily: fonts.bold,
+    color: colors.textSecondary,
+  },
   body: {
     flex: 1,
     backgroundColor: colors.background,
@@ -555,7 +584,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     marginTop: spacing.md,
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   emptyText: {
@@ -564,6 +593,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
+    fontFamily: fonts.medium,
   },
   emptyCta: {
     marginTop: spacing.lg,
@@ -574,7 +604,7 @@ const styles = StyleSheet.create({
   },
   emptyCtaText: {
     color: colors.primary,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 14,
   },
   filled: {
@@ -584,6 +614,23 @@ const styles = StyleSheet.create({
   list: {
     padding: spacing.lg,
     paddingBottom: 24,
+  },
+  savingsHero: {
+    backgroundColor: colors.accentSoft,
+    borderRadius: radii.md,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.sm,
+    borderWidth: 1,
+    borderColor: "rgba(12,131,31,0.12)",
+  },
+  savingsText: {
+    fontSize: 14,
+    fontFamily: fonts.extraBold,
+    color: colors.accentDark,
+    textAlign: "center",
+    letterSpacing: -0.2,
   },
   row: {
     flexDirection: "row",
@@ -607,14 +654,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.text,
   },
   unit: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.medium,
   },
   priceRow: {
     flexDirection: "row",
@@ -624,14 +671,14 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   mrpStrike: {
     fontSize: 12,
     color: colors.textMuted,
     textDecorationLine: "line-through",
-    fontWeight: "600",
+    fontFamily: fonts.medium,
   },
   actions: {
     alignItems: "flex-end",
@@ -672,18 +719,18 @@ const styles = StyleSheet.create({
   },
   addressTitle: {
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   addressLine: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   changeText: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.accent,
   },
   payCard: {
@@ -696,14 +743,14 @@ const styles = StyleSheet.create({
   },
   payTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   paySubtitle: {
     marginTop: 2,
     marginBottom: spacing.md,
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.textMuted,
   },
   tipCard: {
@@ -716,14 +763,14 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   tipSubtitle: {
     marginTop: 2,
     marginBottom: spacing.md,
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.textMuted,
   },
   tipRow: {
@@ -745,7 +792,7 @@ const styles = StyleSheet.create({
   },
   tipChipText: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.textSecondary,
   },
   tipChipTextOn: {
@@ -785,14 +832,14 @@ const styles = StyleSheet.create({
   },
   payLabel: {
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   payHint: {
     marginTop: 2,
     fontSize: 11,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   radio: {
     width: 20,
@@ -829,7 +876,7 @@ const styles = StyleSheet.create({
   },
   couponTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   removeCoupon: {
@@ -839,7 +886,7 @@ const styles = StyleSheet.create({
   },
   removeCouponText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textMuted,
   },
   appliedBanner: {
@@ -854,13 +901,13 @@ const styles = StyleSheet.create({
   },
   appliedCode: {
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.accentDark,
     letterSpacing: 0.3,
   },
   appliedSave: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.accent,
   },
   couponChips: {
@@ -886,7 +933,7 @@ const styles = StyleSheet.create({
   },
   couponCode: {
     fontSize: 13,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: 0.4,
   },
@@ -898,14 +945,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   couponHintOn: {
     color: colors.accentDark,
   },
   billTitle: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: spacing.md,
   },
@@ -923,11 +970,11 @@ const styles = StyleSheet.create({
   billLabel: {
     fontSize: 13,
     color: colors.textSecondary,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   billValue: {
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   free: {
@@ -940,12 +987,12 @@ const styles = StyleSheet.create({
   },
   grandLabel: {
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   grandValue: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   secure: {
@@ -962,28 +1009,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     color: colors.accentDark,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
   },
   footer: {
-    flexDirection: "row",
-    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    gap: spacing.sm,
-  },
-  clearBtn: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  clearText: {
-    color: colors.textSecondary,
-    fontWeight: "700",
   },
   checkoutBtn: {
-    flex: 1,
     backgroundColor: colors.accent,
     borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
@@ -997,17 +1032,17 @@ const styles = StyleSheet.create({
   },
   checkoutPrice: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 16,
   },
   checkoutSub: {
     color: "rgba(255,255,255,0.8)",
     fontSize: 10,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
   },
   checkoutText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 15,
   },
 });

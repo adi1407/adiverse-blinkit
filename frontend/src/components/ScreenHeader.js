@@ -1,30 +1,45 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import { ChevronLeft } from "../utils/lucideIcons";
 import { colors, spacing } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
-export default function ScreenHeader({ title, subtitle, showBack = false }) {
+export default function ScreenHeader({
+  title,
+  subtitle,
+  showBack = false,
+  right = null,
+  compact = false,
+}) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, compact && styles.wrapCompact]}>
       <View style={styles.row}>
         {showBack ? (
           <Pressable
             onPress={() => navigation.goBack()}
-            style={styles.backBtn}
+            style={styles.side}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
-            <Ionicons name="chevron-back" size={24} color={colors.text} />
+            <ChevronLeft size={24} color={colors.text} strokeWidth={2.4} />
           </Pressable>
         ) : (
-          <View style={styles.backBtn} />
+          <View style={styles.side} />
         )}
         <View style={styles.titles}>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          ) : null}
         </View>
-        <View style={styles.backBtn} />
+        <View style={styles.side}>{right}</View>
       </View>
     </View>
   );
@@ -37,23 +52,28 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },
+  wrapCompact: {
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
-  backBtn: {
-    width: 40,
-    height: 40,
+  side: {
+    width: 44,
+    minHeight: 40,
     alignItems: "center",
     justifyContent: "center",
   },
   titles: {
     flex: 1,
     alignItems: "center",
+    paddingHorizontal: 4,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "900",
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.3,
   },
@@ -62,6 +82,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     textAlign: "center",
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
 });

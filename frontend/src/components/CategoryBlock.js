@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { getLucideIcon } from "../utils/icons";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 export default function CategoryBlock({ title, subtitle, tiles = [], onSelect }) {
   if (!tiles.length) return null;
@@ -15,7 +16,10 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
           return (
             <Pressable
               key={tile.id}
-              style={styles.item}
+              style={({ pressed }) => [
+                styles.item,
+                pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
+              ]}
               onPress={() => onSelect?.(tile)}
             >
               <View
@@ -25,11 +29,19 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
                   shadows.soft,
                 ]}
               >
-                <Icon
-                  size={24}
-                  color={tile.color || colors.accent}
-                  strokeWidth={2.1}
-                />
+                {tile.image ? (
+                  <Image
+                    source={{ uri: tile.image }}
+                    style={styles.tileImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Icon
+                    size={24}
+                    color={tile.color || colors.accent}
+                    strokeWidth={2.1}
+                  />
+                )}
               </View>
               <Text style={styles.name} numberOfLines={2}>
                 {tile.name}
@@ -45,13 +57,13 @@ export default function CategoryBlock({ title, subtitle, tiles = [], onSelect })
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.md,
     backgroundColor: colors.background,
   },
   title: {
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     letterSpacing: -0.3,
   },
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   grid: {
     flexDirection: "row",
@@ -79,14 +91,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 6,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.03)",
+    overflow: "hidden",
+  },
+  tileImage: {
+    width: "100%",
+    height: "100%",
   },
   name: {
     fontSize: 11,
     textAlign: "center",
     color: colors.text,
     lineHeight: 14,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
 });

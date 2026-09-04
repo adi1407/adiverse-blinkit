@@ -11,11 +11,11 @@ import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowRight, ShoppingBag } from "../utils/lucideIcons";
 import { useCart } from "../context/CartContext";
-import { colors, spacing } from "../theme/colors";
+import { colors, spacing, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 import { TAB_BAR_BASE_HEIGHT } from "./BlinkitTabBar";
 import ProductImage from "./ProductImage";
-import FreeDeliveryBanner from "./FreeDeliveryBanner";
-import { getDeliveryProgress } from "../utils/delivery";
+import { getDeliveryProgress, FREE_DELIVERY_MIN } from "../utils/delivery";
 
 export default function FloatingCartBar() {
   const { totalItems, totalPrice, items } = useCart();
@@ -57,7 +57,8 @@ export default function FloatingCartBar() {
   if (!visible) return null;
 
   const preview = items.slice(0, 3);
-  const { unlocked } = getDeliveryProgress(totalPrice);
+  const { unlocked, remaining } = getDeliveryProgress(totalPrice);
+  const progress = Math.min(1, totalPrice / FREE_DELIVERY_MIN);
   const bottom =
     TAB_BAR_BASE_HEIGHT +
     Math.max(insets.bottom, Platform.OS === "android" ? 10 : 6) +
@@ -84,52 +85,59 @@ export default function FloatingCartBar() {
       ]}
     >
       <Pressable onPress={() => navigation.navigate("Cart")}>
-        <View style={styles.bar}>
-          <View style={styles.left}>
-            <View style={styles.thumbRow}>
-              {preview.map((item, i) => (
-                <View
-                  key={item.id}
-                  style={[
-                    styles.thumbChip,
-                    { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 },
-                  ]}
-                >
-                  <ProductImage
-                    uri={item.image}
-                    style={styles.thumbImage}
-                    iconSize={14}
-                  />
-                </View>
-              ))}
-              {items.length > 3 ? (
-                <View style={[styles.thumbChip, styles.moreChip, { marginLeft: -10 }]}>
-                  <Text style={styles.moreText}>+{items.length - 3}</Text>
-                </View>
-              ) : null}
-            </View>
-            <View style={styles.meta}>
-              <Text style={styles.count}>
-                {totalItems} item{totalItems === 1 ? "" : "s"} · in cart
+        <View style={[styles.surface, shadows.float]}>
+          {!unlocked ? (
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+              <Text style={styles.progressText}>
+                Add ₹{remaining} more for free delivery
               </Text>
-              <Text style={styles.price}>₹{totalPrice}</Text>
             </View>
-          </View>
+          ) : null}
 
-          <View style={styles.cta}>
-            <ShoppingBag size={16} color={colors.white} strokeWidth={2.3} />
-            <Text style={styles.ctaText}>View cart</Text>
-            <View style={styles.ctaIcon}>
-              <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
+          <View style={styles.bar}>
+            <View style={styles.left}>
+              <View style={styles.thumbRow}>
+                {preview.map((item, i) => (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.thumbChip,
+                      { zIndex: 3 - i, marginLeft: i === 0 ? 0 : -10 },
+                    ]}
+                  >
+                    <ProductImage
+                      uri={item.image}
+                      style={styles.thumbImage}
+                      iconSize={14}
+                    />
+                  </View>
+                ))}
+                {items.length > 3 ? (
+                  <View
+                    style={[styles.thumbChip, styles.moreChip, { marginLeft: -10 }]}
+                  >
+                    <Text style={styles.moreText}>+{items.length - 3}</Text>
+                  </View>
+                ) : null}
+              </View>
+              <View style={styles.meta}>
+                <Text style={styles.count}>
+                  {totalItems} item{totalItems === 1 ? "" : "s"} · in cart
+                </Text>
+                <Text style={styles.price}>₹{totalPrice}</Text>
+              </View>
+            </View>
+
+            <View style={styles.cta}>
+              <ShoppingBag size={16} color={colors.white} strokeWidth={2.3} />
+              <Text style={styles.ctaText}>View cart</Text>
+              <View style={styles.ctaIcon}>
+                <ArrowRight size={14} color={colors.accent} strokeWidth={2.6} />
+              </View>
             </View>
           </View>
         </View>
-
-        {!unlocked ? (
-          <View style={styles.progressSlot}>
-            <FreeDeliveryBanner itemTotal={totalPrice} compact />
-          </View>
-        ) : null}
       </Pressable>
     </Animated.View>
   );
@@ -142,26 +150,37 @@ const styles = StyleSheet.create({
     right: spacing.md,
     zIndex: 30,
   },
-  bar: {
-    minHeight: 58,
+  surface: {
     borderRadius: 16,
-    backgroundColor: "#0A7A1C",
+    overflow: "hidden",
+    backgroundColor: colors.accentDark,
+  },
+  progressTrack: {
+    height: 22,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  progressFill: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.primary,
+    opacity: 0.85,
+  },
+  progressText: {
+    textAlign: "center",
+    fontSize: 10,
+    fontFamily: fonts.bold,
+    color: colors.white,
+    zIndex: 1,
+  },
+  bar: {
+    minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0C831F",
-        shadowOpacity: 0.35,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 6 },
-      },
-      android: { elevation: 10 },
-    }),
+    backgroundColor: colors.accent,
   },
   left: {
     flexDirection: "row",
@@ -180,17 +199,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "#0A7A1C",
+    borderColor: colors.accent,
     alignItems: "center",
     justifyContent: "center",
   },
   moreChip: {
     backgroundColor: colors.primary,
-    borderColor: "#0A7A1C",
   },
   moreText: {
     fontSize: 10,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   thumbImage: {
@@ -203,12 +221,12 @@ const styles = StyleSheet.create({
   count: {
     color: "rgba(255,255,255,0.88)",
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
   },
   price: {
     color: colors.white,
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     marginTop: 1,
   },
   cta: {
@@ -220,7 +238,7 @@ const styles = StyleSheet.create({
   ctaText: {
     color: colors.white,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
   },
   ctaIcon: {
     width: 24,
@@ -229,8 +247,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     alignItems: "center",
     justifyContent: "center",
-  },
-  progressSlot: {
-    marginTop: 8,
   },
 });

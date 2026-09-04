@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Shared auth "brain" — mock phone login, persisted on device.
+import { sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp } from "../api/authApi";
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = "@blinkit_clone_user";
@@ -32,7 +31,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  async function login({ name, phone }) {
+  async function requestOtp({ name, phone }) {
     const cleanPhone = String(phone || "").replace(/\D/g, "");
     const cleanName = String(name || "").trim() || "Blinkit User";
 
@@ -40,7 +39,28 @@ export function AuthProvider({ children }) {
       throw new Error("Enter a valid 10-digit mobile number");
     }
 
-    const nextUser = {
+    return apiSendOtp({ phone: cleanPhone, name: cleanName });
+  }
+
+  async function verifyOtpAndLogin({ name, phone, otp }) {
+    const cleanPhone = String(phone || "").replace(/\D/g, "");
+    const cleanName = String(name || "").trim() || "Blinkit User";
+    const code = String(otp || "").replace(/\D/g, "");
+
+    if (cleanPhone.length !== 10) {
+      throw new Error("Enter a valid 10-digit mobile number");
+    }
+    if (code.length !== 6) {
+      throw new Error("Enter the 6-digit OTP");
+    }
+
+    const data = await apiVerifyOtp({
+      phone: cleanPhone,
+      otp: code,
+      name: cleanName,
+    });
+
+    const nextUser = data.user || {
       name: cleanName,
       phone: cleanPhone,
       sessionId: `demo-${cleanPhone}`,
@@ -48,6 +68,15 @@ export function AuthProvider({ children }) {
 
     setUser(nextUser);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+    return nextUser;
+  }
+
+  /** @deprecated Prefer requestOtp + verifyOtpAndLogin */
+  async function login({ name, phone, otp }) {
+    if (otp) {
+      return verifyOtpAndLogin({ name, phone, otp });
+    }
+    throw new Error("OTP required — request a code first");
   }
 
   async function logout() {
@@ -84,6 +113,8 @@ export function AuthProvider({ children }) {
       ready,
       isLoggedIn: Boolean(user),
       login,
+      requestOtp,
+      verifyOtpAndLogin,
       logout,
       updateProfile,
     }),

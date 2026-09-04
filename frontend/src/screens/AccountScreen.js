@@ -1,4 +1,14 @@
-import { Alert, SafeAreaView, View, Text, StyleSheet, StatusBar, Platform, Pressable } from "react-native";
+import {
+  Alert,
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  StatusBar,
+  Platform,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import {
   Package,
   MapPin,
@@ -17,6 +27,7 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useNotifications } from "../context/NotificationContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const MENU = [
   { id: "profile", label: "Edit profile", hint: "Change display name", Icon: Pencil },
@@ -29,6 +40,12 @@ const MENU = [
   { id: "about", label: "About Blinkit Clone", hint: "v1.0 · Expo SDK 57", Icon: Info },
 ];
 
+const SHORTCUTS = [
+  { id: "orders", label: "Orders", Icon: Package },
+  { id: "address", label: "Addresses", Icon: MapPin },
+  { id: "wishlist", label: "Wishlist", Icon: Heart },
+];
+
 function formatPhone(phone) {
   if (!phone || phone.length !== 10) return phone || "";
   return `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
@@ -38,6 +55,11 @@ export default function AccountScreen({ navigation }) {
   const { user, isLoggedIn, logout } = useAuth();
   const { count: wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
+
+  const initial =
+    isLoggedIn && user?.name
+      ? user.name.trim().charAt(0).toUpperCase()
+      : "";
 
   function onLogin() {
     navigation.navigate("Login");
@@ -113,7 +135,11 @@ export default function AccountScreen({ navigation }) {
       />
       <View style={styles.curve} />
 
-      <View style={styles.body}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+      >
         <Pressable
           style={[styles.profileCard, shadows.soft]}
           onPress={() => {
@@ -121,8 +147,12 @@ export default function AccountScreen({ navigation }) {
             else onLogin();
           }}
         >
-          <View style={styles.avatar}>
-            <UserRound size={28} color={colors.text} strokeWidth={2} />
+          <View style={[styles.avatar, isLoggedIn && styles.avatarLarge]}>
+            {isLoggedIn && initial ? (
+              <Text style={styles.avatarInitial}>{initial}</Text>
+            ) : (
+              <UserRound size={28} color={colors.text} strokeWidth={2} />
+            )}
           </View>
           <View style={styles.profileText}>
             <Text style={styles.name}>
@@ -161,6 +191,24 @@ export default function AccountScreen({ navigation }) {
           )}
         </Pressable>
 
+        <View style={[styles.shortcutRow, shadows.soft]}>
+          {SHORTCUTS.map((item) => {
+            const Icon = item.Icon;
+            return (
+              <Pressable
+                key={item.id}
+                style={styles.shortcut}
+                onPress={() => onMenuPress(item.id)}
+              >
+                <View style={styles.shortcutIcon}>
+                  <Icon size={20} color={colors.accent} strokeWidth={2.2} />
+                </View>
+                <Text style={styles.shortcutLabel}>{item.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
         <View style={[styles.menuCard, shadows.soft]}>
           {MENU.map((item, index) => {
             const Icon = item.Icon;
@@ -195,7 +243,7 @@ export default function AccountScreen({ navigation }) {
             );
           })}
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -212,10 +260,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
-  body: {
+  scroll: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  body: {
     padding: spacing.lg,
+    paddingBottom: 40,
   },
   profileCard: {
     flexDirection: "row",
@@ -223,7 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: radii.lg,
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -235,25 +286,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  avatarLarge: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2,
+    borderColor: colors.primaryDark,
+  },
+  avatarInitial: {
+    fontSize: 28,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
   profileText: {
     marginLeft: spacing.md,
     flex: 1,
   },
   name: {
-    fontSize: 17,
-    fontWeight: "900",
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
     color: colors.text,
+    letterSpacing: -0.3,
   },
   phone: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
   editHint: {
     marginTop: 4,
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.accent,
   },
   loginBtn: {
@@ -264,7 +329,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 12,
   },
   logoutBtn: {
@@ -280,8 +345,37 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: colors.danger,
-    fontWeight: "800",
+    fontFamily: fonts.extraBold,
     fontSize: 12,
+  },
+  shortcutRow: {
+    flexDirection: "row",
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+  },
+  shortcut: {
+    flex: 1,
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  shortcutIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shortcutLabel: {
+    fontSize: 12,
+    fontFamily: fonts.bold,
+    color: colors.text,
   },
   menuCard: {
     backgroundColor: colors.white,
@@ -315,13 +409,13 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: fonts.semiBold,
     color: colors.text,
   },
   menuHint: {
     marginTop: 2,
     fontSize: 11,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
   },
 });

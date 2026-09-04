@@ -28,6 +28,7 @@ export { default as LayoutGrid } from "lucide-react-native/icons/layout-grid";
 export { default as MapPin } from "lucide-react-native/icons/map-pin";
 export { default as MessageCircle } from "lucide-react-native/icons/message-circle";
 export { default as Mic } from "lucide-react-native/icons/mic";
+export { default as Minus } from "lucide-react-native/icons/minus";
 export { default as Milk } from "lucide-react-native/icons/milk";
 export { default as Gift } from "lucide-react-native/icons/gift";
 export { default as Globe } from "lucide-react-native/icons/globe";

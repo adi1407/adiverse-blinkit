@@ -11,17 +11,24 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import { ChevronLeft, Search, X, Clock } from "../utils/lucideIcons";
+import { ChevronLeft, Search, X, Clock, ChevronRight } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
 import ErrorState from "../components/ErrorState";
 import { fetchSearch } from "../api/catalogApi";
 import { useSearchHistory } from "../context/SearchHistoryContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 const SUGGESTIONS = ["milk", "bread", "chips", "onion", "coke", "atta", "soap"];
 
+function capitalize(term) {
+  if (!term) return "";
+  return term.charAt(0).toUpperCase() + term.slice(1);
+}
+
 export default function SearchScreen({ navigation, route }) {
   const initialQuery = route.params?.query || "";
+  const isVoice = Boolean(route.params?.voice);
   const [query, setQuery] = useState(initialQuery);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -97,6 +104,8 @@ export default function SearchScreen({ navigation, route }) {
     setQuery(term);
   }
 
+  const showIdle = !searched || query.trim().length === 0;
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
@@ -126,6 +135,10 @@ export default function SearchScreen({ navigation, route }) {
         </View>
       </View>
 
+      {isVoice ? (
+        <Text style={styles.voiceCaption}>Voice search — type your query</Text>
+      ) : null}
+
       <View style={styles.curve} />
 
       {error ? (
@@ -141,7 +154,7 @@ export default function SearchScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View style={styles.listHeader}>
-              {!searched || query.trim().length === 0 ? (
+              {showIdle ? (
                 <View>
                   {recent.length > 0 ? (
                     <View style={styles.recentBlock}>
@@ -153,54 +166,58 @@ export default function SearchScreen({ navigation, route }) {
                           <Text style={styles.clearHistory}>Clear</Text>
                         </Pressable>
                       </View>
-                      <View style={styles.chips}>
-                        {recent.map((term) => (
-                          <View key={term} style={styles.recentChip}>
-                            <Pressable
-                              style={styles.recentMain}
-                              onPress={() => applySuggestion(term)}
-                            >
-                              <Clock
-                                size={12}
-                                color={colors.textSecondary}
-                                strokeWidth={2.2}
-                              />
-                              <Text style={styles.chipText}>{term}</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={() => removeQuery(term)}
-                              hitSlop={6}
-                              style={styles.recentRemove}
-                            >
-                              <X
-                                size={12}
-                                color={colors.textMuted}
-                                strokeWidth={2.4}
-                              />
-                            </Pressable>
+                      {recent.map((term) => (
+                        <Pressable
+                          key={term}
+                          style={styles.suggestRow}
+                          onPress={() => applySuggestion(term)}
+                        >
+                          <View style={styles.suggestLeft}>
+                            <Clock
+                              size={16}
+                              color={colors.textMuted}
+                              strokeWidth={2.2}
+                            />
+                            <Text style={styles.suggestText}>{capitalize(term)}</Text>
                           </View>
-                        ))}
-                      </View>
+                          <Pressable
+                            onPress={() => removeQuery(term)}
+                            hitSlop={8}
+                            style={styles.recentRemove}
+                          >
+                            <X
+                              size={14}
+                              color={colors.textMuted}
+                              strokeWidth={2.4}
+                            />
+                          </Pressable>
+                        </Pressable>
+                      ))}
                     </View>
                   ) : null}
 
-                  <Text style={styles.sectionLabel}>Popular searches</Text>
-                  <View style={styles.chips}>
-                    {SUGGESTIONS.map((term) => (
-                      <Pressable
-                        key={term}
-                        style={styles.chip}
-                        onPress={() => applySuggestion(term)}
-                      >
+                  <Text style={styles.sectionLabel}>Popular on Blinkit</Text>
+                  {SUGGESTIONS.map((term) => (
+                    <Pressable
+                      key={term}
+                      style={styles.suggestRow}
+                      onPress={() => applySuggestion(term)}
+                    >
+                      <View style={styles.suggestLeft}>
                         <Search
-                          size={12}
-                          color={colors.textSecondary}
+                          size={16}
+                          color={colors.textMuted}
                           strokeWidth={2.2}
                         />
-                        <Text style={styles.chipText}>{term}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
+                        <Text style={styles.suggestText}>{capitalize(term)}</Text>
+                      </View>
+                      <ChevronRight
+                        size={16}
+                        color={colors.textMuted}
+                        strokeWidth={2.2}
+                      />
+                    </Pressable>
+                  ))}
                 </View>
               ) : (
                 <View style={styles.resultMeta}>
@@ -219,9 +236,9 @@ export default function SearchScreen({ navigation, route }) {
           ListEmptyComponent={
             searched && !loading ? (
               <View style={styles.empty}>
-                <Text style={styles.emptyTitle}>No products found</Text>
+                <Text style={styles.emptyTitle}>Nothing matched</Text>
                 <Text style={styles.emptyHint}>
-                  Try milk, bread, chips, onion, or soap
+                  Try a different word — milk, bread, chips, or atta usually work.
                 </Text>
               </View>
             ) : null
@@ -248,7 +265,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.sm,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm,
     gap: 4,
   },
   iconBtn: {
@@ -274,7 +291,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: colors.text,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     paddingVertical: 0,
   },
   clearBtn: {
@@ -284,6 +301,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
+  },
+  voiceCaption: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    fontSize: 12,
+    fontFamily: fonts.medium,
+    color: colors.textSecondary,
   },
   curve: {
     height: 14,
@@ -301,10 +325,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   sectionLabel: {
-    fontSize: 13,
-    fontWeight: "800",
+    fontSize: 14,
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: spacing.sm,
+    letterSpacing: -0.2,
   },
   sectionLabelInline: {
     marginBottom: 0,
@@ -317,64 +342,43 @@ const styles = StyleSheet.create({
   },
   clearHistory: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
     color: colors.accent,
   },
   recentBlock: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  suggestRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  suggestLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  suggestText: {
+    fontSize: 15,
+    fontFamily: fonts.semiBold,
+    color: colors.text,
+  },
+  recentRemove: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   resultMeta: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: spacing.sm,
-  },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: colors.surface,
-    borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  recentChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.white,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    paddingLeft: 12,
-    paddingRight: 4,
-    paddingVertical: 4,
-    gap: 2,
-  },
-  recentMain: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 4,
-  },
-  recentRemove: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chipText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.textSecondary,
-    textTransform: "capitalize",
   },
   row: {
     gap: spacing.md,
@@ -389,7 +393,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: 6,
   },
@@ -397,6 +401,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMuted,
     textAlign: "center",
-    fontWeight: "500",
+    fontFamily: fonts.medium,
+    lineHeight: 19,
   },
 });

@@ -48,6 +48,7 @@ function catTile(id) {
     icon: c.icon,
     bg: c.bg,
     color: c.color,
+    image: c.image || null,
   };
 }
 
