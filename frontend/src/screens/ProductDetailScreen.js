@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
   Pressable,
+  Alert,
 } from "react-native";
 import {
   ChevronLeft,
@@ -15,6 +16,7 @@ import {
   ShieldCheck,
   Bike,
   Heart,
+  Share2,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
 import ProductRow from "../components/ProductRow";
@@ -26,6 +28,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useRecentlyViewed } from "../context/RecentlyViewedContext";
 import { categoryTitle } from "../utils/category";
+import { shareProduct } from "../utils/share";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 export default function ProductDetailScreen({ navigation, route }) {
@@ -90,6 +93,16 @@ export default function ProductDetailScreen({ navigation, route }) {
   const youSave = showMrp ? product.mrp - product.price : 0;
   const catLabel = categoryTitle(category);
 
+  async function onShare() {
+    try {
+      await shareProduct(product, catLabel);
+    } catch (err) {
+      if (err?.message && !/dismiss|cancel/i.test(String(err.message))) {
+        Alert.alert("Could not share", err.message);
+      }
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
@@ -103,18 +116,23 @@ export default function ProductDetailScreen({ navigation, route }) {
         <Text style={styles.topTitle} numberOfLines={1}>
           {catLabel}
         </Text>
-        <Pressable
-          onPress={() => toggleItem(product)}
-          style={styles.backBtn}
-          hitSlop={8}
-        >
-          <Heart
-            size={22}
-            color={saved ? colors.danger : colors.text}
-            fill={saved ? colors.danger : "transparent"}
-            strokeWidth={2.2}
-          />
-        </Pressable>
+        <View style={styles.topActions}>
+          <Pressable onPress={onShare} style={styles.backBtn} hitSlop={8}>
+            <Share2 size={20} color={colors.text} strokeWidth={2.2} />
+          </Pressable>
+          <Pressable
+            onPress={() => toggleItem(product)}
+            style={styles.backBtn}
+            hitSlop={8}
+          >
+            <Heart
+              size={22}
+              color={saved ? colors.danger : colors.text}
+              fill={saved ? colors.danger : "transparent"}
+              strokeWidth={2.2}
+            />
+          </Pressable>
+        </View>
       </View>
 
       <ScrollView
@@ -250,6 +268,10 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
+  },
+  topActions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   topTitle: {
     flex: 1,

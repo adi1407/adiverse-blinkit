@@ -27,7 +27,7 @@ import ErrorState from "../components/ErrorState";
 import { cancelOrder, fetchOrderById, rateOrder } from "../api/ordersApi";
 import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
-import { shareOrder } from "../utils/shareOrder";
+import { shareOrder } from "../utils/share";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 
 const STEP_ICON = {

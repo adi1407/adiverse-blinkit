@@ -72,7 +72,7 @@ Scan the QR with Expo Go. Keep the backend running.
 |------|----------|
 | **Home** | Yellow header, search, categories, featured rows, recently viewed, splash |
 | **Catalog** | 12 categories, mega snack/drink pack, pagination, brand chips + price sort |
-| **Product** | Product detail page, similar items, ADD / qty |
+| **Product** | Product detail page, similar items, ADD / qty, share product |
 | **Search** | Debounced live search, recent history on device |
 | **Cart** | Shared context, AsyncStorage persist, bill, coupons, tip, free-delivery progress, checkout |
 | **Auth** | Guest login (name + phone), edit display name, session on device |
@@ -194,6 +194,7 @@ scripts/
 29. In-app order notifications  
 30. Search history (recent queries)  
 31. Share order summary  
+32. Share product from detail  
 
 ---
 
