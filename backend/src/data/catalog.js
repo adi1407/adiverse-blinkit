@@ -21,6 +21,7 @@ import {
   bulbProducts,
   coinProducts,
 } from "./curated/specialty.js";
+import imageOverrides from "./curated/imageOverrides.json" with { type: "json" };
 
 export const deliveryInfo = {
   minutes: 8,
@@ -48,7 +49,23 @@ export const categories = [
 ];
 
 function list(products) {
-  return products.map(normalizeProduct).filter(Boolean);
+  const overrides = imageOverrides?.products || {};
+  return products
+    .map((raw) => {
+      const base = normalizeProduct(raw);
+      if (!base) return null;
+      const over = overrides[base.id];
+      if (over?.images?.length) {
+        const images = over.images.filter(Boolean).slice(0, 3);
+        return {
+          ...base,
+          images,
+          image: images[0] || base.image,
+        };
+      }
+      return base;
+    })
+    .filter(Boolean);
 }
 
 export const productsByCategory = {

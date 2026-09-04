@@ -1,0 +1,2089 @@
+{
+  "generatedAt": "2026-09-04T06:49:57.521Z",
+  "count": 234,
+  "products": {
+    "veg-onion": {
+      "images": [
+        "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-tomato": {
+      "images": [
+        "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1546470427-e212b7d31075?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-potato": {
+      "images": [
+        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1590165482129-1b8b27698780?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-banana": {
+      "images": [
+        "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-cucumber": {
+      "images": [
+        "https://images.unsplash.com/photo-1449300079323-98d43db8b1c0?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1449300079323-98d43db8b1c0?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-apple": {
+      "images": [
+        "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-carrot": {
+      "images": [
+        "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-lemon": {
+      "images": [
+        "https://images.unsplash.com/photo-1570197788417-0e723334cb37?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1570197788417-0e723334cb37?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-spinach": {
+      "images": [
+        "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-capsicum": {
+      "images": [
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-ginger": {
+      "images": [
+        "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599909533936-b894b409bbc0?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-garlic": {
+      "images": [
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-orange": {
+      "images": [
+        "https://images.unsplash.com/photo-1547514701-42782126124d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1547514701-42782126124d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-mango": {
+      "images": [
+        "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1601493700631-2b16ec4b28d0?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "veg-cauliflower": {
+      "images": [
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "milk-amul-taaza": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/126/215/0217/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/126/215/0217/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "milk-amul-gold": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/126/226/0107/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/126/226/0107/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "milk-mother-toned": {
+      "images": [
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1571212515416-fef01fc43637?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "milk-mother-full": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/164/892/0236/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1571212515416-fef01fc43637?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/164/892/0236/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "milk-nestle-a+": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/105/886/9262/front_en.10.400.jpg",
+        "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/105/886/9262/front_en.10.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "egg-farm-6": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/408/330/3077/front_en.10.400.jpg",
+        "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506976785307-45a436d8ce0a?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/408/330/3077/front_en.10.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "egg-farm-12": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/501/057/800/8020/front_en.59.400.jpg",
+        "https://images.unsplash.com/photo-1506976785307-45a436d8ce0a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1498654200943-275ca707bbb8?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/501/057/800/8020/front_en.59.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "egg-organic-6": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/408/353/4099/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1498654200943-275ca707bbb8?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/408/353/4099/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "egg-country-6": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+        "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "egg-quail-12": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/408/330/3077/front_en.10.400.jpg",
+        "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/408/330/3077/front_en.10.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bread-britannia-white": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1586444248902-2f64eddc13df?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bread-britannia-brown": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bread-english-oven": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/092/242/102/9104/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/092/242/102/9104/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bread-modern": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/355/1548/front_en.15.400.jpg",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/355/1548/front_en.15.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bread-pav": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/940/056/402/0420/front_en.12.400.jpg",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/940/056/402/0420/front_en.12.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dairy-amul-butter": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/126/201/0016/front_en.53.400.jpg",
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/126/201/0016/front_en.53.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dairy-amul-cheese": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/200/000/013/6641/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/200/000/013/6641/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dairy-mother-curd": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/164/802/2169/front_en.15.400.jpg",
+        "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/164/802/2169/front_en.15.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dairy-amul-paneer": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/394/826/218/0115/front_ro.3.400.jpg",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/394/826/218/0115/front_ro.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dairy-amul-ghee": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/126/203/0878/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/126/203/0878/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "atta-aashirvaad-5": {
+      "images": [
+        "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "atta-aashirvaad-10": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/172/501/6838/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/172/501/6838/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "atta-fortune": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/728/0969/front_en.17.400.jpg",
+        "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/728/0969/front_en.17.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "atta-pillsbury": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/021/0291/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/021/0291/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "atta-organic": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/094/645/504/0003/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/094/645/504/0003/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "rice-indiagate": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/069/022/530/3903/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1516684669134-de6f7c473a2a?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/069/022/530/3903/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "rice-indiagate-5": {
+      "images": [
+        "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "rice-daawat": {
+      "images": [
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1570197788417-0e723334cb37?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "rice-kohinoor": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/104/706/5057/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/104/706/5057/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "rice-sona": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1516684669134-de6f7c473a2a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-tata-toor": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/392/6216/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/392/6216/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-fortune-chana": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/728/6039/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/728/6039/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-tata-moong": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/392/6315/front_en.23.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/392/6315/front_en.23.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-tata-urad": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/392/6124/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/392/6124/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-organic-masoor": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/605/544/0858/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/605/544/0858/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-rajma": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/606/685/2206/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/606/685/2206/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "dal-kabuli": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "oats-quaker": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/500/010/847/8119/front_en.71.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/500/010/847/8119/front_en.71.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-tata-salt": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/390/1015/front_en.34.400.jpg",
+        "https://images.unsplash.com/photo-1612927601601-982702fa963a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/390/1015/front_en.34.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-tata-salt-lite": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/404/390/1077/front_en.9.400.jpg",
+        "https://images.unsplash.com/photo-1599909533936-b894b409bbc0?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1612927601601-982702fa963a?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/404/390/1077/front_en.9.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "oil-fortune-sunlite": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/728/0272/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/728/0272/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "oil-saffola-gold": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/108/815/5458/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1606923829579-0cb981a83e2e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/108/815/5458/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "oil-fortune-mustard": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/728/0969/front_en.17.400.jpg",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/728/0969/front_en.17.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-mdh-haldi": {
+      "images": [
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599909533936-b894b409bbc0?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "masala-mdh-lalmirch": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/119/210/3017/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/119/210/3017/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-mdh-garam": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/629/110/375/0167/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/629/110/375/0167/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-mdh-chana": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/216/700/0812/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/216/700/0812/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-mdh-kitchen": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/216/700/0751/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/216/700/0751/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-everest-garam": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/178/610/0507/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/178/610/0507/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-everest-tikka": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/178/617/0524/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/178/617/0524/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-everest-biryani": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/178/614/0503/front_fr.12.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/178/614/0503/front_fr.12.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-everest-sambar": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/178/608/0502/front_en.13.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/178/608/0502/front_en.13.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-everest-pavbhaji": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/394/878/607/1005/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/394/878/607/1005/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-catch-chilli": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/119/210/6629/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/119/210/6629/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-catch-coriander": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/119/210/4625/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/119/210/4625/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-catch-cumin": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/119/210/8029/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/119/210/8029/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-maggi": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/000/008/908/0153/front_en.8.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/000/008/908/0153/front_en.8.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-eastern-meat": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/144/001/3280/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/144/001/3280/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-shan-biryani": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/078/882/100/1146/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/078/882/100/1146/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "masala-badshah-garam": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/177/400/2370/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/177/400/2370/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-parleg": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/171/912/3870/front_en.27.400.jpg",
+        "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/171/912/3870/front_en.27.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-oreo": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/899/276/022/1028/front_en.55.400.jpg",
+        "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/899/276/022/1028/front_en.55.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-goodday": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/309/3522/front_en.28.400.jpg",
+        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/309/3522/front_en.28.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-hide": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/171/910/5913/front_en.22.400.jpg",
+        "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/171/910/5913/front_en.22.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-darkfantasy": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/172/501/5275/front_en.51.400.jpg",
+        "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/172/501/5275/front_en.51.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-jimjam": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/302/9323/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/302/9323/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-bourbon": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/313/9336/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/313/9336/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-marie": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-monaco": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/171/913/4845/front_en.11.400.jpg",
+        "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/171/913/4845/front_en.11.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "bakery-cake": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/106/301/4299/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "meat-chicken-curry": {
+      "images": [
+        "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-chicken-breast": {
+      "images": [
+        "https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1603048297172-c92544798d5a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-chicken-keema": {
+      "images": [
+        "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-mutton": {
+      "images": [
+        "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-rohu": {
+      "images": [
+        "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-prawns": {
+      "images": [
+        "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-eggs-12": {
+      "images": [
+        "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506976785307-45a436d8ce0a?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "meat-chicken-wings": {
+      "images": [
+        "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82713?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "drink-coke-750": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/960px-Coca-Cola_lata.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Coca_Cola_Flasche_-_Full.jpg/480px-Coca_Cola_Flasche_-_Full.jpg",
+        "https://images.openfoodfacts.org/images/products/544/900/000/0996/front_en.1129.400.jpg"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/960px-Coca-Cola_lata.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-coke-can": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/960px-Coca-Cola_lata.jpg",
+        "https://images.openfoodfacts.org/images/products/890/176/401/1252/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/960px-Coca-Cola_lata.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-coke-zero": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/800px-Coca-Cola_lata.jpg",
+        "https://images.openfoodfacts.org/images/products/890/176/411/1259/front_en.6.400.jpg",
+        "https://images.unsplash.com/photo-1600271886742-f049cd062f01?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Coca-Cola_lata.jpg/800px-Coca-Cola_lata.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-pepsi-750": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/010/4581/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1600271886742-f049cd062f01?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/010/4581/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-pepsi-can": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/010/4581/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/010/4581/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-pepsi-black": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/000/1354/front_en.6.400.jpg",
+        "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/000/1354/front_en.6.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-sprite-750": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sprite_Logo.svg/512px-Sprite_Logo.svg.png",
+        "https://images.openfoodfacts.org/images/products/890/176/403/2912/front_en.26.400.jpg",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sprite_Logo.svg/512px-Sprite_Logo.svg.png",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-fanta": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/394/876/402/2272/front_en.6.400.jpg",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/394/876/402/2272/front_en.6.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-thums-up": {
+      "images": [
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "drink-mirinda": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/020/4052/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/020/4052/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-tropicana": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/000/2733/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/000/2733/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-real-orange": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/188/800/5748/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1547514701-42782126124d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/188/800/5748/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-kinley": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/176/407/2277/front_fr.4.400.jpg",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/176/407/2277/front_fr.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "drink-bisleri": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/729/0064/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1629203851122-5034f691c73d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/729/0064/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-redbull": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/000/009/016/2602/front_en.151.400.jpg",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/000/009/016/2602/front_en.151.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-redbull-sugarfree": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/000/009/045/6282/front_nb.12.400.jpg",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/000/009/045/6282/front_nb.12.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-monster": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/506/033/563/2302/front_en.103.400.jpg",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/506/033/563/2302/front_en.103.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-monster-ultra": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/506/033/563/5808/front_fr.62.400.jpg",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/506/033/563/5808/front_fr.62.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-sting": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/208/049/5023/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/208/049/5023/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "energy-charged": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/176/404/8319/front_en.22.400.jpg",
+        "https://images.unsplash.com/photo-1613479020146-448cb276463e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1622543925864-4f72973368e9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/176/404/8319/front_en.22.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "protein-muscleblaze": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/611/695/8995/front_en.11.400.jpg",
+        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/611/695/8995/front_en.11.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "protein-optimum": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/074/892/705/6372/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1579722820308-d74e57ce3e39?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/074/892/705/6372/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "protein-yoga-bar": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/433/560/1869/front_en.14.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/433/560/1869/front_en.14.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "protein-raw-pressery": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/425/870/3077/front_en.8.400.jpg",
+        "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1579722820308-d74e57ce3e39?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/425/870/3077/front_en.8.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "protein-amul-pro": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/126/215/2952/front_en.27.400.jpg",
+        "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/126/215/2952/front_en.27.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-lays-classic": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Potato_Chips%2C_Lays_and_Kurkure.jpg/800px-Potato_Chips%2C_Lays_and_Kurkure.jpg",
+        "https://images.openfoodfacts.org/images/products/890/149/110/1837/front_en.26.400.jpg",
+        "https://images.unsplash.com/photo-1481391032119-d89fee407e44?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Potato_Chips%2C_Lays_and_Kurkure.jpg/800px-Potato_Chips%2C_Lays_and_Kurkure.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-lays-magic": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/150/3020/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1621939514649-cecb6959c1a0?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/150/3020/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-lays-cream-onion": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/150/3037/front_en.24.400.jpg",
+        "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/150/3037/front_en.24.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-lays-spanish": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/100/1038/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/100/1038/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-lays-west-indies": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/150/3051/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/150/3051/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-doritos-nacho": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/100/1113/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/100/1113/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-doritos-cool": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/199/0219/front_fr.3.400.jpg",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/199/0219/front_fr.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-doritos-flama": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/199/0219/front_fr.3.400.jpg",
+        "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/199/0219/front_fr.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-doritos-bbq": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/316/893/017/3311/front_fr.3.400.jpg",
+        "https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/316/893/017/3311/front_fr.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-doritos-cheese": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/100/1113/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/100/1113/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-kurkure-masala": {
+      "images": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Potato_Chips%2C_Lays_and_Kurkure.jpg/800px-Potato_Chips%2C_Lays_and_Kurkure.jpg",
+        "https://images.openfoodfacts.org/images/products/890/149/136/1026/front_en.51.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Potato_Chips%2C_Lays_and_Kurkure.jpg/800px-Potato_Chips%2C_Lays_and_Kurkure.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-kurkure-green": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/110/3084/front_es.3.400.jpg",
+        "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/110/3084/front_es.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-kurkure-puff": {
+      "images": [
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "chip-kurkure-chilli": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/110/0533/front_en.35.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/110/0533/front_en.35.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-kurkure-solid": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/136/6229/front_en.15.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/136/6229/front_en.15.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-pringles-orig": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/888/646/712/2392/front_en.26.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/888/646/712/2392/front_en.26.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-pringles-sour": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/888/646/712/2408/front_en.10.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/888/646/712/2408/front_en.10.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-pringles-bbq": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/888/646/712/2408/front_en.10.400.jpg",
+        "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1564759298141-cef86f51d4d0?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/888/646/712/2408/front_en.10.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-pringles-cheese": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/505/399/015/6009/front_fr.288.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/505/399/015/6009/front_fr.288.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-pringles-peri": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/888/646/712/9445/front_id.8.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/888/646/712/9445/front_id.8.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-bingo-mad": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/172/512/0375/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/172/512/0375/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-bingo-tomato": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/172/501/3769/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/172/501/3769/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-bingo-achat": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/172/511/8938/front_en.29.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/172/511/8938/front_en.29.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-uncle-spicy": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/143/5109/front_en.18.400.jpg",
+        "https://images.unsplash.com/photo-1564759298141-cef86f51d4d0?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/143/5109/front_en.18.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-uncle-plain": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/149/140/5003/front_en.32.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/149/140/5003/front_en.32.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-yoga-bar": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/433/560/4150/front_en.17.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/433/560/4150/front_en.17.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-yoga-quinoa": {
+      "images": [
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "chip-open-secret": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/801/332/8222/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/801/332/8222/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-the-whole-truth": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/614/389/0510/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/614/389/0510/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "chip-hippie-snack": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/062/569/165/0008/front_en.7.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/062/569/165/0008/front_en.7.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-haldiram-bhujia": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-haldiram-mixture": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-haldiram-moong": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/400/440/3718/front_en.4.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/400/440/3718/front_en.4.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-haldiram-khata": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-haldiram-sev": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/400/440/0779/front_fr.9.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-bikaji-bhujia": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/550/0397/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/550/0397/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-bikaji-kachori": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/550/8904/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/550/8904/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-bikaji-rattlami": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/600/550/8904/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/600/550/8904/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-balaji-wafers": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/050/0016/front_en.24.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/050/0016/front_en.24.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "nam-balaji-chaat": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/050/0245/front_en.20.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/050/0245/front_en.20.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "snack-actii-butter": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/151/256/2609/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/151/256/2609/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "snack-actii-cheese": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/151/256/2609/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/151/256/2609/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "snack-actii-salted": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/151/254/0102/front_en.17.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/151/254/0102/front_en.17.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-dove-soap": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/501/176/677/7988/front_en.30.400.jpg",
+        "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1571781926291-c77dfdaabba9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/501/176/677/7988/front_en.30.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-colgate": {
+      "images": [
+        "https://images.unsplash.com/photo-1571781926291-c77dfdaabba9?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1559591937-abc3a2bc4d0d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1571781926291-c77dfdaabba9?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "pc-hs": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/870/021/630/7321/front_it.3.400.jpg",
+        "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1570197788417-0e723334cb37?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/870/021/630/7321/front_it.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-nivea": {
+      "images": [
+        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "pc-gillette": {
+      "images": [
+        "https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "pc-dettol-hw": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/139/635/0101/front_mr.27.400.jpg",
+        "https://images.unsplash.com/photo-1631730486572-226b1e21f3d1?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1585421514738-01798b92221c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/139/635/0101/front_mr.27.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-lifebuoy": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/600/108/735/8620/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/600/108/735/8620/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-clinic-plus": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/103/093/7170/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/103/093/7170/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-pepsodent": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/893/483/912/8265/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1559591937-abc3a2bc4d0d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/893/483/912/8265/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pc-vaseline": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/103/099/7280/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/103/099/7280/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-vim-gel": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/910/600/7123/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/910/600/7123/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-surf-excel": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/103/089/8440/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/103/089/8440/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-harpic": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/139/615/3306/front_en.5.400.jpg",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/139/615/3306/front_en.5.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-lizol": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/139/612/6027/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/139/612/6027/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-scotch": {
+      "images": [
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1527515637462-cff97a8fd3f8?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "clean-garbage": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1527515637462-cff97a8fd3f8?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-broom": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+        "https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-broom-hard": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+        "https://images.unsplash.com/photo-1585421514738-01798b92221c?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/376/004/979/8029/front_fr.130.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-phenyl-white": {
+      "images": [
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "clean-phenyl-black": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/801/830/8007/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-tissues-box": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-tissues-roll": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-kitchen-towel": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/601/075/0114/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-dettol-surface": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/501/141/759/4131/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/501/141/759/4131/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "clean-colin": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/359/974/100/3380/front_fr.51.400.jpg",
+        "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/359/974/100/3380/front_fr.51.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-pampers": {
+      "images": [
+        "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "baby-huggies": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/750/642/562/2412/front_es.3.400.jpg",
+        "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/750/642/562/2412/front_es.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-johnson-soap": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/101/211/6852/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/101/211/6852/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-himalaya": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/629/110/722/3537/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/629/110/722/3537/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-cerelac": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/105/801/5799/front_en.13.400.jpg",
+        "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/105/801/5799/front_en.13.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-wipes": {
+      "images": [
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "baby-oil": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/101/211/6852/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1478144592103-25e218a04891?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/101/211/6852/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "baby-powder": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/890/113/882/4037/front_en.3.400.jpg",
+        "https://images.unsplash.com/photo-1566478989037-eec175614204?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1621447504864-d8686e126901?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/890/113/882/4037/front_en.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pet-pedigree": {
+      "images": [
+        "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "pet-whiskas": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/590/095/135/5943/front_fr.3.400.jpg",
+        "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/590/095/135/5943/front_fr.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pet-shampoo": {
+      "images": [
+        "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1571781926291-c77dfdaabba9?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "pet-chew": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+        "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pet-litter": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+        "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "pet-collar": {
+      "images": [
+        "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+        "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.openfoodfacts.org/images/products/775/004/545/4452/front_es.3.400.jpg",
+      "source": "openfoodfacts+hero"
+    },
+    "stat-parker-pen": {
+      "images": [
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-pilot-v5": {
+      "images": [
+        "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-cello-butterflow": {
+      "images": [
+        "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-reynolds-045": {
+      "images": [
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-classmate-nb": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-classmate-unruled": {
+      "images": [
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-navneet": {
+      "images": [
+        "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-fevistick": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-scissors": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-highlighter": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-stapler": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "stat-a4": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-duracell-aa": {
+      "images": [
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-duracell-aaa": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-eveready-aa": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-eveready-aaa": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-panasonic-aa": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-panasonic-9v": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-gp-cr2032": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bat-energizer-aa": {
+      "images": [
+        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-philips-9w": {
+      "images": [
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-philips-12w": {
+      "images": [
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-syska-9w": {
+      "images": [
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-havells-10w": {
+      "images": [
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-tube-philips": {
+      "images": [
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-night-lamp": {
+      "images": [
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-extension": {
+      "images": [
+        "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "bulb-holder": {
+      "images": [
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-silver-10g": {
+      "images": [
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-silver-20g": {
+      "images": [
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-lakshmi": {
+      "images": [
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-ganesha": {
+      "images": [
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-diwali-set": {
+      "images": [
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    },
+    "coin-gold-plated": {
+      "images": [
+        "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+        "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=900&q=90"
+      ],
+      "image": "https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=900&q=90",
+      "source": "hero"
+    }
+  }
+}
