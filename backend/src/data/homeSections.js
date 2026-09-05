@@ -4,9 +4,10 @@
  */
 import {
   categories,
-  productsByCategory,
   getAllProducts,
+  getProductsByCategoryId,
 } from "./catalog.js";
+import { getBanners } from "./cmsStore.js";
 
 function pickHero(source, patterns, limit = 12) {
   const out = [];
@@ -56,48 +57,6 @@ function tiles(ids) {
   return ids.map(catTile).filter(Boolean);
 }
 
-const snacks = productsByCategory.c8;
-const drinks = productsByCategory.c7;
-const dairy = productsByCategory.c2;
-const veg = productsByCategory.c1;
-const personal = productsByCategory.c9;
-const cleaning = productsByCategory.c10;
-const bakery = productsByCategory.c5;
-const all = getAllProducts();
-
-const FESTIVAL_BANNERS = [
-  {
-    id: "fest-1",
-    title: "Festive favourites",
-    subtitle: "Coins, sweets & celebration picks — delivered in minutes",
-    cta: "Shop now",
-    image:
-      "https://images.unsplash.com/photo-1604608672516-f1b9b1c37076?auto=format&fit=crop&w=1200&q=80",
-    accent: "#F8CB46",
-    hub: "gifting",
-  },
-  {
-    id: "fest-2",
-    title: "Highlight of the day",
-    subtitle: "Crispy snacks & chilled drinks for tonight",
-    cta: "Explore",
-    image:
-      "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=1200&q=80",
-    accent: "#0C831F",
-    hub: "all",
-  },
-  {
-    id: "fest-3",
-    title: "Self-care Sunday",
-    subtitle: "Beauty & personal care essentials",
-    cta: "Browse",
-    image:
-      "https://images.unsplash.com/photo-1596462502278-27bfdd403348?auto=format&fit=crop&w=1200&q=80",
-    accent: "#00838F",
-    hub: "beauty",
-  },
-];
-
 /** Lifestyle hubs — filter/reorder feed on the client; also returned for chip UI. */
 export const lifestyleHubs = [
   { id: "all", label: "All", icon: "LayoutGrid" },
@@ -132,6 +91,15 @@ function filterProducts(products, hubId) {
  * @param {{ hub?: string }} opts
  */
 export function buildHomeSections({ hub = "all" } = {}) {
+  const snacks = getProductsByCategoryId("c8");
+  const drinks = getProductsByCategoryId("c7");
+  const dairy = getProductsByCategoryId("c2");
+  const veg = getProductsByCategoryId("c1");
+  const personal = getProductsByCategoryId("c9");
+  const bakery = getProductsByCategoryId("c5");
+  const all = getAllProducts();
+  const festivalBanners = getBanners();
+
   const moving = pickHero(
     snacks,
     [/lay'?s/i, /doritos/i, /kurkure/i, /pringles/i, /bingo/i, /haldiram/i],
@@ -157,15 +125,15 @@ export function buildHomeSections({ hub = "all" } = {}) {
   ];
 
   const lifestyleNew = [
-    ...withCategory(productsByCategory.c13.slice(0, 4), "c13"),
-    ...withCategory(productsByCategory.c16.slice(0, 4), "c16"),
-    ...withCategory(productsByCategory.c15.slice(0, 4), "c15"),
+    ...withCategory(getProductsByCategoryId("c13").slice(0, 4), "c13"),
+    ...withCategory(getProductsByCategoryId("c16").slice(0, 4), "c16"),
+    ...withCategory(getProductsByCategoryId("c15").slice(0, 4), "c15"),
   ];
 
   const dealProducts = dealsFrom(all, 12);
 
   const breakfast = pickHero(
-    [...dairy, ...bakery, ...productsByCategory.c3],
+    [...dairy, ...bakery, ...getProductsByCategoryId("c3")],
     [/milk|bread|egg|oats|butter|jam|cornflake|atta/i],
     10
   );
@@ -176,8 +144,10 @@ export function buildHomeSections({ hub = "all" } = {}) {
     10
   );
 
+  const cleaning = getProductsByCategoryId("c10");
+
   const hosting = pickHero(
-    [...snacks, ...drinks, ...productsByCategory.c16],
+    [...snacks, ...drinks, ...getProductsByCategoryId("c16")],
     [/chips|namkeen|cola|juice|coin|festive|mixture/i],
     10
   );
@@ -201,7 +171,7 @@ export function buildHomeSections({ hub = "all" } = {}) {
     {
       id: "rail-masala",
       title: "Masala & Oil",
-      products: productsByCategory.c4.slice(0, 12),
+      products: getProductsByCategoryId("c4").slice(0, 12),
     },
     {
       id: "rail-veg",
@@ -216,22 +186,22 @@ export function buildHomeSections({ hub = "all" } = {}) {
     {
       id: "rail-stationery",
       title: "Stationery essentials",
-      products: productsByCategory.c13.slice(0, 10),
+      products: getProductsByCategoryId("c13").slice(0, 10),
     },
     {
       id: "rail-baby",
       title: "Baby care picks",
-      products: productsByCategory.c11.slice(0, 10),
+      products: getProductsByCategoryId("c11").slice(0, 10),
     },
     {
       id: "rail-pet",
       title: "Pet favourites",
-      products: productsByCategory.c12.slice(0, 10),
+      products: getProductsByCategoryId("c12").slice(0, 10),
     },
     {
       id: "rail-meat",
       title: "Chicken, Meat & Fish",
-      products: productsByCategory.c6.slice(0, 10),
+      products: getProductsByCategoryId("c6").slice(0, 10),
     },
   ];
 
@@ -239,7 +209,7 @@ export function buildHomeSections({ hub = "all" } = {}) {
     {
       type: "hero_banner",
       id: "sec-hero",
-      banners: FESTIVAL_BANNERS,
+      banners: festivalBanners,
     },
     {
       type: "product_rail",

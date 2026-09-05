@@ -5,6 +5,8 @@ import catalogRoutes from "./routes/catalogRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import printRoutes from "./routes/printRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import festivalRoutes from "./routes/festivalRoutes.js";
 
 dotenv.config();
 
@@ -22,9 +24,11 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api", authRoutes);
+app.use("/api", festivalRoutes);
 app.use("/api", catalogRoutes);
 app.use("/api", orderRoutes);
 app.use("/api", printRoutes);
+app.use("/api/admin", adminRoutes);
 
 // 0.0.0.0 = reachable from phone on same Wi‑Fi (not only this PC)
 app.listen(PORT, "0.0.0.0", () => {

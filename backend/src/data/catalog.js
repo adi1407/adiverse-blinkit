@@ -22,6 +22,7 @@ import {
   coinProducts,
 } from "./curated/specialty.js";
 import imageOverrides from "./curated/imageOverrides.json" with { type: "json" };
+import { mergeAllProducts, mergeCategoryProducts } from "./productOverrides.js";
 
 export const deliveryInfo = {
   minutes: 8,
@@ -139,7 +140,8 @@ export function getCategoryById(id) {
 }
 
 export function getProductsByCategoryId(id) {
-  return productsByCategory[id] || [];
+  const base = productsByCategory[id] || [];
+  return mergeCategoryProducts(base, id);
 }
 
 export function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) {
@@ -162,10 +164,18 @@ export function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) 
   return listItems;
 }
 
-export function getAllProducts() {
+function getBaseAllProducts() {
   return Object.entries(productsByCategory).flatMap(([categoryId, products]) =>
     products.map((product) => ({ ...product, categoryId }))
   );
+}
+
+export function getAllProducts() {
+  return mergeAllProducts(getBaseAllProducts);
+}
+
+export function productExistsInBase(id) {
+  return getBaseAllProducts().some((p) => p.id === id);
 }
 
 export function getProductById(id) {
@@ -211,10 +221,22 @@ export function searchProducts(query) {
 }
 
 export const catalogStats = {
-  generatedCount: 0,
-  totalProducts: getAllProducts().length,
-  snacks: productsByCategory.c8.length,
-  drinks: productsByCategory.c7.length,
-  masalas: productsByCategory.c4.length,
-  categories: categories.length,
+  get generatedCount() {
+    return 0;
+  },
+  get totalProducts() {
+    return getAllProducts().length;
+  },
+  get snacks() {
+    return getProductsByCategoryId("c8").length;
+  },
+  get drinks() {
+    return getProductsByCategoryId("c7").length;
+  },
+  get masalas() {
+    return getProductsByCategoryId("c4").length;
+  },
+  get categories() {
+    return categories.length;
+  },
 };

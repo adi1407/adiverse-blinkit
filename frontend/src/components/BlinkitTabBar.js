@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Platform,
   Animated,
-  Easing,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
@@ -15,68 +14,52 @@ import {
   LayoutGrid,
   Printer,
   RotateCcw,
-  Zap,
 } from "../utils/lucideIcons";
-import { useCart } from "../context/CartContext";
 import { colors } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import { hapticLight } from "../utils/haptics";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 
-/** Meta keyed by route name — labels/icons/badges stay data-driven. */
+/**
+ * Route → tab presentation. Override via options.tabBarLabel / tabBarBadge.
+ */
 const TAB_META = {
-  Home: {
-    label: "Home",
-    Icon: House,
-    fillWhenActive: true,
-  },
-  OrderAgain: {
-    label: "Reorder",
-    Icon: RotateCcw,
-  },
-  Categories: {
-    label: "Categories",
-    Icon: LayoutGrid,
-  },
-  Print: {
-    label: "Print",
-    Icon: Printer,
-    badge: "NEW",
-  },
+  Home: { label: "Home", Icon: House, fillWhenActive: true },
+  Categories: { label: "Categories", Icon: LayoutGrid },
+  OrderAgain: { label: "Reorder", Icon: RotateCcw },
+  Print: { label: "Print", Icon: Printer, badge: "NEW" },
 };
 
-/** Dock + ETA chip height (safe-area added separately by FloatingCartBar). */
-export const TAB_BAR_BASE_HEIGHT = 92;
+/** Chrome height above safe-area — FloatingCartBar sits above this. */
+export const TAB_BAR_BASE_HEIGHT = 64;
 
-const DOCK_H = 64;
-
-function TabItem({ meta, focused, onPress, onLayout, badgePulse, reduceMotion }) {
-  const scale = useRef(new Animated.Value(1)).current;
-  const lift = useRef(new Animated.Value(focused ? 1 : 0)).current;
+function TabItem({ meta, focused, onPress, onLayout, reduceMotion }) {
+  const press = useRef(new Animated.Value(1)).current;
+  const focus = useRef(new Animated.Value(focused ? 1 : 0)).current;
   const Icon = meta.Icon || House;
 
   useEffect(() => {
-    Animated.spring(lift, {
+    Animated.spring(focus, {
       toValue: focused ? 1 : 0,
-      friction: 7,
-      tension: 140,
+      friction: 8,
+      tension: 160,
       useNativeDriver: true,
     }).start();
-  }, [focused, lift]);
+  }, [focused, focus]);
 
   function handlePress() {
     hapticLight();
     if (!reduceMotion) {
       Animated.sequence([
-        Animated.timing(scale, {
-          toValue: 0.88,
+        Animated.timing(press, {
+          toValue: 0.9,
           duration: 70,
           useNativeDriver: true,
         }),
-        Animated.spring(scale, {
+        Animated.spring(press, {
           toValue: 1,
           friction: 4,
-          tension: 240,
+          tension: 260,
           useNativeDriver: true,
         }),
       ]).start();
@@ -84,93 +67,57 @@ function TabItem({ meta, focused, onPress, onLayout, badgePulse, reduceMotion })
     onPress();
   }
 
-  const iconColor = focused ? colors.text : "#7A7A7A";
+  const iconColor = focused ? colors.text : "#8A8A8A";
 
   return (
     <Pressable
       onPress={handlePress}
       onLayout={onLayout}
-      style={styles.item}
+      style={styles.tab}
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
-      accessibilityLabel={meta.label}
+      accessibilityLabel={
+        meta.badge ? `${meta.label}, ${meta.badge}` : meta.label
+      }
     >
-      <Animated.View
-        style={[
-          styles.iconSlot,
-          {
-            transform: [
-              { scale },
-              {
-                translateY: lift.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -1],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        <Icon
-          size={focused ? 22 : 20}
-          color={iconColor}
-          strokeWidth={focused ? 2.55 : 2.05}
-          fill={focused && meta.fillWhenActive ? iconColor : "transparent"}
-        />
-
-        {meta.badge ? (
+      <Animated.View style={[styles.tabInner, { transform: [{ scale: press }] }]}>
+        <View style={styles.iconWrap}>
           <Animated.View
             style={[
-              styles.badge,
+              styles.iconPlate,
               {
+                opacity: focus,
                 transform: [
                   {
-                    scale: badgePulse.interpolate({
+                    scale: focus.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [1, 1.1],
+                      outputRange: [0.65, 1],
                     }),
                   },
                 ],
               },
             ]}
-          >
-            <Text style={styles.badgeText}>{meta.badge}</Text>
-          </Animated.View>
-        ) : null}
+          />
+          <Icon
+            size={focused ? 22 : 21}
+            color={iconColor}
+            strokeWidth={focused ? 2.5 : 2.05}
+            fill={focused && meta.fillWhenActive ? iconColor : "transparent"}
+          />
+          {meta.badge ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{meta.badge}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        <Text
+          style={[styles.label, focused ? styles.labelActive : styles.labelIdle]}
+          numberOfLines={1}
+        >
+          {meta.label}
+        </Text>
       </Animated.View>
-
-      <Animated.Text
-        style={[
-          styles.label,
-          focused && styles.labelActive,
-          {
-            opacity: lift.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.72, 1],
-            }),
-          },
-        ]}
-        numberOfLines={1}
-      >
-        {meta.label}
-      </Animated.Text>
-
-      <Animated.View
-        style={[
-          styles.activeDot,
-          {
-            opacity: lift,
-            transform: [
-              {
-                scale: lift.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.4, 1],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
     </Pressable>
   );
 }
@@ -178,44 +125,48 @@ function TabItem({ meta, focused, onPress, onLayout, badgePulse, reduceMotion })
 export default function BlinkitTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const reduceMotion = usePrefersReducedMotion();
-  const { totalItems } = useCart();
-  const bottomPad = Math.max(insets.bottom, Platform.OS === "android" ? 10 : 8);
+  const bottomPad = Math.max(insets.bottom, Platform.OS === "android" ? 8 : 6);
 
   const layouts = useRef({});
-  const [ready, setReady] = useState(false);
+  const [measured, setMeasured] = useState(false);
   const indicatorX = useRef(new Animated.Value(0)).current;
-  const indicatorW = useRef(new Animated.Value(56)).current;
-  const dockLift = useRef(new Animated.Value(0)).current;
-  const badgePulse = useRef(new Animated.Value(0)).current;
-  const etaBob = useRef(new Animated.Value(0)).current;
-  const sheen = useRef(new Animated.Value(0)).current;
+  const indicatorW = useRef(new Animated.Value(0)).current;
+  const enter = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
 
   const tabs = useMemo(
     () =>
       state.routes.map((route) => {
         const options = descriptors[route.key]?.options || {};
         const base = TAB_META[route.name] || {
-          label: options.title || route.name,
+          label: route.name,
           Icon: House,
         };
-        const badge =
-          options.tabBarBadge != null
-            ? String(options.tabBarBadge)
-            : base.badge;
         return {
           ...base,
           name: route.name,
-          label: options.tabBarLabel || base.label,
-          badge,
           key: route.key,
+          label: options.tabBarLabel || base.label,
+          badge:
+            options.tabBarBadge != null
+              ? String(options.tabBarBadge)
+              : base.badge,
         };
       }),
     [state.routes, descriptors]
   );
 
-  const active = tabs[state.index] || tabs[0];
-  const etaMinutes = 8;
-  const showEta = totalItems === 0;
+  useEffect(() => {
+    if (reduceMotion) {
+      enter.setValue(1);
+      return;
+    }
+    Animated.spring(enter, {
+      toValue: 1,
+      friction: 8,
+      tension: 70,
+      useNativeDriver: true,
+    }).start();
+  }, [enter, reduceMotion]);
 
   useEffect(() => {
     const layout = layouts.current[state.index];
@@ -223,215 +174,77 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
 
     Animated.parallel([
       Animated.spring(indicatorX, {
-        toValue: layout.x,
-        friction: 8,
-        tension: 120,
+        toValue: layout.x + layout.width * 0.16,
+        friction: 9,
+        tension: 140,
         useNativeDriver: false,
       }),
       Animated.spring(indicatorW, {
-        toValue: layout.width,
-        friction: 8,
-        tension: 120,
+        toValue: layout.width * 0.68,
+        friction: 9,
+        tension: 140,
         useNativeDriver: false,
       }),
     ]).start();
-  }, [state.index, indicatorX, indicatorW, ready]);
+  }, [state.index, measured, indicatorX, indicatorW]);
 
-  useEffect(() => {
-    Animated.spring(dockLift, {
-      toValue: 1,
-      friction: 7,
-      tension: 64,
-      useNativeDriver: true,
-    }).start();
-  }, [dockLift]);
-
-  useEffect(() => {
-    if (reduceMotion) return undefined;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(badgePulse, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(badgePulse, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [badgePulse, reduceMotion]);
-
-  useEffect(() => {
-    if (reduceMotion || !showEta) return undefined;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(etaBob, {
-          toValue: 1,
-          duration: 1700,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-        Animated.timing(etaBob, {
-          toValue: 0,
-          duration: 1700,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [etaBob, reduceMotion, showEta]);
-
-  useEffect(() => {
-    if (reduceMotion) return undefined;
-    const loop = Animated.loop(
-      Animated.timing(sheen, {
-        toValue: 1,
-        duration: 4800,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      })
-    );
-    sheen.setValue(0);
-    loop.start();
-    return () => loop.stop();
-  }, [sheen, reduceMotion]);
-
-  function storeLayout(index, e) {
+  function onTabLayout(index, e) {
     const { x, width } = e.nativeEvent.layout;
     layouts.current[index] = { x, width };
-    if (Object.keys(layouts.current).length >= state.routes.length) {
-      setReady(true);
-      if (index === state.index) {
-        indicatorX.setValue(x);
-        indicatorW.setValue(width);
+    if (Object.keys(layouts.current).length < state.routes.length) return;
+
+    if (!measured) {
+      setMeasured(true);
+      const cur = layouts.current[state.index];
+      if (cur) {
+        indicatorX.setValue(cur.x + cur.width * 0.16);
+        indicatorW.setValue(cur.width * 0.68);
       }
     }
   }
 
   return (
-    <View
-      style={[styles.shell, { paddingBottom: bottomPad }]}
-      pointerEvents="box-none"
-    >
-      {showEta ? (
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.etaChip,
+    <Animated.View
+      style={[
+        styles.root,
+        {
+          paddingBottom: bottomPad,
+          opacity: enter,
+          transform: [
             {
-              opacity: etaBob.interpolate({
+              translateY: enter.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0.94, 1],
+                outputRange: [16, 0],
               }),
-              transform: [
-                {
-                  translateY: etaBob.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -3],
-                  }),
-                },
-              ],
             },
-          ]}
-        >
-          <View style={styles.etaGlass}>
-            <BlurView
-              intensity={Platform.OS === "ios" ? 36 : 50}
-              tint="dark"
-              style={StyleSheet.absoluteFill}
-              {...(Platform.OS === "android"
-                ? { experimentalBlurMethod: "dimezisBlurView" }
-                : null)}
-            />
-            <View style={styles.etaTint} />
-          </View>
-          <Zap size={11} color={colors.primary} fill={colors.primary} />
-          <Text style={styles.etaText}>
-            Delivering in {etaMinutes} mins
-          </Text>
-          <View style={styles.etaDot} />
-          <Text style={styles.etaActive}>{active?.label || "Home"}</Text>
-        </Animated.View>
-      ) : null}
-
-      <Animated.View
-        style={[
-          styles.dock,
-          {
-            transform: [
-              {
-                translateY: dockLift.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [30, 0],
-                }),
-              },
-              {
-                scale: dockLift.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.94, 1],
-                }),
-              },
-            ],
-            opacity: dockLift,
-          },
-        ]}
-      >
-        {/* Glass layers */}
+          ],
+        },
+      ]}
+    >
+      <View style={styles.bar}>
         <BlurView
-          intensity={Platform.OS === "ios" ? 55 : 80}
+          intensity={Platform.OS === "ios" ? 70 : 100}
           tint="light"
           style={StyleSheet.absoluteFill}
           {...(Platform.OS === "android"
             ? { experimentalBlurMethod: "dimezisBlurView" }
             : null)}
         />
-        <View style={styles.glassTint} />
-        <View style={styles.glassHighlight} />
-        <View style={styles.glassEdge} />
-
-        {!reduceMotion ? (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.dockSheen,
-              {
-                opacity: sheen.interpolate({
-                  inputRange: [0, 0.4, 0.55, 1],
-                  outputRange: [0, 0, 0.18, 0],
-                }),
-                transform: [
-                  {
-                    translateX: sheen.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-60, 280],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          />
-        ) : null}
+        <View style={styles.glassFill} />
+        <View style={styles.glassTopShine} />
+        <View style={styles.topHairline} />
 
         <View style={styles.row}>
           <Animated.View
             pointerEvents="none"
             style={[
-              styles.indicator,
+              styles.slider,
               {
                 width: indicatorW,
                 transform: [{ translateX: indicatorX }],
               },
             ]}
-          >
-            <View style={styles.indicatorInner} />
-          </Animated.View>
+          />
 
           {tabs.map((meta, index) => {
             const focused = state.index === index;
@@ -440,9 +253,8 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
                 key={meta.key}
                 meta={meta}
                 focused={focused}
-                badgePulse={badgePulse}
                 reduceMotion={reduceMotion}
-                onLayout={(e) => storeLayout(index, e)}
+                onLayout={(e) => onTabLayout(index, e)}
                 onPress={() => {
                   const event = navigation.emit({
                     type: "tabPress",
@@ -457,194 +269,128 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
             );
           })}
         </View>
-      </Animated.View>
-    </View>
+      </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  shell: {
-    paddingHorizontal: 14,
-    paddingTop: 28,
-    backgroundColor: "transparent",
-  },
-  etaChip: {
+  root: {
     position: "absolute",
-    top: 0,
-    alignSelf: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 999,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 50,
+  },
+  bar: {
+    minHeight: TAB_BAR_BASE_HEIGHT,
     overflow: "hidden",
-    zIndex: 2,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.18)",
+    backgroundColor: "rgba(255,255,255,0.78)",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,255,255,0.9)",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOpacity: 0.22,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 5 },
-      },
-      android: { elevation: 8 },
-    }),
-  },
-  etaGlass: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
-    borderRadius: 999,
-  },
-  etaTint: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(20,20,20,0.78)",
-  },
-  etaText: {
-    color: colors.white,
-    fontSize: 11,
-    fontFamily: fonts.bold,
-  },
-  etaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.4)",
-  },
-  etaActive: {
-    color: colors.primary,
-    fontSize: 11,
-    fontFamily: fonts.extraBold,
-  },
-  dock: {
-    height: DOCK_H,
-    borderRadius: 24,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.65)",
-    backgroundColor: "rgba(255,255,255,0.55)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#101010",
-        shadowOpacity: 0.16,
-        shadowRadius: 22,
-        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.12,
+        shadowRadius: 18,
+        shadowOffset: { width: 0, height: -4 },
       },
       android: {
-        elevation: 18,
+        elevation: 22,
       },
     }),
   },
-  glassTint: {
+  glassFill: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 252, 245, 0.42)",
+    backgroundColor: "rgba(255, 252, 246, 0.5)",
   },
-  glassHighlight: {
+  glassTopShine: {
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
-    height: "45%",
-    backgroundColor: "rgba(255,255,255,0.35)",
+    height: 16,
+    backgroundColor: "rgba(255,255,255,0.45)",
   },
-  glassEdge: {
+  topHairline: {
     position: "absolute",
-    left: 12,
-    right: 12,
-    bottom: 0,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(248,203,70,0.35)",
-  },
-  dockSheen: {
-    position: "absolute",
+    left: 28,
+    right: 28,
     top: 0,
-    bottom: 0,
-    width: 40,
-    backgroundColor: "rgba(255,255,255,0.55)",
-    transform: [{ skewX: "-18deg" }],
-    zIndex: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "rgba(248, 203, 70, 0.5)",
   },
   row: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 5,
+    minHeight: TAB_BAR_BASE_HEIGHT,
+    paddingHorizontal: 4,
+    paddingTop: 4,
     position: "relative",
-    zIndex: 1,
   },
-  indicator: {
+  slider: {
     position: "absolute",
-    top: 6,
-    bottom: 6,
-    left: 0,
-    borderRadius: 18,
-    padding: 2,
+    top: 8,
+    height: 38,
+    borderRadius: 14,
+    backgroundColor: "rgba(248, 203, 70, 0.18)",
   },
-  indicatorInner: {
+  tab: {
     flex: 1,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.45)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#E4B83A",
-        shadowOpacity: 0.45,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-      },
-      android: { elevation: 2 },
-    }),
-  },
-  item: {
-    flex: 1,
-    height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    height: 56,
     zIndex: 1,
-    paddingBottom: 2,
   },
-  iconSlot: {
-    width: 30,
-    height: 24,
+  tabInner: {
     alignItems: "center",
     justifyContent: "center",
+    gap: 3,
+    minWidth: 60,
+  },
+  iconWrap: {
+    width: 42,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconPlate: {
+    position: "absolute",
+    width: 42,
+    height: 30,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
   },
   label: {
     fontSize: 10,
-    fontFamily: fonts.semiBold,
-    color: "#7A7A7A",
+    letterSpacing: 0.12,
     textAlign: "center",
-    letterSpacing: 0.15,
+  },
+  labelIdle: {
+    color: "#8A8A8A",
+    fontFamily: fonts.semiBold,
   },
   labelActive: {
     color: colors.text,
     fontFamily: fonts.extraBold,
   },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.text,
-    marginTop: 1,
-  },
   badge: {
     position: "absolute",
-    top: -8,
-    right: -16,
+    top: -4,
+    right: -12,
     backgroundColor: colors.danger,
-    borderRadius: 7,
+    borderRadius: 6,
     paddingHorizontal: 4,
-    paddingVertical: 1.5,
+    paddingVertical: 1,
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.95)",
+    borderColor: "#FFF",
   },
   badgeText: {
-    color: colors.white,
-    fontSize: 7.5,
+    color: "#FFF",
+    fontSize: 7,
     fontFamily: fonts.extraBold,
-    letterSpacing: 0.25,
+    letterSpacing: 0.3,
   },
 });

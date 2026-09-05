@@ -1,0 +1,31 @@
+{
+  "banners": [
+    {
+      "id": "fest-1",
+      "title": "Festive favourites",
+      "subtitle": "Coins, sweets & celebration picks — delivered in minutes",
+      "cta": "Shop now",
+      "image": "https://images.unsplash.com/photo-1604608672516-f1b9b1c37076?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#F8CB46",
+      "hub": "gifting"
+    },
+    {
+      "id": "fest-2",
+      "title": "Highlight of the day",
+      "subtitle": "Crispy snacks & chilled drinks for tonight",
+      "cta": "Explore",
+      "image": "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#0C831F",
+      "hub": "all"
+    },
+    {
+      "id": "fest-3",
+      "title": "Self-care Sunday",
+      "subtitle": "Beauty & personal care essentials",
+      "cta": "Browse",
+      "image": "https://images.unsplash.com/photo-1596462502278-27bfdd403348?auto=format&fit=crop&w=1200&q=80",
+      "accent": "#00838F",
+      "hub": "beauty"
+    }
+  ]
+}

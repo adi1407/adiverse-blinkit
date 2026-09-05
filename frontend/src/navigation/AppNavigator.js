@@ -47,12 +47,12 @@ function MainTabs() {
         }}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Categories" component={CategoriesScreen} />
         <Tab.Screen
           name="OrderAgain"
           component={OrderAgainScreen}
           options={{ title: "Order Again", tabBarLabel: "Reorder" }}
         />
-        <Tab.Screen name="Categories" component={CategoriesScreen} />
         <Tab.Screen
           name="Print"
           component={PrintScreen}
