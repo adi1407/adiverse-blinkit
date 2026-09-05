@@ -7,14 +7,16 @@ import {
   Platform,
   View,
   Text,
-  Pressable,
-  Image,
+  TextInput,
   RefreshControl,
+  useWindowDimensions,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
+import { Search } from "../utils/lucideIcons";
 import HomeNavbar from "../components/HomeNavbar";
-import LoadingState from "../components/LoadingState";
+import CategoryCard, { CategoryCardSkeleton } from "../components/CategoryCard";
+import { getCategoryFestivalAccent } from "../components/categoryFestival";
 import ErrorState from "../components/ErrorState";
 import { fetchCategories, fetchHomeData } from "../api/catalogApi";
 import useScrollGlass from "../hooks/useScrollGlass";
@@ -23,7 +25,7 @@ import { fonts } from "../theme/typography";
 
 /**
  * Blinkit Categories page:
- * same yellow chrome as Home → 4 parent sections → 8 subcats each → 4 per row.
+ * same yellow chrome as Home → grouped sections → 4-per-row tiles.
  */
 const CATEGORY_SECTIONS = [
   {
@@ -88,44 +90,47 @@ const CATEGORY_SECTIONS = [
   },
 ];
 
-function SubTile({ tile, onPress }) {
-  return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.tileItem,
-        pressed && { opacity: 0.88, transform: [{ scale: 0.97 }] },
-      ]}
-      onPress={onPress}
-    >
-      <View style={[styles.tile, { backgroundColor: tile.bg }]}>
-        {tile.image ? (
-          <Image
-            source={{ uri: tile.image }}
-            style={styles.tileImage}
-            resizeMode="cover"
-          />
-        ) : null}
-      </View>
-      <Text style={styles.tileName} numberOfLines={2}>
-        {tile.name}
-      </Text>
-    </Pressable>
-  );
-}
-
-function CategorySection({ section, onSelect }) {
+function CategorySection({ section, onSelect, selectedKey, itemWidth }) {
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{section.title}</Text>
       <View style={styles.grid}>
-        {section.tiles.slice(0, 8).map((tile, index) => (
-          <SubTile
-            key={tile.key || `${tile.id}-${tile.name}-${index}`}
-            tile={tile}
-            onPress={() => onSelect(tile)}
-          />
-        ))}
+        {section.tiles.map((tile, index) => {
+          const key = tile.key || `${tile.id}-${tile.name}-${index}`;
+          const accent = getCategoryFestivalAccent(tile.id);
+          return (
+            <CategoryCard
+              key={key}
+              category={tile}
+              index={index}
+              animateEnter
+              width={itemWidth}
+              selected={selectedKey === key}
+              festivalAccent={accent.active}
+              accentLabel={accent.label}
+              onPress={() => onSelect(tile, key)}
+            />
+          );
+        })}
       </View>
+    </View>
+  );
+}
+
+function CategoriesSkeleton({ itemWidth }) {
+  return (
+    <View style={styles.skelWrap}>
+      <View style={styles.skelSearch} />
+      {[0, 1].map((block) => (
+        <View key={block} style={styles.section}>
+          <View style={styles.skelTitle} />
+          <View style={styles.grid}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <CategoryCardSkeleton key={i} width={itemWidth} />
+            ))}
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -135,6 +140,11 @@ export default function CategoriesScreen() {
   const scrollRef = useRef(null);
   const sectionY = useRef({});
   const { scrolled, onScroll } = useScrollGlass({ threshold: 24 });
+  const { width } = useWindowDimensions();
+  const columns = width >= 900 ? 6 : width >= 600 ? 5 : 4;
+  const itemWidth =
+    columns === 6 ? "15.5%" : columns === 5 ? "18.5%" : "23%";
+
   const [hub, setHub] = useState("all");
   const [hubs, setHubs] = useState(null);
   const [minutes, setMinutes] = useState(8);
@@ -142,8 +152,10 @@ export default function CategoriesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [query, setQuery] = useState("");
+  const [selectedKey, setSelectedKey] = useState(null);
 
-  const visibleSections = useMemo(() => {
+  const hubSections = useMemo(() => {
     if (hub === "all") return CATEGORY_SECTIONS;
     if (hub === "beauty") return CATEGORY_SECTIONS.filter((s) => s.id === "beauty");
     if (hub === "decor" || hub === "gifting" || hub === "kids") {
@@ -154,6 +166,19 @@ export default function CategoriesScreen() {
     }
     return CATEGORY_SECTIONS;
   }, [hub]);
+
+  const visibleSections = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return hubSections;
+    return hubSections
+      .map((section) => ({
+        ...section,
+        tiles: section.tiles.filter((tile) =>
+          String(tile.name).replace(/\n/g, " ").toLowerCase().includes(q)
+        ),
+      }))
+      .filter((section) => section.tiles.length > 0);
+  }, [hubSections, query]);
 
   const boot = useCallback(async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
@@ -179,13 +204,13 @@ export default function CategoriesScreen() {
     boot();
   }, [boot]);
 
-  function openTile(tile) {
+  function openTile(tile, key) {
+    setSelectedKey(key);
     navigation.navigate("CategoryProducts", { categoryId: tile.id });
   }
 
   function onSelectHub(id) {
     setHub(id);
-    // Jump to first matching section when possible
     const match = CATEGORY_SECTIONS.find((s) => s.hub === id || s.id === id);
     if (match && sectionY.current[match.id] != null) {
       scrollRef.current?.scrollTo({
@@ -210,7 +235,7 @@ export default function CategoriesScreen() {
       />
 
       {loading && !ready ? (
-        <LoadingState message="Loading categories..." />
+        <CategoriesSkeleton itemWidth={itemWidth} />
       ) : error && !ready ? (
         <ErrorState message={error} onRetry={() => boot()} />
       ) : (
@@ -221,6 +246,7 @@ export default function CategoriesScreen() {
           showsVerticalScrollIndicator={false}
           onScroll={onScroll}
           scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -230,16 +256,44 @@ export default function CategoriesScreen() {
             />
           }
         >
-          {visibleSections.map((section) => (
-            <View
-              key={section.id}
-              onLayout={(e) => {
-                sectionY.current[section.id] = e.nativeEvent.layout.y;
-              }}
-            >
-              <CategorySection section={section} onSelect={openTile} />
+          <View style={styles.searchWrap}>
+            <Search size={16} color="#6B6B6B" strokeWidth={2.3} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search categories"
+              placeholderTextColor="#9A9A9A"
+              style={styles.searchInput}
+              accessibilityLabel="Search categories"
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+            />
+          </View>
+
+          {visibleSections.length === 0 ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyTitle}>No matching categories</Text>
+              <Text style={styles.emptyBody}>
+                Try another search, or clear the filter.
+              </Text>
             </View>
-          ))}
+          ) : (
+            visibleSections.map((section) => (
+              <View
+                key={section.id}
+                onLayout={(e) => {
+                  sectionY.current[section.id] = e.nativeEvent.layout.y;
+                }}
+              >
+                <CategorySection
+                  section={section}
+                  onSelect={openTile}
+                  selectedKey={selectedKey}
+                  itemWidth={itemWidth}
+                />
+              </View>
+            ))
+          )}
           <View style={{ height: 110 }} />
         </ScrollView>
       )}
@@ -261,6 +315,27 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     paddingBottom: 16,
   },
+  searchWrap: {
+    marginHorizontal: spacing.lg,
+    marginTop: 8,
+    marginBottom: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#ECECEC",
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: fonts.medium,
+    color: colors.text,
+    paddingVertical: 0,
+  },
   section: {
     paddingHorizontal: spacing.lg,
     paddingTop: 18,
@@ -278,30 +353,41 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  tileItem: {
-    width: "23%",
-    marginBottom: 14,
-    alignItems: "center",
-  },
-  tile: {
-    width: "100%",
-    aspectRatio: 0.92,
+  empty: {
+    marginHorizontal: spacing.lg,
+    marginTop: 28,
+    padding: 16,
     borderRadius: 14,
-    overflow: "hidden",
-    marginBottom: 6,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: colors.surface,
   },
-  tileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  tileName: {
-    fontSize: 11,
-    textAlign: "center",
+  emptyTitle: {
+    fontSize: 15,
+    fontFamily: fonts.extraBold,
     color: colors.text,
-    lineHeight: 14,
-    fontFamily: fonts.semiBold,
-    minHeight: 28,
+  },
+  emptyBody: {
+    marginTop: 4,
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: colors.textSecondary,
+  },
+  skelWrap: {
+    flex: 1,
+    backgroundColor: colors.background,
+    paddingTop: 8,
+  },
+  skelSearch: {
+    height: 44,
+    marginHorizontal: spacing.lg,
+    borderRadius: 12,
+    backgroundColor: "#E8E8E8",
+    marginBottom: 8,
+  },
+  skelTitle: {
+    width: "48%",
+    height: 16,
+    borderRadius: 6,
+    backgroundColor: "#E8E8E8",
+    marginBottom: 14,
   },
 });

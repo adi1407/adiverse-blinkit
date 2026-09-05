@@ -1,13 +1,15 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, Pressable, Animated } from "react-native";
 import { Minus, Plus } from "../utils/lucideIcons";
 import { hapticLight } from "../utils/haptics";
 import { colors } from "../theme/colors";
 import { fonts } from "../theme/typography";
+import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 
 const SIZES = {
-  sm: { height: 28, btn: 26, qty: 22, icon: 12, font: 12 },
-  md: { height: 32, btn: 30, qty: 28, icon: 14, font: 13 },
-  lg: { height: 40, btn: 38, qty: 36, icon: 18, font: 15 },
+  sm: { height: 30, btn: 28, qty: 24, icon: 13, font: 12 },
+  md: { height: 34, btn: 32, qty: 28, icon: 14, font: 13 },
+  lg: { height: 42, btn: 40, qty: 36, icon: 18, font: 15 },
 };
 
 export default function QtyStepper({
@@ -16,11 +18,66 @@ export default function QtyStepper({
   onDecrease,
   compact,
   size = compact ? "sm" : "md",
+  productName = "item",
 }) {
   const s = SIZES[size] || SIZES.md;
+  const reduceMotion = usePrefersReducedMotion();
+  const [displayQty, setDisplayQty] = useState(qty);
+  const slide = useRef(new Animated.Value(0)).current;
+  const fade = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (qty === displayQty) return undefined;
+
+    if (reduceMotion) {
+      setDisplayQty(qty);
+      return undefined;
+    }
+
+    const dir = qty > displayQty ? 1 : -1;
+    let cancelled = false;
+
+    Animated.parallel([
+      Animated.timing(fade, {
+        toValue: 0,
+        duration: 70,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slide, {
+        toValue: -6 * dir,
+        duration: 70,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      if (cancelled) return;
+      setDisplayQty(qty);
+      slide.setValue(6 * dir);
+      Animated.parallel([
+        Animated.timing(fade, {
+          toValue: 1,
+          duration: 80,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slide, {
+          toValue: 0,
+          duration: 80,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [qty, displayQty, fade, slide, reduceMotion]);
 
   return (
-    <View style={[styles.wrap, { height: s.height }]}>
+    <View
+      style={[styles.wrap, { height: s.height }]}
+      accessibilityRole="adjustable"
+      accessibilityLabel={`${productName} quantity ${displayQty}`}
+      accessibilityValue={{ min: 0, now: displayQty }}
+    >
       <Pressable
         onPress={() => {
           hapticLight();
@@ -31,14 +88,30 @@ export default function QtyStepper({
           { width: s.btn },
           pressed && styles.btnPressed,
         ]}
-        hitSlop={6}
-        accessibilityLabel="Decrease quantity"
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={`Decrease ${productName} quantity`}
       >
         <Minus size={s.icon} color={colors.white} strokeWidth={2.8} />
       </Pressable>
+
       <View style={[styles.qtyWrap, { minWidth: s.qty }]}>
-        <Text style={[styles.qty, { fontSize: s.font }]}>{qty}</Text>
+        <Animated.Text
+          style={[
+            styles.qty,
+            {
+              fontSize: s.font,
+              opacity: fade,
+              transform: [{ translateY: slide }],
+            },
+          ]}
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+        >
+          {displayQty}
+        </Animated.Text>
       </View>
+
       <Pressable
         onPress={() => {
           hapticLight();
@@ -49,8 +122,9 @@ export default function QtyStepper({
           { width: s.btn },
           pressed && styles.btnPressed,
         ]}
-        hitSlop={6}
-        accessibilityLabel="Increase quantity"
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={`Increase ${productName} quantity`}
       >
         <Plus size={s.icon} color={colors.white} strokeWidth={2.8} />
       </Pressable>
@@ -62,7 +136,7 @@ const styles = StyleSheet.create({
   wrap: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 6,
+    borderRadius: 8,
     backgroundColor: colors.accent,
     overflow: "hidden",
   },
@@ -77,6 +151,7 @@ const styles = StyleSheet.create({
   qtyWrap: {
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
   qty: {
     textAlign: "center",

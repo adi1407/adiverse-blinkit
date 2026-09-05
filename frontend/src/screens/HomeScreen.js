@@ -109,6 +109,7 @@ export default function HomeScreen() {
             subtitle={section.subtitle}
             tiles={section.tiles}
             onSelect={openCategory}
+            onViewAll={() => navigation.navigate("Categories")}
           />
         );
       case "deals_grid":

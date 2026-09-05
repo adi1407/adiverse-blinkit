@@ -52,13 +52,16 @@ export function ProductCardSkeleton({ variant = "carousel" }) {
   const isGrid = variant === "grid";
   return (
     <View style={[styles.cardSkel, isGrid && styles.cardSkelGrid]}>
-      <SkeletonBox height={108} radius={radii.sm} />
+      <SkeletonBox height={118} radius={10} />
       <SkeletonBox height={10} width="40%" style={{ marginTop: 10 }} />
-      <SkeletonBox height={14} width="90%" style={{ marginTop: 8 }} />
+      <SkeletonBox height={14} width="92%" style={{ marginTop: 8 }} />
       <SkeletonBox height={14} width="70%" style={{ marginTop: 6 }} />
       <View style={styles.cardSkelFooter}>
-        <SkeletonBox height={16} width={48} />
-        <SkeletonBox height={28} width={54} radius={radii.sm} />
+        <View>
+          <SkeletonBox height={14} width={44} />
+          <SkeletonBox height={10} width={56} style={{ marginTop: 4 }} />
+        </View>
+        <SkeletonBox height={30} width={54} radius={8} />
       </View>
     </View>
   );
@@ -107,9 +110,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8E8E8",
   },
   cardSkel: {
-    width: 138,
+    width: 132,
     marginRight: spacing.md,
-    padding: 10,
+    padding: 8,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#EFEFEF",
+    backgroundColor: colors.white,
   },
   cardSkelGrid: {
     width: "100%",

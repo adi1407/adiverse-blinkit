@@ -2,9 +2,7 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Zap } from "../utils/lucideIcons";
 import ProductImage from "./ProductImage";
-import QtyStepper from "./QtyStepper";
-import { useCart } from "../context/CartContext";
-import { hapticLight } from "../utils/haptics";
+import AddToCartControl from "./AddToCartControl";
 import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
@@ -17,10 +15,11 @@ function discountPct(product) {
 
 function DealCell({ product }) {
   const navigation = useNavigation();
-  const { getQty, addItem, increaseQty, decreaseQty } = useCart();
-  const qty = getQty(product.id);
   const off = discountPct(product);
   const showMrp = product.mrp > product.price;
+  const saveAmt = showMrp
+    ? Math.max(0, Math.round(Number(product.mrp) - Number(product.price)))
+    : 0;
 
   return (
     <Pressable
@@ -28,6 +27,8 @@ function DealCell({ product }) {
       onPress={() =>
         navigation.navigate("ProductDetail", { productId: product.id })
       }
+      accessibilityRole="button"
+      accessibilityLabel={`${product.name}, ₹${product.price}`}
     >
       <View style={styles.imageBox}>
         {off > 0 ? (
@@ -52,41 +53,17 @@ function DealCell({ product }) {
       <View style={styles.footer}>
         <View style={styles.priceBlock}>
           <Text style={styles.price}>₹{product.price}</Text>
-          {showMrp ? <Text style={styles.mrp}>₹{product.mrp}</Text> : null}
+          {showMrp ? (
+            <View style={styles.mrpRow}>
+              <Text style={styles.mrp}>₹{product.mrp}</Text>
+              {saveAmt > 0 ? (
+                <Text style={styles.save}>Save ₹{saveAmt}</Text>
+              ) : null}
+            </View>
+          ) : null}
         </View>
 
-        {qty > 0 ? (
-          <QtyStepper
-            qty={qty}
-            size="sm"
-            onIncrease={() => {
-              hapticLight();
-              increaseQty(product.id);
-            }}
-            onDecrease={() => {
-              hapticLight();
-              decreaseQty(product.id);
-            }}
-          />
-        ) : (
-          <Pressable
-            style={({ pressed }) => [
-              styles.addBtn,
-              pressed && styles.addBtnPressed,
-            ]}
-            onPress={(e) => {
-              e?.stopPropagation?.();
-              hapticLight();
-              addItem(product);
-            }}
-          >
-            {({ pressed }) => (
-              <Text style={[styles.addText, pressed && styles.addTextPressed]}>
-                ADD
-              </Text>
-            )}
-          </Pressable>
-        )}
+        <AddToCartControl product={product} size="sm" />
       </View>
     </Pressable>
   );
@@ -217,33 +194,22 @@ const styles = StyleSheet.create({
     fontFamily: fonts.extraBold,
     color: colors.text,
   },
+  mrpRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 1,
+    flexWrap: "wrap",
+  },
   mrp: {
     fontSize: 10,
     color: "#9C9C9C",
     textDecorationLine: "line-through",
-    marginTop: 1,
     fontFamily: fonts.medium,
   },
-  addBtn: {
-    borderWidth: 1.2,
-    borderColor: colors.accent,
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: colors.white,
-    minWidth: 50,
-    alignItems: "center",
-  },
-  addBtnPressed: {
-    backgroundColor: colors.accent,
-  },
-  addText: {
+  save: {
+    fontSize: 9,
     color: colors.accent,
-    fontFamily: fonts.extraBold,
-    fontSize: 11,
-    letterSpacing: 0.4,
-  },
-  addTextPressed: {
-    color: colors.white,
+    fontFamily: fonts.bold,
   },
 });

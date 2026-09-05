@@ -1,13 +1,21 @@
-import { View, Text, StyleSheet, Pressable, Image } from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import CategoryCard, { CategoryCardSkeleton } from "./CategoryCard";
+import { getCategoryFestivalAccent } from "./categoryFestival";
 import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
-import { getLucideIcon } from "../utils/icons";
 
 export default function CategoryGrid({
-  categories,
+  categories = [],
   onSelectCategory,
   showTitle = true,
+  loading = false,
+  selectedId = null,
 }) {
+  const { width } = useWindowDimensions();
+  const columns = width >= 900 ? 6 : width >= 600 ? 5 : 4;
+  const itemWidth =
+    columns === 6 ? "15.5%" : columns === 5 ? "18.5%" : "23%";
+
   return (
     <View style={styles.wrap}>
       {showTitle ? (
@@ -16,44 +24,34 @@ export default function CategoryGrid({
         </View>
       ) : null}
 
-      <View style={styles.grid}>
-        {categories.map((cat) => {
-          const Icon = getLucideIcon(cat.icon);
-          return (
-            <Pressable
-              key={cat.id}
-              style={({ pressed }) => [
-                styles.item,
-                pressed && { opacity: 0.88, transform: [{ scale: 0.97 }] },
-              ]}
-              onPress={() => onSelectCategory?.(cat)}
-            >
-              <View
-                style={[styles.tile, { backgroundColor: cat.bg || "#F5F5F5" }]}
-              >
-                {cat.image ? (
-                  <Image
-                    source={{ uri: cat.image }}
-                    style={styles.tileImage}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <View style={styles.iconCircle}>
-                    <Icon
-                      size={26}
-                      color={cat.color || colors.accent}
-                      strokeWidth={2.1}
-                    />
-                  </View>
-                )}
-              </View>
-              <Text style={styles.name} numberOfLines={2}>
-                {cat.name}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {loading ? (
+        <View style={styles.grid}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <CategoryCardSkeleton key={i} width={itemWidth} />
+          ))}
+        </View>
+      ) : !categories.length ? (
+        <Text style={styles.empty}>No categories available right now.</Text>
+      ) : (
+        <View style={styles.grid}>
+          {categories.map((cat, index) => {
+            const accent = getCategoryFestivalAccent(cat.id);
+            return (
+              <CategoryCard
+                key={cat.id}
+                category={cat}
+                index={index}
+                animateEnter
+                width={itemWidth}
+                selected={selectedId === cat.id}
+                festivalAccent={accent.active}
+                accentLabel={accent.label}
+                onPress={onSelectCategory}
+              />
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }
@@ -78,38 +76,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  item: {
-    width: "23%",
-    marginBottom: 14,
-    alignItems: "center",
-  },
-  tile: {
-    width: "100%",
-    aspectRatio: 0.92,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 6,
-    overflow: "hidden",
-  },
-  tileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  iconCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: "rgba(255,255,255,0.72)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  name: {
-    fontSize: 11,
-    textAlign: "center",
-    color: colors.text,
-    lineHeight: 14,
-    fontFamily: fonts.semiBold,
-    minHeight: 28,
+  empty: {
+    fontSize: 13,
+    fontFamily: fonts.medium,
+    color: colors.textMuted,
+    paddingVertical: 20,
   },
 });
