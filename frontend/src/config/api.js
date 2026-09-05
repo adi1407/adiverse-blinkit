@@ -21,3 +21,17 @@ function getDevServerHost() {
 
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || `http://${getDevServerHost()}:5000`;
+
+/** Turn `/uploads/...` into a full API URL for Expo Image. */
+export function resolveMediaUrl(uri) {
+  if (!uri) return null;
+  const value = String(uri).trim();
+  if (!value) return null;
+  if (/^https?:\/\//i.test(value) || value.startsWith("data:") || value.startsWith("file:")) {
+    return value;
+  }
+  if (value.startsWith("/")) {
+    return `${API_BASE_URL.replace(/\/$/, "")}${value}`;
+  }
+  return value;
+}

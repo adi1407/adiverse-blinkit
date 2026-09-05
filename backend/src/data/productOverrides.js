@@ -75,11 +75,6 @@ export function mergeAllProducts(getBaseAll) {
   return base;
 }
 
-export function adminListProducts({ q = "", categoryId = "" } = {}) {
-  // Lazy import to avoid circular init issues
-  return null;
-}
-
 export function createProductOverride(input) {
   const overrides = getProductOverrides();
   const id =

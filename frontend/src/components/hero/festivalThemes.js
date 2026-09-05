@@ -13,8 +13,21 @@ export const FESTIVAL_IDS = {
   CHRISTMAS: "christmas",
 };
 
-/** Active festival for the homepage hero. Swap this (or drive from API later). */
+/** Active festival for the homepage hero (local default; API can override). */
 export const ACTIVE_HERO_FESTIVAL = FESTIVAL_IDS.JANMASHTAMI;
+
+/** Runtime override from GET /api/festivals/active */
+let liveFestivalId = ACTIVE_HERO_FESTIVAL;
+
+export function setLiveFestivalId(id) {
+  if (id && (FESTIVAL_THEMES[id] || id)) {
+    liveFestivalId = id;
+  }
+}
+
+export function getLiveFestivalId() {
+  return liveFestivalId || ACTIVE_HERO_FESTIVAL;
+}
 
 export const FESTIVAL_THEMES = {
   [FESTIVAL_IDS.DEFAULT]: {
@@ -157,4 +170,37 @@ export function getFestivalTheme(festivalId) {
   return (
     FESTIVAL_THEMES[festivalId] || FESTIVAL_THEMES[FESTIVAL_IDS.DEFAULT]
   );
+}
+
+/**
+ * Merge CMS theme payload over local defaults (keeps local assets when URLs absent).
+ */
+export function mergeFestivalFromApi(payload) {
+  const activeId = payload?.activeId || getLiveFestivalId();
+  const remote = payload?.theme;
+  const base = getFestivalTheme(activeId);
+
+  if (!remote) {
+    setLiveFestivalId(activeId);
+    return { ...base, id: activeId };
+  }
+
+  setLiveFestivalId(remote.id || activeId);
+
+  return {
+    ...base,
+    ...remote,
+    id: remote.id || activeId,
+    palette: {
+      ...base.palette,
+      ...(remote.palette || {}),
+      accent: remote.palette?.accent || base.palette.accent,
+      accentText: remote.palette?.accentText || base.palette.accentText,
+    },
+    decorations: remote.decorations || base.decorations,
+    // Keep bundled assets unless remote supplies usable URIs
+    assets: base.assets,
+    particleCount: remote.particleCount ?? base.particleCount,
+    visualType: remote.visualType || base.visualType,
+  };
 }

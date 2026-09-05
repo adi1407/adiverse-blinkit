@@ -30,3 +30,8 @@ export function fetchSearch(query) {
 export function fetchProduct(productId) {
   return apiGet(`/api/products/${encodeURIComponent(productId)}`);
 }
+
+/** Admin-driven festival theme for the home hero. */
+export function fetchActiveFestival() {
+  return apiGet("/api/festivals/active");
+}

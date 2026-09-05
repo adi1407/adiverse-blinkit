@@ -3,8 +3,8 @@
  * Driven by the same ACTIVE_HERO_FESTIVAL used by the hero.
  */
 import {
-  ACTIVE_HERO_FESTIVAL,
   FESTIVAL_IDS,
+  getLiveFestivalId,
 } from "./hero/festivalThemes";
 
 const ACCENTS = {
@@ -30,7 +30,10 @@ const ACCENTS = {
   },
 };
 
-export function getCategoryFestivalAccent(categoryId, festivalId = ACTIVE_HERO_FESTIVAL) {
+export function getCategoryFestivalAccent(
+  categoryId,
+  festivalId = getLiveFestivalId()
+) {
   const cfg = ACCENTS[festivalId] || ACCENTS[FESTIVAL_IDS.DEFAULT];
   const active = cfg.categoryIds.includes(categoryId);
   return {

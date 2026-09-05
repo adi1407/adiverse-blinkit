@@ -27,6 +27,7 @@ import {
   getProductById,
   productExistsInBase,
 } from "../data/catalog.js";
+import { registerUploadRoute } from "./upload.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -82,6 +83,7 @@ router.post("/login", (req, res) => {
 });
 
 router.use(requireAdmin);
+registerUploadRoute(router);
 
 /** GET /api/admin/stats */
 router.get("/stats", (req, res) => {

@@ -12,8 +12,10 @@ import HeroVisual from "./hero/HeroVisual";
 import {
   ACTIVE_HERO_FESTIVAL,
   getFestivalTheme,
+  mergeFestivalFromApi,
 } from "./hero/festivalThemes";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
+import { fetchActiveFestival } from "../api/catalogApi";
 import { colors, spacing } from "../theme/colors";
 
 /**
@@ -28,15 +30,34 @@ export default function HomeHeroBanner({
   const { width } = useWindowDimensions();
   const isNarrow = width < 400;
   const reduceMotion = usePrefersReducedMotion();
-  const theme = getFestivalTheme(festivalId);
+  const [festivalIdLive, setFestivalIdLive] = useState(festivalId);
+  const localTheme = getFestivalTheme(festivalIdLive);
 
   const entrance = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
   const themeFade = useRef(new Animated.Value(1)).current;
   const washPulse = useRef(new Animated.Value(0)).current;
   const sheen = useRef(new Animated.Value(0)).current;
-  const [displayTheme, setDisplayTheme] = useState(theme);
-  const themeIdRef = useRef(theme.id);
+  const [displayTheme, setDisplayTheme] = useState(localTheme);
+  const themeIdRef = useRef(localTheme.id);
   const isFestiveScene = displayTheme.visualType === "janmashtami";
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchActiveFestival()
+      .then((data) => {
+        if (cancelled) return;
+        const merged = mergeFestivalFromApi(data);
+        setFestivalIdLive(merged.id);
+        themeIdRef.current = merged.id;
+        setDisplayTheme(merged);
+      })
+      .catch(() => {
+        /* keep local theme fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (reduceMotion) {
@@ -95,14 +116,15 @@ export default function HomeHeroBanner({
   }, [reduceMotion, isFestiveScene, sheen]);
 
   useEffect(() => {
-    if (theme.id === themeIdRef.current) {
-      setDisplayTheme(theme);
-      return undefined;
-    }
+    // Prop-driven fallback only when API has not set a different theme id yet
+    if (festivalId === themeIdRef.current) return undefined;
+    if (festivalId === festivalIdLive) return undefined;
 
+    const next = getFestivalTheme(festivalId);
     if (reduceMotion) {
-      themeIdRef.current = theme.id;
-      setDisplayTheme(theme);
+      themeIdRef.current = next.id;
+      setFestivalIdLive(next.id);
+      setDisplayTheme(next);
       return undefined;
     }
 
@@ -113,8 +135,9 @@ export default function HomeHeroBanner({
     });
     out.start(({ finished }) => {
       if (!finished) return;
-      themeIdRef.current = theme.id;
-      setDisplayTheme(theme);
+      themeIdRef.current = next.id;
+      setFestivalIdLive(next.id);
+      setDisplayTheme(next);
       Animated.timing(themeFade, {
         toValue: 1,
         duration: 240,
@@ -123,7 +146,7 @@ export default function HomeHeroBanner({
       }).start();
     });
     return () => out.stop();
-  }, [theme, themeFade, reduceMotion]);
+  }, [festivalId, festivalIdLive, themeFade, reduceMotion]);
 
   const primaryBanner = banners[0];
   const secondaryBanner = banners[1];

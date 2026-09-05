@@ -7,6 +7,7 @@ import printRoutes from "./routes/printRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import festivalRoutes from "./routes/festivalRoutes.js";
+import { UPLOADS_DIR } from "./routes/upload.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(UPLOADS_DIR));
 
 app.get("/api/health", (req, res) => {
   res.json({

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { View, Image, StyleSheet, Animated } from "react-native";
 import { Package } from "../utils/lucideIcons";
 import { colors, radii } from "../theme/colors";
+import { resolveMediaUrl } from "../config/api";
 
 export default function ProductImage({
   uri,
@@ -9,9 +10,15 @@ export default function ProductImage({
   iconSize = 28,
   resizeMode = "contain",
 }) {
-  const [failed, setFailed] = useState(!uri);
-  const [loading, setLoading] = useState(!!uri);
+  const resolved = resolveMediaUrl(uri);
+  const [failed, setFailed] = useState(!resolved);
+  const [loading, setLoading] = useState(!!resolved);
   const shimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    setFailed(!resolved);
+    setLoading(!!resolved);
+  }, [resolved]);
 
   useEffect(() => {
     if (!loading) return undefined;
@@ -57,7 +64,7 @@ export default function ProductImage({
         />
       ) : null}
       <Image
-        source={{ uri }}
+        source={{ uri: resolved }}
         style={styles.image}
         resizeMode={resizeMode}
         onLoadEnd={() => setLoading(false)}
