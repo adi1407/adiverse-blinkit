@@ -34,16 +34,30 @@ function MainTabs() {
         screenOptions={{
           headerShown: false,
           sceneStyle: { backgroundColor: colors.background },
+          tabBarStyle: {
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "transparent",
+            borderTopWidth: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
         }}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen
           name="OrderAgain"
           component={OrderAgainScreen}
-          options={{ title: "Order Again" }}
+          options={{ title: "Order Again", tabBarLabel: "Reorder" }}
         />
         <Tab.Screen name="Categories" component={CategoriesScreen} />
-        <Tab.Screen name="Print" component={PrintScreen} />
+        <Tab.Screen
+          name="Print"
+          component={PrintScreen}
+          options={{ tabBarBadge: "NEW" }}
+        />
       </Tab.Navigator>
       <FloatingCartBar />
     </View>
