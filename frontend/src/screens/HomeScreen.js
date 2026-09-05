@@ -7,6 +7,7 @@ import {
   Platform,
   RefreshControl,
   Text,
+  View,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
@@ -34,7 +35,8 @@ const ESSENTIAL_TINTS = {
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { items: recentItems } = useRecentlyViewed();
-  const { scrolled, onScroll } = useScrollGlass({ threshold: 24 });
+  const { scrolled, onScroll } = useScrollGlass({ threshold: 18 });
+  const [navHeight, setNavHeight] = useState(168);
   const [data, setData] = useState(null);
   const [hub, setHub] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -183,40 +185,55 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ExpoStatusBar style="dark" />
-      {navbar}
-
-      <FlatList
-        style={styles.list}
-        data={visibleSections}
-        keyExtractor={(item) => item.id}
-        renderItem={renderSection}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        onEndReached={() => {
-          if (hasMore) {
-            setVisibleCount((c) => Math.min(c + PAGE_SIZE, allSections.length));
+      <View style={styles.body}>
+        <FlatList
+          style={styles.list}
+          data={visibleSections}
+          keyExtractor={(item) => item.id}
+          renderItem={renderSection}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.content, { paddingTop: navHeight }]}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          onEndReached={() => {
+            if (hasMore) {
+              setVisibleCount((c) =>
+                Math.min(c + PAGE_SIZE, allSections.length)
+              );
+            }
+          }}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            hasMore ? (
+              <Text style={styles.loadingMore}>Loading more for you…</Text>
+            ) : (
+              <Text style={styles.end}>You’re all caught up</Text>
+            )
           }
-        }}
-        onEndReachedThreshold={0.4}
-        ListFooterComponent={
-          hasMore ? (
-            <Text style={styles.loadingMore}>Loading more for you…</Text>
-          ) : (
-            <Text style={styles.end}>You’re all caught up</Text>
-          )
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => loadHome({ silent: true })}
-            tintColor={colors.accent}
-            colors={[colors.accent]}
-            progressBackgroundColor={colors.white}
-          />
-        }
-      />
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadHome({ silent: true })}
+              tintColor={colors.accent}
+              colors={[colors.accent]}
+              progressBackgroundColor={colors.white}
+              progressViewOffset={navHeight}
+            />
+          }
+        />
+
+        {/* Overlay so feed scrolls under — enables real frosted glass */}
+        <View
+          style={styles.navOverlay}
+          onLayout={(e) => {
+            const h = Math.ceil(e.nativeEvent.layout.height);
+            if (h > 0 && Math.abs(h - navHeight) > 1) setNavHeight(h);
+          }}
+          pointerEvents="box-none"
+        >
+          {navbar}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -226,6 +243,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  body: {
+    flex: 1,
+    position: "relative",
+  },
+  navOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 40,
   },
   list: {
     flex: 1,

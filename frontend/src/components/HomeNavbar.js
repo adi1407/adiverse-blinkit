@@ -14,8 +14,8 @@ import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 import { colors } from "../theme/colors";
 
 /**
- * Premium sticky home chrome — glass on scroll, lightweight at top.
- * Pure presentation wrapper; no API / cart business logic changes.
+ * Premium sticky home chrome — solid brand at top, real frosted glass on scroll.
+ * Must sit as an overlay above scrolling content so blur has something to sample.
  */
 export default function HomeNavbar({
   minutes = 8,
@@ -36,7 +36,7 @@ export default function HomeNavbar({
   useEffect(() => {
     Animated.timing(glass, {
       toValue: scrolled ? 1 : 0,
-      duration: reduceMotion ? 0 : 220,
+      duration: reduceMotion ? 0 : 260,
       useNativeDriver: true,
     }).start();
   }, [scrolled, glass, reduceMotion]);
@@ -55,23 +55,28 @@ export default function HomeNavbar({
       style={[styles.root, scrolled && styles.rootScrolled]}
       accessibilityRole="header"
     >
-      {/* Default: integrated Blinkit yellow surface */}
+      {/* Brand yellow — visible at rest */}
       <Animated.View
         pointerEvents="none"
         style={[styles.surfaceTop, { opacity: topOpacity }]}
       />
 
-      {/* Scrolled: floating glass */}
+      {/* Frosted glass — visible once content scrolls underneath */}
       <Animated.View
         pointerEvents="none"
         style={[styles.surfaceGlass, { opacity: glassOpacity }]}
       >
         <BlurView
-          intensity={Platform.OS === "ios" ? 48 : 72}
+          intensity={Platform.OS === "ios" ? 64 : 90}
           tint="light"
           style={StyleSheet.absoluteFill}
+          {...(Platform.OS === "android"
+            ? { experimentalBlurMethod: "dimezisBlurView" }
+            : null)}
         />
         <View style={styles.glassTint} />
+        <View style={styles.glassSheen} />
+        <View style={styles.glassEdge} />
       </Animated.View>
 
       <View style={[styles.content, scrolled && styles.contentCompact]}>
@@ -81,6 +86,7 @@ export default function HomeNavbar({
           onMicPress={onMicPress}
           compact={scrolled}
           transparent
+          glass={scrolled}
         />
         {showChips ? (
           <LifestyleChips
@@ -99,22 +105,22 @@ export default function HomeNavbar({
 
 const styles = StyleSheet.create({
   root: {
-    zIndex: 20,
+    zIndex: 40,
     overflow: "hidden",
     backgroundColor: "transparent",
   },
   rootScrolled: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(0,0,0,0.08)",
+    borderBottomColor: "rgba(255,255,255,0.55)",
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.08,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 6 },
+        shadowColor: "#1A1A1A",
+        shadowOpacity: 0.12,
+        shadowRadius: 18,
+        shadowOffset: { width: 0, height: 8 },
       },
       android: {
-        elevation: 8,
+        elevation: 12,
       },
     }),
   },
@@ -128,14 +134,30 @@ const styles = StyleSheet.create({
   },
   glassTint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 252, 240, 0.62)",
+    backgroundColor: "rgba(255, 252, 245, 0.38)",
+  },
+  glassSheen: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: "42%",
+    backgroundColor: "rgba(255,255,255,0.22)",
+  },
+  glassEdge: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: StyleSheet.hairlineWidth * 2,
+    backgroundColor: "rgba(248, 203, 70, 0.35)",
   },
   content: {
     position: "relative",
     zIndex: 1,
   },
   contentCompact: {
-    paddingBottom: 2,
+    paddingBottom: 4,
   },
   curve: {
     height: 14,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   View,
   Image,
@@ -7,12 +7,11 @@ import {
   Easing,
   Platform,
 } from "react-native";
+import Svg, { Path, Defs, LinearGradient, Stop, G, Ellipse } from "react-native-svg";
+import { BlurView } from "expo-blur";
 import usePrefersReducedMotion from "../../hooks/usePrefersReducedMotion";
 
-function useLoop(
-  value,
-  { duration, delay = 0, easing = Easing.inOut(Easing.sin), enabled = true }
-) {
+function useBreath(value, { duration, delay = 0, enabled }) {
   useEffect(() => {
     if (!enabled) {
       value.setValue(0.5);
@@ -24,120 +23,83 @@ function useLoop(
         Animated.timing(value, {
           toValue: 1,
           duration,
-          easing,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(value, {
           toValue: 0,
           duration,
-          easing,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
       ])
     );
     loop.start();
     return () => loop.stop();
-  }, [value, duration, delay, easing, enabled]);
+  }, [value, duration, delay, enabled]);
 }
 
 /**
- * Detailed Janmashtami visual: Krishna photos + layered festive motion.
- * Motion is transform/opacity only; respects reduced motion.
+ * Cinematic Janmashtami portrait — one hero image, soft light, elegant motifs.
+ * Avoids collage / sticker clutter; motion is intentional and sparse.
  */
 export default function JanmashtamiScene({ assets, palette }) {
   const reduceMotion = usePrefersReducedMotion();
   const motion = !reduceMotion;
 
-  const krishnaFloat = useRef(new Animated.Value(0)).current;
-  const krishnaBreath = useRef(new Animated.Value(0)).current;
-  const featherL = useRef(new Animated.Value(0)).current;
-  const featherR = useRef(new Animated.Value(0)).current;
-  const diyaGlow = useRef(new Animated.Value(0)).current;
-  const potBob = useRef(new Animated.Value(0)).current;
-  const fluteSway = useRef(new Animated.Value(0)).current;
-  const halo = useRef(new Animated.Value(0)).current;
-  const petalA = useRef(new Animated.Value(0)).current;
-  const petalB = useRef(new Animated.Value(0)).current;
-  const petalC = useRef(new Animated.Value(0)).current;
-  const sparkle = useRef(new Animated.Value(0)).current;
-  const ringSpin = useRef(new Animated.Value(0)).current;
-  const crossfade = useRef(new Animated.Value(0)).current;
   const enter = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
-
-  const [portrait, setPortrait] = useState(0);
-  const portraits = [
-    assets.krishna,
-    assets.krishnaAlt || assets.krishna,
-    assets.krishnaTemple || assets.krishna,
-  ].filter(Boolean);
+  const float = useRef(new Animated.Value(0)).current;
+  const aura = useRef(new Animated.Value(0)).current;
+  const shimmer = useRef(new Animated.Value(0)).current;
+  const flame = useRef(new Animated.Value(0)).current;
+  const feather = useRef(new Animated.Value(0)).current;
+  const petalDrift = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (reduceMotion) {
       enter.setValue(1);
       return undefined;
     }
-    const anim = Animated.spring(enter, {
+    const anim = Animated.timing(enter, {
       toValue: 1,
-      friction: 7,
-      tension: 48,
+      duration: 780,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     });
     anim.start();
     return () => anim.stop();
   }, [enter, reduceMotion]);
 
-  useEffect(() => {
-    if (!motion || portraits.length < 2) return undefined;
-    const id = setInterval(() => {
-      Animated.timing(crossfade, {
-        toValue: 1,
-        duration: 700,
-        easing: Easing.inOut(Easing.quad),
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (!finished) return;
-        setPortrait((p) => (p + 1) % portraits.length);
-        crossfade.setValue(0);
-      });
-    }, 5200);
-    return () => clearInterval(id);
-  }, [motion, portraits.length, crossfade]);
-
-  useLoop(krishnaFloat, { duration: 3200, enabled: motion });
-  useLoop(krishnaBreath, { duration: 2600, delay: 200, enabled: motion });
-  useLoop(featherL, { duration: 3800, delay: 100, enabled: motion });
-  useLoop(featherR, { duration: 4200, delay: 400, enabled: motion });
-  useLoop(diyaGlow, { duration: 1400, enabled: motion });
-  useLoop(potBob, { duration: 3000, delay: 250, enabled: motion });
-  useLoop(fluteSway, { duration: 3600, delay: 150, enabled: motion });
-  useLoop(halo, { duration: 2400, enabled: motion });
-  useLoop(petalA, { duration: 4800, enabled: motion });
-  useLoop(petalB, { duration: 5200, delay: 800, enabled: motion });
-  useLoop(petalC, { duration: 5600, delay: 400, enabled: motion });
-  useLoop(sparkle, { duration: 1800, delay: 100, enabled: motion });
+  useBreath(float, { duration: 3800, enabled: motion });
+  useBreath(aura, { duration: 3200, delay: 120, enabled: motion });
+  useBreath(flame, { duration: 1100, enabled: motion });
+  useBreath(feather, { duration: 5200, delay: 200, enabled: motion });
+  useBreath(petalDrift, { duration: 6400, enabled: motion });
 
   useEffect(() => {
     if (!motion) return undefined;
     const loop = Animated.loop(
-      Animated.timing(ringSpin, {
+      Animated.timing(shimmer, {
         toValue: 1,
-        duration: 16000,
-        easing: Easing.linear,
+        duration: 3400,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       })
     );
+    shimmer.setValue(0);
     loop.start();
     return () => loop.stop();
-  }, [motion, ringSpin]);
+  }, [motion, shimmer]);
 
-  const primary = portraits[portrait] || assets.krishna;
-  const next = portraits[(portrait + 1) % portraits.length] || primary;
+  const portrait = assets.krishna || assets.krishnaAlt;
 
   if (reduceMotion) {
     return (
       <View style={styles.wrap} accessibilityLabel="Janmashtami illustration">
-        <View style={[styles.halo, { backgroundColor: palette.soft }]} />
-        <Image source={assets.krishna} style={styles.krishna} resizeMode="cover" />
+        <View style={[styles.aura, { backgroundColor: palette.soft }]} />
+        <View style={styles.portraitShell}>
+          <Image source={portrait} style={styles.portrait} resizeMode="cover" />
+        </View>
       </View>
     );
   }
@@ -150,9 +112,15 @@ export default function JanmashtamiScene({ assets, palette }) {
           opacity: enter,
           transform: [
             {
+              translateY: enter.interpolate({
+                inputRange: [0, 1],
+                outputRange: [16, 0],
+              }),
+            },
+            {
               scale: enter.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0.88, 1],
+                outputRange: [0.94, 1],
               }),
             },
           ],
@@ -160,21 +128,40 @@ export default function JanmashtamiScene({ assets, palette }) {
       ]}
       accessibilityLabel="Janmashtami illustration of Krishna"
     >
-      {/* Soft pulsing halo */}
+      {/* Soft dual-tone aura */}
       <Animated.View
         style={[
-          styles.halo,
+          styles.aura,
           {
             backgroundColor: palette.soft,
-            opacity: halo.interpolate({
+            opacity: aura.interpolate({
               inputRange: [0, 1],
-              outputRange: [0.4, 0.82],
+              outputRange: [0.55, 0.92],
             }),
             transform: [
               {
-                scale: halo.interpolate({
+                scale: aura.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0.9, 1.1],
+                  outputRange: [0.94, 1.06],
+                }),
+              },
+            ],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.auraGold,
+          {
+            opacity: aura.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.25, 0.55],
+            }),
+            transform: [
+              {
+                scale: aura.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1.02, 0.96],
                 }),
               },
             ],
@@ -182,224 +169,81 @@ export default function JanmashtamiScene({ assets, palette }) {
         ]}
       />
 
-      {/* Slow rotating gold ring */}
+      {/* SVG peacock feathers — behind portrait */}
       <Animated.View
+        style={[
+          styles.featherLayer,
+          {
+            transform: [
+              {
+                rotate: feather.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["-4deg", "3deg"],
+                }),
+              },
+              {
+                translateY: feather.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, -4],
+                }),
+              },
+            ],
+          },
+        ]}
         pointerEvents="none"
-        style={[
-          styles.goldRing,
-          {
-            borderColor: "rgba(248,203,70,0.55)",
-            transform: [
-              {
-                rotate: ringSpin.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0deg", "360deg"],
-                }),
-              },
-            ],
-          },
-        ]}
       >
-        <View style={[styles.ringDot, styles.ringDotA]} />
-        <View style={[styles.ringDot, styles.ringDotB]} />
-        <View style={[styles.ringDot, styles.ringDotC]} />
+        <Svg width="100%" height="100%" viewBox="0 0 200 200">
+          <Defs>
+            <LinearGradient id="pf" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0%" stopColor="#3D1A6E" stopOpacity="0.85" />
+              <Stop offset="45%" stopColor="#1B7A3D" stopOpacity="0.7" />
+              <Stop offset="100%" stopColor="#E8B923" stopOpacity="0.8" />
+            </LinearGradient>
+          </Defs>
+          <G opacity="0.88">
+            <Path
+              d="M38 78 C28 48 48 22 72 18 C58 42 54 62 62 88 C52 86 42 84 38 78Z"
+              fill="url(#pf)"
+            />
+            <Ellipse cx="48" cy="42" rx="7" ry="10" fill="#F8CB46" opacity="0.9" />
+            <Ellipse cx="48" cy="42" rx="3.5" ry="5" fill="#1A237E" />
+          </G>
+          <G opacity="0.8" transform="translate(200,0) scale(-1,1)">
+            <Path
+              d="M38 78 C28 48 48 22 72 18 C58 42 54 62 62 88 C52 86 42 84 38 78Z"
+              fill="url(#pf)"
+            />
+            <Ellipse cx="48" cy="42" rx="7" ry="10" fill="#F8CB46" opacity="0.85" />
+            <Ellipse cx="48" cy="42" rx="3.5" ry="5" fill="#1A237E" />
+          </G>
+        </Svg>
       </Animated.View>
 
-      {/* Falling petals */}
-      <Animated.Image
-        source={assets.flowers}
-        style={[
-          styles.petal,
-          styles.petalA,
-          {
-            opacity: petalA.interpolate({
-              inputRange: [0, 0.5, 1],
-              outputRange: [0.12, 0.48, 0.18],
-            }),
-            transform: [
-              {
-                translateY: petalA.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-10, 32],
-                }),
-              },
-              {
-                rotate: petalA.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["-14deg", "20deg"],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-      <Animated.Image
-        source={assets.marigold || assets.flowers}
-        style={[
-          styles.petal,
-          styles.petalB,
-          {
-            opacity: petalB.interpolate({
-              inputRange: [0, 0.5, 1],
-              outputRange: [0.1, 0.42, 0.16],
-            }),
-            transform: [
-              {
-                translateY: petalB.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-6, 38],
-                }),
-              },
-              {
-                rotate: petalB.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["12deg", "-18deg"],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-      <Animated.Image
-        source={assets.flowers}
-        style={[
-          styles.petal,
-          styles.petalC,
-          {
-            opacity: petalC.interpolate({
-              inputRange: [0, 0.5, 1],
-              outputRange: [0.08, 0.36, 0.12],
-            }),
-            transform: [
-              {
-                translateY: petalC.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-4, 42],
-                }),
-              },
-              {
-                translateX: petalC.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 8],
-                }),
-              },
-              {
-                rotate: petalC.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["-6deg", "22deg"],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-
-      {/* Peacock feathers — left / right sway */}
-      <Animated.Image
-        source={assets.peacock}
-        style={[
-          styles.feather,
-          styles.featherL,
-          {
-            transform: [
-              {
-                translateY: featherL.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -8],
-                }),
-              },
-              {
-                rotate: featherL.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["-20deg", "-6deg"],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-      <Animated.Image
-        source={assets.peacockAlt || assets.peacock}
-        style={[
-          styles.feather,
-          styles.featherR,
-          {
-            transform: [
-              {
-                translateY: featherR.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [2, -7],
-                }),
-              },
-              {
-                rotate: featherR.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["14deg", "26deg"],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
-
-      {/* Krishna portraits — float, breath, soft crossfade */}
-      <Animated.View
-        style={[
-          styles.krishnaWrap,
-          {
-            transform: [
-              {
-                translateY: krishnaFloat.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -9],
-                }),
-              },
-              {
-                scale: krishnaBreath.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.03],
-                }),
-              },
-            ],
-          },
-        ]}
-      >
-        <View style={styles.krishnaRing}>
-          <Image source={primary} style={styles.krishna} resizeMode="cover" />
-          <Animated.Image
-            source={next}
-            style={[
-              styles.krishna,
-              StyleSheet.absoluteFillObject,
-              {
-                opacity: crossfade,
-              },
-            ]}
-            resizeMode="cover"
-          />
-        </View>
-      </Animated.View>
-
-      {/* Twinkling sparkles */}
-      {[0, 1, 2, 3].map((i) => (
+      {/* Floating marigold motes (abstract, not photo scraps) */}
+      {[0, 1, 2, 3, 4].map((i) => (
         <Animated.View
-          key={`spark-${i}`}
+          key={`mote-${i}`}
           style={[
-            styles.spark,
-            i === 0 && styles.spark0,
-            i === 1 && styles.spark1,
-            i === 2 && styles.spark2,
-            i === 3 && styles.spark3,
+            styles.mote,
+            motePos[i],
             {
-              opacity: sparkle.interpolate({
+              backgroundColor: i % 2 === 0 ? "#F8CB46" : "#E91E63",
+              opacity: petalDrift.interpolate({
                 inputRange: [0, 0.5, 1],
-                outputRange: i % 2 === 0 ? [0.15, 0.85, 0.2] : [0.7, 0.2, 0.75],
+                outputRange:
+                  i % 2 === 0 ? [0.15, 0.55, 0.2] : [0.45, 0.18, 0.5],
               }),
               transform: [
                 {
-                  scale: sparkle.interpolate({
+                  translateY: petalDrift.interpolate({
                     inputRange: [0, 1],
-                    outputRange: i % 2 === 0 ? [0.7, 1.25] : [1.1, 0.75],
+                    outputRange: [0, i % 2 === 0 ? 14 : -10],
+                  }),
+                },
+                {
+                  translateX: petalDrift.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, i % 3 === 0 ? 6 : -4],
                   }),
                 },
               ],
@@ -408,264 +252,204 @@ export default function JanmashtamiScene({ assets, palette }) {
         />
       ))}
 
-      {/* Matki / butter pot */}
+      {/* Hero portrait + glass rim */}
       <Animated.View
         style={[
-          styles.potWrap,
+          styles.portraitShell,
           {
             transform: [
               {
-                translateY: potBob.interpolate({
+                translateY: float.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -6],
-                }),
-              },
-              {
-                rotate: potBob.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["-4deg", "4deg"],
+                  outputRange: [0, -7],
                 }),
               },
             ],
           },
         ]}
       >
-        <View style={[styles.pot, { backgroundColor: palette.accent }]}>
-          <View style={styles.potLid} />
-          <View style={styles.potBody} />
+        <View style={styles.glassRim}>
+          {Platform.OS === "ios" ? (
+            <BlurView
+              intensity={28}
+              tint="light"
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <View style={styles.glassRimFallback} />
+          )}
         </View>
-      </Animated.View>
 
-      {/* Flute */}
-      <Animated.Image
-        source={assets.fluteWood}
-        style={[
-          styles.flute,
-          {
-            transform: [
-              {
-                rotate: fluteSway.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["-24deg", "-12deg"],
-                }),
-              },
-              {
-                translateX: fluteSway.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 5],
-                }),
-              },
-            ],
-          },
-        ]}
-      />
+        <View style={styles.portraitClip}>
+          <Image source={portrait} style={styles.portrait} resizeMode="cover" />
 
-      {/* Diya + glow */}
-      <Animated.View
-        style={[
-          styles.diyaWrap,
-          {
-            transform: [
+          {/* Cinematic light sweep */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.lightSweep,
               {
-                translateY: diyaGlow.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -4],
+                opacity: shimmer.interpolate({
+                  inputRange: [0, 0.35, 0.55, 1],
+                  outputRange: [0, 0, 0.35, 0],
                 }),
+                transform: [
+                  {
+                    translateX: shimmer.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-70, 110],
+                    }),
+                  },
+                ],
               },
-            ],
-          },
-        ]}
-      >
+            ]}
+          />
+
+          {/* Bottom vignette */}
+          <View style={styles.vignette} pointerEvents="none" />
+        </View>
+
+        {/* Soft flame accent */}
         <Animated.View
           style={[
-            styles.diyaGlow,
+            styles.flameGlow,
             {
-              opacity: diyaGlow.interpolate({
+              opacity: flame.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0.22, 0.78],
+                outputRange: [0.35, 0.85],
               }),
               transform: [
                 {
-                  scale: diyaGlow.interpolate({
+                  scale: flame.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.8, 1.28],
+                    outputRange: [0.85, 1.15],
                   }),
                 },
               ],
             },
           ]}
         />
-        <Image source={assets.diya} style={styles.diya} resizeMode="cover" />
+        <View style={styles.flameCore} />
       </Animated.View>
     </Animated.View>
   );
 }
 
+const motePos = [
+  { top: "8%", left: "12%" },
+  { top: "14%", right: "10%" },
+  { top: "38%", left: "4%" },
+  { top: "48%", right: "6%" },
+  { top: "22%", left: "42%" },
+];
+
 const styles = StyleSheet.create({
   wrap: {
     width: "100%",
     aspectRatio: 1,
-    maxWidth: 248,
+    maxWidth: 236,
     alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
   },
-  halo: {
+  aura: {
     position: "absolute",
-    width: "80%",
-    height: "80%",
+    width: "88%",
+    height: "88%",
     borderRadius: 999,
-    top: "10%",
   },
-  goldRing: {
+  auraGold: {
     position: "absolute",
-    width: "74%",
-    height: "74%",
+    width: "72%",
+    height: "72%",
     borderRadius: 999,
-    borderWidth: 1.5,
-    borderStyle: "dashed",
-    top: "13%",
+    backgroundColor: "rgba(248,203,70,0.45)",
+  },
+  featherLayer: {
+    ...StyleSheet.absoluteFillObject,
     zIndex: 1,
   },
-  ringDot: {
+  mote: {
     position: "absolute",
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#F8CB46",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    zIndex: 2,
   },
-  ringDotA: { top: -3, left: "46%" },
-  ringDotB: { bottom: 10, left: 4 },
-  ringDotC: { top: "40%", right: -2 },
-  krishnaWrap: {
-    width: "64%",
+  portraitShell: {
+    width: "68%",
     aspectRatio: 0.82,
     zIndex: 5,
+    alignItems: "center",
   },
-  krishnaRing: {
-    flex: 1,
+  glassRim: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 28,
+    overflow: "hidden",
+    transform: [{ scale: 1.06 }],
+    opacity: 0.75,
+  },
+  glassRimFallback: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255,255,255,0.28)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.55)",
+    borderRadius: 28,
+  },
+  portraitClip: {
+    width: "100%",
+    height: "100%",
     borderRadius: 24,
     overflow: "hidden",
-    borderWidth: 2.5,
-    borderColor: "rgba(248,203,70,0.9)",
-    backgroundColor: "#2C1A4D",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,248,225,0.85)",
+    backgroundColor: "#1A0F2E",
     ...Platform.select({
       ios: {
-        shadowColor: "#5B2C8A",
-        shadowOpacity: 0.28,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 7 },
+        shadowColor: "#3D1A6E",
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
       },
-      android: { elevation: 7 },
+      android: { elevation: 8 },
     }),
   },
-  krishna: {
+  portrait: {
     width: "100%",
     height: "100%",
   },
-  feather: {
+  lightSweep: {
     position: "absolute",
-    width: 56,
-    height: 82,
-    borderRadius: 14,
-    opacity: 0.9,
-    zIndex: 3,
+    top: -10,
+    bottom: -10,
+    width: 42,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    transform: [{ skewX: "-16deg" }],
   },
-  featherL: {
+  vignette: {
+    position: "absolute",
     left: 0,
-    top: "10%",
+    right: 0,
+    bottom: 0,
+    height: "38%",
+    backgroundColor: "rgba(26,15,46,0.35)",
   },
-  featherR: {
-    right: -2,
-    top: "16%",
-  },
-  flute: {
+  flameGlow: {
     position: "absolute",
-    width: 96,
-    height: 24,
-    borderRadius: 8,
-    bottom: "27%",
-    left: "4%",
-    opacity: 0.92,
-    zIndex: 6,
-  },
-  potWrap: {
-    position: "absolute",
-    left: 6,
-    bottom: "9%",
-    zIndex: 4,
-  },
-  pot: {
-    width: 38,
-    height: 42,
-    borderRadius: 19,
-    alignItems: "center",
-    paddingTop: 4,
-  },
-  potLid: {
-    width: 24,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#FFF8E1",
-    marginBottom: 2,
-  },
-  potBody: {
-    width: 28,
-    height: 24,
-    borderRadius: 14,
-    backgroundColor: "#F9A825",
-  },
-  diyaWrap: {
-    position: "absolute",
-    right: 4,
-    bottom: "7%",
-    width: 50,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 6,
-  },
-  diyaGlow: {
-    position: "absolute",
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    bottom: -6,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#FFECB3",
+    zIndex: 6,
   },
-  diya: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-  },
-  petal: {
+  flameCore: {
     position: "absolute",
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    zIndex: 2,
-  },
-  petalA: {
-    top: "5%",
-    left: "20%",
-  },
-  petalB: {
-    top: "3%",
-    right: "16%",
-  },
-  petalC: {
-    top: "18%",
-    left: "8%",
-  },
-  spark: {
-    position: "absolute",
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "#FFF8E1",
+    bottom: 2,
+    width: 10,
+    height: 14,
+    borderRadius: 6,
+    backgroundColor: "#FFB300",
     zIndex: 7,
   },
-  spark0: { top: "22%", left: "28%" },
-  spark1: { top: "30%", right: "24%" },
-  spark2: { top: "48%", left: "18%" },
-  spark3: { top: "42%", right: "14%" },
 });

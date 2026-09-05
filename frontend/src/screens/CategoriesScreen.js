@@ -139,8 +139,9 @@ export default function CategoriesScreen() {
   const navigation = useNavigation();
   const scrollRef = useRef(null);
   const sectionY = useRef({});
-  const { scrolled, onScroll } = useScrollGlass({ threshold: 24 });
+  const { scrolled, onScroll } = useScrollGlass({ threshold: 18 });
   const { width } = useWindowDimensions();
+  const [navHeight, setNavHeight] = useState(168);
   const columns = width >= 900 ? 6 : width >= 600 ? 5 : 4;
   const itemWidth =
     columns === 6 ? "15.5%" : columns === 5 ? "18.5%" : "23%";
@@ -224,79 +225,96 @@ export default function CategoriesScreen() {
     <SafeAreaView style={styles.safe}>
       <ExpoStatusBar style="dark" />
 
-      <HomeNavbar
-        minutes={minutes}
-        hubs={hubs}
-        selectedHub={hub}
-        onSelectHub={onSelectHub}
-        scrolled={scrolled}
-        onSearchPress={() => navigation.navigate("Search")}
-        onMicPress={() => navigation.navigate("Search", { voice: true })}
-      />
-
-      {loading && !ready ? (
-        <CategoriesSkeleton itemWidth={itemWidth} />
-      ) : error && !ready ? (
-        <ErrorState message={error} onRetry={() => boot()} />
-      ) : (
-        <ScrollView
-          ref={scrollRef}
-          style={styles.list}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          keyboardShouldPersistTaps="handled"
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => boot({ silent: true })}
-              tintColor={colors.accent}
-              colors={[colors.accent]}
-            />
-          }
-        >
-          <View style={styles.searchWrap}>
-            <Search size={16} color="#6B6B6B" strokeWidth={2.3} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search categories"
-              placeholderTextColor="#9A9A9A"
-              style={styles.searchInput}
-              accessibilityLabel="Search categories"
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-            />
+      <View style={styles.body}>
+        {loading && !ready ? (
+          <View style={[styles.skelWrap, { paddingTop: navHeight }]}>
+            <CategoriesSkeleton itemWidth={itemWidth} />
           </View>
-
-          {visibleSections.length === 0 ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyTitle}>No matching categories</Text>
-              <Text style={styles.emptyBody}>
-                Try another search, or clear the filter.
-              </Text>
+        ) : error && !ready ? (
+          <ErrorState message={error} onRetry={() => boot()} />
+        ) : (
+          <ScrollView
+            ref={scrollRef}
+            style={styles.list}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingTop: navHeight + 4 },
+            ]}
+            showsVerticalScrollIndicator={false}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            keyboardShouldPersistTaps="handled"
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => boot({ silent: true })}
+                tintColor={colors.accent}
+                colors={[colors.accent]}
+                progressViewOffset={navHeight}
+              />
+            }
+          >
+            <View style={styles.searchWrap}>
+              <Search size={16} color="#6B6B6B" strokeWidth={2.3} />
+              <TextInput
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search categories"
+                placeholderTextColor="#9A9A9A"
+                style={styles.searchInput}
+                accessibilityLabel="Search categories"
+                returnKeyType="search"
+                clearButtonMode="while-editing"
+              />
             </View>
-          ) : (
-            visibleSections.map((section) => (
-              <View
-                key={section.id}
-                onLayout={(e) => {
-                  sectionY.current[section.id] = e.nativeEvent.layout.y;
-                }}
-              >
-                <CategorySection
-                  section={section}
-                  onSelect={openTile}
-                  selectedKey={selectedKey}
-                  itemWidth={itemWidth}
-                />
+
+            {visibleSections.length === 0 ? (
+              <View style={styles.empty}>
+                <Text style={styles.emptyTitle}>No matching categories</Text>
+                <Text style={styles.emptyBody}>
+                  Try another search, or clear the filter.
+                </Text>
               </View>
-            ))
-          )}
-          <View style={{ height: 110 }} />
-        </ScrollView>
-      )}
+            ) : (
+              visibleSections.map((section) => (
+                <View
+                  key={section.id}
+                  onLayout={(e) => {
+                    sectionY.current[section.id] = e.nativeEvent.layout.y;
+                  }}
+                >
+                  <CategorySection
+                    section={section}
+                    onSelect={openTile}
+                    selectedKey={selectedKey}
+                    itemWidth={itemWidth}
+                  />
+                </View>
+              ))
+            )}
+            <View style={{ height: 110 }} />
+          </ScrollView>
+        )}
+
+        <View
+          style={styles.navOverlay}
+          onLayout={(e) => {
+            const h = Math.ceil(e.nativeEvent.layout.height);
+            if (h > 0 && Math.abs(h - navHeight) > 1) setNavHeight(h);
+          }}
+          pointerEvents="box-none"
+        >
+          <HomeNavbar
+            minutes={minutes}
+            hubs={hubs}
+            selectedHub={hub}
+            onSelectHub={onSelectHub}
+            scrolled={scrolled}
+            onSearchPress={() => navigation.navigate("Search")}
+            onMicPress={() => navigation.navigate("Search", { voice: true })}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -307,12 +325,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
+  body: {
+    flex: 1,
+    position: "relative",
+  },
+  navOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 40,
+  },
   list: {
     flex: 1,
     backgroundColor: colors.background,
   },
   listContent: {
-    paddingTop: 4,
     paddingBottom: 16,
   },
   searchWrap: {

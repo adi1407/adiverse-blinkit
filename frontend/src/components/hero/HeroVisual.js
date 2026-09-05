@@ -81,14 +81,14 @@ export default function HeroVisual({ theme, entrance }) {
         styles.wrap,
         {
           opacity: entrance.interpolate({
-            inputRange: [0, 0.35, 1],
+            inputRange: [0, 0.3, 1],
             outputRange: [0, 0, 1],
           }),
           transform: [
             {
               scale: entrance.interpolate({
-                inputRange: [0, 0.35, 1],
-                outputRange: [0.9, 0.9, 1],
+                inputRange: [0, 0.3, 1],
+                outputRange: [0.92, 0.92, 1],
               }),
             },
           ],
@@ -96,37 +96,41 @@ export default function HeroVisual({ theme, entrance }) {
       ]}
       accessibilityLabel={theme.visualLabel}
     >
-      <Animated.View style={[styles.bgLayer, layer(floatA, 5, 0.8)]}>
-        <View
-          style={[styles.orb, styles.orbA, { backgroundColor: theme.palette.orbA }]}
-        />
-        <View
-          style={[styles.orb, styles.orbB, { backgroundColor: theme.palette.orbB }]}
-        />
-        {!reduceMotion ? (
-          <Animated.View
-            style={[
-              styles.shimmerSweep,
-              {
-                opacity: shimmer.interpolate({
-                  inputRange: [0, 0.5, 1],
-                  outputRange: [0, 0.18, 0],
-                }),
-                transform: [
-                  {
-                    translateX: shimmer.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-40, 60],
-                    }),
-                  },
-                ],
-              },
-            ]}
+      {!isJanmashtami ? (
+        <Animated.View style={[styles.bgLayer, layer(floatA, 5, 0.8)]}>
+          <View
+            style={[styles.orb, styles.orbA, { backgroundColor: theme.palette.orbA }]}
           />
-        ) : null}
-      </Animated.View>
+          <View
+            style={[styles.orb, styles.orbB, { backgroundColor: theme.palette.orbB }]}
+          />
+          {!reduceMotion ? (
+            <Animated.View
+              style={[
+                styles.shimmerSweep,
+                {
+                  opacity: shimmer.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: [0, 0.18, 0],
+                  }),
+                  transform: [
+                    {
+                      translateX: shimmer.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-40, 60],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+          ) : null}
+        </Animated.View>
+      ) : null}
 
-      <Animated.View style={[styles.midLayer, layer(floatB, isJanmashtami ? 4 : 7, 0.6)]}>
+      <Animated.View
+        style={[styles.midLayer, layer(floatB, isJanmashtami ? 3 : 7, 0.5)]}
+      >
         {isJanmashtami ? (
           <JanmashtamiScene assets={theme.assets} palette={theme.palette} />
         ) : (
@@ -139,12 +143,12 @@ export default function HeroVisual({ theme, entrance }) {
       </Animated.View>
 
       <Animated.View
-        style={[styles.fgLayer, layer(floatC, 10, 1.4)]}
+        style={[styles.fgLayer, layer(floatC, isJanmashtami ? 6 : 10, 1)]}
         pointerEvents="none"
       >
         <FestivalParticles
           color={theme.palette.particle}
-          count={theme.particleCount || 7}
+          count={isJanmashtami ? 8 : theme.particleCount || 7}
           festive={isJanmashtami}
         />
       </Animated.View>

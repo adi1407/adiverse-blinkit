@@ -15,11 +15,12 @@ import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 
-function IconButton({ onPress, children, accessibilityLabel }) {
+function IconButton({ onPress, children, accessibilityLabel, glass }) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.iconBtn,
+        glass && styles.iconBtnGlass,
         pressed && styles.iconBtnPressed,
       ]}
       onPress={onPress}
@@ -105,6 +106,7 @@ export default function HomeHeader({ minutes, compact = false }) {
 
         <View style={styles.right}>
           <IconButton
+            glass={compact}
             accessibilityLabel={
               unreadCount > 0
                 ? `Notifications, ${unreadCount} unread`
@@ -123,6 +125,7 @@ export default function HomeHeader({ minutes, compact = false }) {
           </IconButton>
 
           <IconButton
+            glass={compact}
             accessibilityLabel={
               totalItems > 0 ? `Cart, ${totalItems} items` : "Cart"
             }
@@ -142,6 +145,7 @@ export default function HomeHeader({ minutes, compact = false }) {
           </IconButton>
 
           <IconButton
+            glass={compact}
             accessibilityLabel="Account"
             onPress={() => navigation.navigate("Account")}
           >
@@ -230,6 +234,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(0,0,0,0.06)",
+  },
+  iconBtnGlass: {
+    backgroundColor: "rgba(255,255,255,0.55)",
+    borderColor: "rgba(255,255,255,0.75)",
   },
   iconBtnPressed: {
     opacity: 0.75,

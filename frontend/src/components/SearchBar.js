@@ -19,6 +19,7 @@ export default function SearchBar({
   onMicPress,
   compact = false,
   transparent = false,
+  glass = false,
 }) {
   const [hintIndex, setHintIndex] = useState(0);
   const [focusedVisual, setFocusedVisual] = useState(false);
@@ -71,6 +72,7 @@ export default function SearchBar({
       <Pressable
         style={({ pressed }) => [
           styles.bar,
+          glass && styles.barGlass,
           compact && styles.barCompact,
           (pressed || focusedVisual) && styles.barFocus,
         ]}
@@ -144,6 +146,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  barGlass: {
+    backgroundColor: "rgba(255,255,255,0.72)",
+    borderColor: "rgba(255,255,255,0.85)",
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
   },
   barCompact: {
     height: 44,

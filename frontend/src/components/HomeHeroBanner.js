@@ -5,6 +5,7 @@ import {
   Animated,
   useWindowDimensions,
   Easing,
+  Platform,
 } from "react-native";
 import HeroContent from "./hero/HeroContent";
 import HeroVisual from "./hero/HeroVisual";
@@ -32,6 +33,7 @@ export default function HomeHeroBanner({
   const entrance = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
   const themeFade = useRef(new Animated.Value(1)).current;
   const washPulse = useRef(new Animated.Value(0)).current;
+  const sheen = useRef(new Animated.Value(0)).current;
   const [displayTheme, setDisplayTheme] = useState(theme);
   const themeIdRef = useRef(theme.id);
   const isFestiveScene = displayTheme.visualType === "janmashtami";
@@ -44,7 +46,7 @@ export default function HomeHeroBanner({
     entrance.setValue(0);
     const anim = Animated.timing(entrance, {
       toValue: 1,
-      duration: 620,
+      duration: 680,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     });
@@ -61,13 +63,13 @@ export default function HomeHeroBanner({
       Animated.sequence([
         Animated.timing(washPulse, {
           toValue: 1,
-          duration: 2800,
+          duration: 3400,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(washPulse, {
           toValue: 0,
-          duration: 2800,
+          duration: 3400,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
@@ -76,6 +78,21 @@ export default function HomeHeroBanner({
     loop.start();
     return () => loop.stop();
   }, [reduceMotion, isFestiveScene, washPulse]);
+
+  useEffect(() => {
+    if (reduceMotion || !isFestiveScene) return undefined;
+    const loop = Animated.loop(
+      Animated.timing(sheen, {
+        toValue: 1,
+        duration: 4200,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      })
+    );
+    sheen.setValue(0);
+    loop.start();
+    return () => loop.stop();
+  }, [reduceMotion, isFestiveScene, sheen]);
 
   useEffect(() => {
     if (theme.id === themeIdRef.current) {
@@ -128,6 +145,7 @@ export default function HomeHeroBanner({
       <Animated.View
         style={[
           styles.card,
+          isFestiveScene && styles.cardFestive,
           {
             backgroundColor: palette.bgBottom,
             opacity: themeFade,
@@ -147,7 +165,7 @@ export default function HomeHeroBanner({
               opacity: isFestiveScene
                 ? washPulse.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.55, 1],
+                    outputRange: [0.45, 0.95],
                   })
                 : 1,
               transform: isFestiveScene
@@ -155,7 +173,7 @@ export default function HomeHeroBanner({
                     {
                       scale: washPulse.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [1, 1.12],
+                        outputRange: [1, 1.1],
                       }),
                     },
                   ]
@@ -164,27 +182,49 @@ export default function HomeHeroBanner({
           ]}
         />
         {isFestiveScene ? (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.washOrbB,
-              {
-                backgroundColor: palette.orbB,
-                opacity: washPulse.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.35, 0.75],
-                }),
-                transform: [
-                  {
-                    scale: washPulse.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [1.05, 0.92],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          />
+          <>
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.washOrbB,
+                {
+                  backgroundColor: palette.orbB,
+                  opacity: washPulse.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.3, 0.7],
+                  }),
+                  transform: [
+                    {
+                      scale: washPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1.04, 0.94],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.cardSheen,
+                {
+                  opacity: sheen.interpolate({
+                    inputRange: [0, 0.4, 0.55, 1],
+                    outputRange: [0, 0, 0.2, 0],
+                  }),
+                  transform: [
+                    {
+                      translateX: sheen.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-80, 220],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            />
+          </>
         ) : null}
 
         <View style={styles.row}>
@@ -212,47 +252,63 @@ export default function HomeHeroBanner({
 const styles = StyleSheet.create({
   wrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingBottom: 8,
     backgroundColor: colors.background,
   },
   card: {
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: "hidden",
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(0,0,0,0.06)",
     paddingHorizontal: 16,
     paddingVertical: 18,
-    minHeight: 200,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    minHeight: 208,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#2C1A4D",
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: { elevation: 3 },
+    }),
+  },
+  cardFestive: {
+    borderColor: "rgba(123, 63, 190, 0.12)",
+    minHeight: 220,
+  },
+  cardSheen: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 48,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    transform: [{ skewX: "-18deg" }],
   },
   washTop: {
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
-    height: "58%",
-    opacity: 0.95,
+    height: "62%",
+    opacity: 0.96,
   },
   washOrb: {
     position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    top: -40,
-    right: -30,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    top: -48,
+    right: -36,
   },
   washOrbB: {
     position: "absolute",
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    bottom: -36,
-    left: -24,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    bottom: -40,
+    left: -28,
   },
   row: {
     flexDirection: "row",
@@ -266,20 +322,20 @@ const styles = StyleSheet.create({
   },
   copyColNarrow: {
     paddingRight: 0,
-    maxWidth: "72%",
+    maxWidth: "70%",
   },
   visualCol: {
-    width: "42%",
-    maxWidth: 220,
-    minWidth: 150,
+    width: "44%",
+    maxWidth: 228,
+    minWidth: 154,
     alignItems: "center",
     justifyContent: "center",
   },
   visualColNarrow: {
     position: "absolute",
-    right: -4,
-    top: -2,
-    width: 148,
-    opacity: 0.98,
+    right: -2,
+    top: 0,
+    width: 152,
+    opacity: 1,
   },
 });
