@@ -2,23 +2,26 @@ import { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated, Easing } from "react-native";
 import FestivalDecorations from "./FestivalDecorations";
 import FestivalParticles from "./FestivalParticles";
+import JanmashtamiScene from "./JanmashtamiScene";
 import usePrefersReducedMotion from "../../hooks/usePrefersReducedMotion";
 
 /**
- * Layered visual with gentle float (pseudo-parallax by speed).
+ * Layered visual with theme-driven scene + parallax floats.
  */
 export default function HeroVisual({ theme, entrance }) {
   const reduceMotion = usePrefersReducedMotion();
   const floatA = useRef(new Animated.Value(0)).current;
   const floatB = useRef(new Animated.Value(0)).current;
   const floatC = useRef(new Animated.Value(0)).current;
+  const shimmer = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (reduceMotion) return undefined;
 
-    const mk = (value, duration) =>
+    const mk = (value, duration, delay = 0) =>
       Animated.loop(
         Animated.sequence([
+          Animated.delay(delay),
           Animated.timing(value, {
             toValue: 1,
             duration,
@@ -35,19 +38,22 @@ export default function HeroVisual({ theme, entrance }) {
       );
 
     const a = mk(floatA, 4200);
-    const b = mk(floatB, 3400);
-    const c = mk(floatC, 2800);
+    const b = mk(floatB, 3400, 120);
+    const c = mk(floatC, 2800, 240);
+    const s = mk(shimmer, 2200);
     a.start();
     b.start();
     c.start();
+    s.start();
     return () => {
       a.stop();
       b.stop();
       c.stop();
+      s.stop();
     };
-  }, [reduceMotion, floatA, floatB, floatC]);
+  }, [reduceMotion, floatA, floatB, floatC, shimmer]);
 
-  const layer = (anim, amp) =>
+  const layer = (anim, amp, rot = 1.2) =>
     reduceMotion
       ? {}
       : {
@@ -61,11 +67,13 @@ export default function HeroVisual({ theme, entrance }) {
             {
               rotate: anim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ["-1.2deg", "1.2deg"],
+                outputRange: [`-${rot}deg`, `${rot}deg`],
               }),
             },
           ],
         };
+
+  const isJanmashtami = theme.visualType === "janmashtami" && theme.assets;
 
   return (
     <Animated.View
@@ -73,14 +81,14 @@ export default function HeroVisual({ theme, entrance }) {
         styles.wrap,
         {
           opacity: entrance.interpolate({
-            inputRange: [0, 0.45, 1],
+            inputRange: [0, 0.35, 1],
             outputRange: [0, 0, 1],
           }),
           transform: [
             {
               scale: entrance.interpolate({
-                inputRange: [0, 0.45, 1],
-                outputRange: [0.94, 0.94, 1],
+                inputRange: [0, 0.35, 1],
+                outputRange: [0.9, 0.9, 1],
               }),
             },
           ],
@@ -88,24 +96,57 @@ export default function HeroVisual({ theme, entrance }) {
       ]}
       accessibilityLabel={theme.visualLabel}
     >
-      <Animated.View style={[styles.bgLayer, layer(floatA, 4)]}>
+      <Animated.View style={[styles.bgLayer, layer(floatA, 5, 0.8)]}>
         <View
           style={[styles.orb, styles.orbA, { backgroundColor: theme.palette.orbA }]}
         />
         <View
           style={[styles.orb, styles.orbB, { backgroundColor: theme.palette.orbB }]}
         />
+        {!reduceMotion ? (
+          <Animated.View
+            style={[
+              styles.shimmerSweep,
+              {
+                opacity: shimmer.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0, 0.18, 0],
+                }),
+                transform: [
+                  {
+                    translateX: shimmer.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-40, 60],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        ) : null}
       </Animated.View>
 
-      <Animated.View style={[styles.midLayer, layer(floatB, 7)]}>
-        <FestivalDecorations
-          decorations={theme.decorations}
-          palette={theme.palette}
+      <Animated.View style={[styles.midLayer, layer(floatB, isJanmashtami ? 4 : 7, 0.6)]}>
+        {isJanmashtami ? (
+          <JanmashtamiScene assets={theme.assets} palette={theme.palette} />
+        ) : (
+          <FestivalDecorations
+            decorations={theme.decorations}
+            palette={theme.palette}
+            illustrationUri={theme.assets?.hero}
+          />
+        )}
+      </Animated.View>
+
+      <Animated.View
+        style={[styles.fgLayer, layer(floatC, 10, 1.4)]}
+        pointerEvents="none"
+      >
+        <FestivalParticles
+          color={theme.palette.particle}
+          count={theme.particleCount || 7}
+          festive={isJanmashtami}
         />
-      </Animated.View>
-
-      <Animated.View style={[styles.fgLayer, layer(floatC, 9)]} pointerEvents="none">
-        <FestivalParticles color={theme.palette.particle} count={7} />
       </Animated.View>
     </Animated.View>
   );
@@ -119,6 +160,7 @@ const styles = StyleSheet.create({
   },
   bgLayer: {
     ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
   },
   midLayer: {
     flex: 1,
@@ -132,15 +174,23 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   orbA: {
-    width: "70%",
-    height: "70%",
-    top: "5%",
-    right: "0%",
+    width: "72%",
+    height: "72%",
+    top: "4%",
+    right: "-4%",
   },
   orbB: {
-    width: "55%",
-    height: "55%",
-    bottom: "0%",
-    left: "5%",
+    width: "58%",
+    height: "58%",
+    bottom: "-2%",
+    left: "2%",
+  },
+  shimmerSweep: {
+    position: "absolute",
+    top: "10%",
+    bottom: "10%",
+    width: 36,
+    backgroundColor: "rgba(255,255,255,0.55)",
+    transform: [{ skewX: "-18deg" }],
   },
 });

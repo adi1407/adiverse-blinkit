@@ -31,8 +31,10 @@ export default function HomeHeroBanner({
 
   const entrance = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
   const themeFade = useRef(new Animated.Value(1)).current;
+  const washPulse = useRef(new Animated.Value(0)).current;
   const [displayTheme, setDisplayTheme] = useState(theme);
   const themeIdRef = useRef(theme.id);
+  const isFestiveScene = displayTheme.visualType === "janmashtami";
 
   useEffect(() => {
     if (reduceMotion) {
@@ -49,6 +51,31 @@ export default function HomeHeroBanner({
     anim.start();
     return () => anim.stop();
   }, [entrance, reduceMotion]);
+
+  useEffect(() => {
+    if (reduceMotion || !isFestiveScene) {
+      washPulse.setValue(0);
+      return undefined;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(washPulse, {
+          toValue: 1,
+          duration: 2800,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(washPulse, {
+          toValue: 0,
+          duration: 2800,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [reduceMotion, isFestiveScene, washPulse]);
 
   useEffect(() => {
     if (theme.id === themeIdRef.current) {
@@ -111,10 +138,54 @@ export default function HomeHeroBanner({
           pointerEvents="none"
           style={[styles.washTop, { backgroundColor: palette.bgTop }]}
         />
-        <View
+        <Animated.View
           pointerEvents="none"
-          style={[styles.washOrb, { backgroundColor: palette.orbA }]}
+          style={[
+            styles.washOrb,
+            {
+              backgroundColor: palette.orbA,
+              opacity: isFestiveScene
+                ? washPulse.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.55, 1],
+                  })
+                : 1,
+              transform: isFestiveScene
+                ? [
+                    {
+                      scale: washPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.12],
+                      }),
+                    },
+                  ]
+                : undefined,
+            },
+          ]}
         />
+        {isFestiveScene ? (
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.washOrbB,
+              {
+                backgroundColor: palette.orbB,
+                opacity: washPulse.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.35, 0.75],
+                }),
+                transform: [
+                  {
+                    scale: washPulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1.05, 0.92],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        ) : null}
 
         <View style={styles.row}>
           <View style={[styles.copyCol, isNarrow && styles.copyColNarrow]}>
@@ -175,6 +246,14 @@ const styles = StyleSheet.create({
     top: -40,
     right: -30,
   },
+  washOrbB: {
+    position: "absolute",
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    bottom: -36,
+    left: -24,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -190,16 +269,17 @@ const styles = StyleSheet.create({
     maxWidth: "72%",
   },
   visualCol: {
-    width: "40%",
-    maxWidth: 200,
+    width: "42%",
+    maxWidth: 220,
+    minWidth: 150,
     alignItems: "center",
     justifyContent: "center",
   },
   visualColNarrow: {
     position: "absolute",
-    right: -8,
-    top: -4,
-    width: 132,
-    opacity: 0.95,
+    right: -4,
+    top: -2,
+    width: 148,
+    opacity: 0.98,
   },
 });

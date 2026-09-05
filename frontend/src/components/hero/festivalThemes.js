@@ -3,6 +3,7 @@
  * Add a new key here to introduce a festival — no JSX conditionals required in the hero.
  */
 import { colors } from "../../theme/colors";
+import { JANMASHTAMI_ASSETS } from "./festivalAssets";
 
 export const FESTIVAL_IDS = {
   DEFAULT: "default",
@@ -26,6 +27,8 @@ export const FESTIVAL_THEMES = {
     secondaryCta: "Browse categories",
     deliveryLabel: "Delivered in minutes",
     visualLabel: "Fresh basket",
+    visualType: "abstract",
+    particleCount: 7,
     palette: {
       bgTop: "#FFF8E1",
       bgBottom: "#FFFFFF",
@@ -38,30 +41,34 @@ export const FESTIVAL_THEMES = {
       particle: "rgba(12,131,31,0.22)",
     },
     decorations: ["leaf", "bag", "spark"],
+    assets: null,
   },
 
   [FESTIVAL_IDS.JANMASHTAMI]: {
     id: FESTIVAL_IDS.JANMASHTAMI,
-    eyebrow: "Janmashtami essentials",
-    headline: "Celebrate with\nfresh festivity",
+    eyebrow: "Janmashtami specials",
+    headline: "Makhan, mishri\n& fresh joy",
     description:
-      "Butter, sweets, flowers & daily groceries — curated for the occasion, delivered in minutes.",
+      "Butter, sweets, flowers & daily groceries for the celebration — delivered in minutes.",
     primaryCta: "Shop festive picks",
     secondaryCta: "All groceries",
     deliveryLabel: "Quick delivery to your doorstep",
-    visualLabel: "Festive décor",
+    visualLabel: "Lord Krishna Janmashtami",
+    visualType: "janmashtami",
+    particleCount: 12,
     palette: {
-      bgTop: "#F5EEFF",
-      bgBottom: "#FFF9EC",
-      orbA: "rgba(123, 63, 190, 0.16)",
-      orbB: "rgba(248, 203, 70, 0.32)",
+      bgTop: "#F3E9FF",
+      bgBottom: "#FFF8E8",
+      orbA: "rgba(123, 63, 190, 0.2)",
+      orbB: "rgba(248, 203, 70, 0.38)",
       accent: colors.primary,
       accentText: colors.text,
       deep: "#2C1A4D",
-      soft: "#E9D9FF",
-      particle: "rgba(248, 203, 70, 0.55)",
+      soft: "#E4D4FF",
+      particle: "rgba(248, 203, 70, 0.65)",
     },
     decorations: ["peacock", "flute", "matki", "diya"],
+    assets: JANMASHTAMI_ASSETS,
   },
 
   [FESTIVAL_IDS.DIWALI]: {
@@ -74,6 +81,8 @@ export const FESTIVAL_THEMES = {
     secondaryCta: "Browse home",
     deliveryLabel: "Delivered in minutes",
     visualLabel: "Diwali glow",
+    visualType: "abstract",
+    particleCount: 10,
     palette: {
       bgTop: "#FFF3E0",
       bgBottom: "#FFFBF5",
@@ -86,6 +95,7 @@ export const FESTIVAL_THEMES = {
       particle: "rgba(255, 193, 7, 0.5)",
     },
     decorations: ["diya", "spark", "bag"],
+    assets: null,
   },
 
   [FESTIVAL_IDS.HOLI]: {
@@ -98,6 +108,8 @@ export const FESTIVAL_THEMES = {
     secondaryCta: "Snacks & drinks",
     deliveryLabel: "Delivered in minutes",
     visualLabel: "Holi hues",
+    visualType: "abstract",
+    particleCount: 10,
     palette: {
       bgTop: "#FCE4EC",
       bgBottom: "#E3F2FD",
@@ -110,6 +122,7 @@ export const FESTIVAL_THEMES = {
       particle: "rgba(233, 30, 99, 0.35)",
     },
     decorations: ["spark", "leaf", "bag"],
+    assets: null,
   },
 
   [FESTIVAL_IDS.CHRISTMAS]: {
@@ -122,6 +135,8 @@ export const FESTIVAL_THEMES = {
     secondaryCta: "Gifting aisle",
     deliveryLabel: "Delivered in minutes",
     visualLabel: "Holiday basket",
+    visualType: "abstract",
+    particleCount: 8,
     palette: {
       bgTop: "#E8F5E9",
       bgBottom: "#FFF8E1",
@@ -134,6 +149,7 @@ export const FESTIVAL_THEMES = {
       particle: "rgba(255, 255, 255, 0.7)",
     },
     decorations: ["spark", "bag", "leaf"],
+    assets: null,
   },
 };
 
