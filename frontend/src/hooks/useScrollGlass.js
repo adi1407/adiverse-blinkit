@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * Scroll → glass navbar without flooding React renders.
- * Uses a boolean threshold + rAF; ignores noisy in-between offsets.
+ * Scroll → collapse chrome / glass without flooding React renders.
+ * Hysteresis: hide upper chrome past `threshold`, restore only near top.
  */
-export default function useScrollGlass({ threshold = 28 } = {}) {
+export default function useScrollGlass({
+  threshold = 28,
+  restoreBelow = 8,
+} = {}) {
   const [scrolled, setScrolled] = useState(false);
   const scrolledRef = useRef(false);
   const rafRef = useRef(null);
@@ -22,12 +25,15 @@ export default function useScrollGlass({ threshold = 28 } = {}) {
   const onScroll = useCallback(
     (event) => {
       const y = event?.nativeEvent?.contentOffset?.y ?? 0;
-      const next = y > threshold;
+      let next = scrolledRef.current;
+      if (!scrolledRef.current && y > threshold) next = true;
+      else if (scrolledRef.current && y <= restoreBelow) next = false;
+
       pendingRef.current = next;
       if (rafRef.current != null) return;
       rafRef.current = requestAnimationFrame(flush);
     },
-    [flush, threshold]
+    [flush, threshold, restoreBelow]
   );
 
   useEffect(

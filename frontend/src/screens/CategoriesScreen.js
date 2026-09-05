@@ -139,9 +139,14 @@ export default function CategoriesScreen() {
   const navigation = useNavigation();
   const scrollRef = useRef(null);
   const sectionY = useRef({});
-  const { scrolled, onScroll } = useScrollGlass({ threshold: 18 });
+  const { scrolled, onScroll } = useScrollGlass({
+    threshold: 20,
+    restoreBelow: 6,
+  });
   const { width } = useWindowDimensions();
-  const [navHeight, setNavHeight] = useState(168);
+  const [expandedNavH, setExpandedNavH] = useState(168);
+  const [collapsedNavH, setCollapsedNavH] = useState(72);
+  const navPad = scrolled ? collapsedNavH : expandedNavH;
   const columns = width >= 900 ? 6 : width >= 600 ? 5 : 4;
   const itemWidth =
     columns === 6 ? "15.5%" : columns === 5 ? "18.5%" : "23%";
@@ -227,7 +232,7 @@ export default function CategoriesScreen() {
 
       <View style={styles.body}>
         {loading && !ready ? (
-          <View style={[styles.skelWrap, { paddingTop: navHeight }]}>
+          <View style={[styles.skelWrap, { paddingTop: navPad }]}>
             <CategoriesSkeleton itemWidth={itemWidth} />
           </View>
         ) : error && !ready ? (
@@ -238,7 +243,7 @@ export default function CategoriesScreen() {
             style={styles.list}
             contentContainerStyle={[
               styles.listContent,
-              { paddingTop: navHeight + 4 },
+              { paddingTop: navPad + 4 },
             ]}
             showsVerticalScrollIndicator={false}
             onScroll={onScroll}
@@ -250,7 +255,7 @@ export default function CategoriesScreen() {
                 onRefresh={() => boot({ silent: true })}
                 tintColor={colors.accent}
                 colors={[colors.accent]}
-                progressViewOffset={navHeight}
+                progressViewOffset={navPad}
               />
             }
           >
@@ -300,7 +305,12 @@ export default function CategoriesScreen() {
           style={styles.navOverlay}
           onLayout={(e) => {
             const h = Math.ceil(e.nativeEvent.layout.height);
-            if (h > 0 && Math.abs(h - navHeight) > 1) setNavHeight(h);
+            if (h <= 0) return;
+            if (scrolled) {
+              if (Math.abs(h - collapsedNavH) > 1) setCollapsedNavH(h);
+            } else if (Math.abs(h - expandedNavH) > 1) {
+              setExpandedNavH(h);
+            }
           }}
           pointerEvents="box-none"
         >

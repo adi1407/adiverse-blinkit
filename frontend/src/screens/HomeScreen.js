@@ -35,8 +35,13 @@ const ESSENTIAL_TINTS = {
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { items: recentItems } = useRecentlyViewed();
-  const { scrolled, onScroll } = useScrollGlass({ threshold: 18 });
-  const [navHeight, setNavHeight] = useState(168);
+  const { scrolled, onScroll } = useScrollGlass({
+    threshold: 20,
+    restoreBelow: 6,
+  });
+  const [expandedNavH, setExpandedNavH] = useState(168);
+  const [collapsedNavH, setCollapsedNavH] = useState(72);
+  const navPad = scrolled ? collapsedNavH : expandedNavH;
   const [data, setData] = useState(null);
   const [hub, setHub] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -192,7 +197,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderSection}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.content, { paddingTop: navHeight }]}
+          contentContainerStyle={[styles.content, { paddingTop: navPad }]}
           onScroll={onScroll}
           scrollEventThrottle={16}
           onEndReached={() => {
@@ -217,7 +222,7 @@ export default function HomeScreen() {
               tintColor={colors.accent}
               colors={[colors.accent]}
               progressBackgroundColor={colors.white}
-              progressViewOffset={navHeight}
+              progressViewOffset={navPad}
             />
           }
         />
@@ -227,7 +232,12 @@ export default function HomeScreen() {
           style={styles.navOverlay}
           onLayout={(e) => {
             const h = Math.ceil(e.nativeEvent.layout.height);
-            if (h > 0 && Math.abs(h - navHeight) > 1) setNavHeight(h);
+            if (h <= 0) return;
+            if (scrolled) {
+              if (Math.abs(h - collapsedNavH) > 1) setCollapsedNavH(h);
+            } else if (Math.abs(h - expandedNavH) > 1) {
+              setExpandedNavH(h);
+            }
           }}
           pointerEvents="box-none"
         >

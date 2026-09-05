@@ -20,6 +20,7 @@ export default function SearchBar({
   compact = false,
   transparent = false,
   glass = false,
+  sticky = false,
 }) {
   const [hintIndex, setHintIndex] = useState(0);
   const [focusedVisual, setFocusedVisual] = useState(false);
@@ -67,6 +68,7 @@ export default function SearchBar({
         styles.wrap,
         transparent && styles.wrapTransparent,
         compact && styles.wrapCompact,
+        sticky && styles.wrapSticky,
       ]}
     >
       <Pressable
@@ -128,6 +130,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   wrapCompact: {
+    paddingBottom: 10,
+  },
+  wrapSticky: {
+    paddingTop: 6,
     paddingBottom: 10,
   },
   bar: {

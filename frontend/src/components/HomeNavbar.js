@@ -4,7 +4,8 @@ import {
   StyleSheet,
   Animated,
   Platform,
-  useWindowDimensions,
+  LayoutAnimation,
+  UIManager,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import HomeHeader from "./HomeHeader";
@@ -13,9 +14,17 @@ import LifestyleChips from "./LifestyleChips";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 import { colors } from "../theme/colors";
 
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 /**
- * Premium sticky home chrome — solid brand at top, real frosted glass on scroll.
- * Must sit as an overlay above scrolling content so blur has something to sample.
+ * Home chrome: full header + chips at top.
+ * On scroll → upper chrome hides; only search stays sticky with glass.
+ * Scroll back to top → header + chips return.
  */
 export default function HomeNavbar({
   minutes = 8,
@@ -29,14 +38,35 @@ export default function HomeNavbar({
   showCurve = true,
 }) {
   const reduceMotion = usePrefersReducedMotion();
-  const { width } = useWindowDimensions();
-  const isCompactWidth = width < 380;
   const glass = useRef(new Animated.Value(scrolled ? 1 : 0)).current;
+  const prevScrolled = useRef(scrolled);
+
+  useEffect(() => {
+    if (prevScrolled.current !== scrolled) {
+      prevScrolled.current = scrolled;
+      if (!reduceMotion) {
+        LayoutAnimation.configureNext({
+          duration: 240,
+          update: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+          },
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          delete: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+        });
+      }
+    }
+  }, [scrolled, reduceMotion]);
 
   useEffect(() => {
     Animated.timing(glass, {
       toValue: scrolled ? 1 : 0,
-      duration: reduceMotion ? 0 : 260,
+      duration: reduceMotion ? 0 : 220,
       useNativeDriver: true,
     }).start();
   }, [scrolled, glass, reduceMotion]);
@@ -55,13 +85,11 @@ export default function HomeNavbar({
       style={[styles.root, scrolled && styles.rootScrolled]}
       accessibilityRole="header"
     >
-      {/* Brand yellow — visible at rest */}
       <Animated.View
         pointerEvents="none"
         style={[styles.surfaceTop, { opacity: topOpacity }]}
       />
 
-      {/* Frosted glass — visible once content scrolls underneath */}
       <Animated.View
         pointerEvents="none"
         style={[styles.surfaceGlass, { opacity: glassOpacity }]}
@@ -79,24 +107,30 @@ export default function HomeNavbar({
         <View style={styles.glassEdge} />
       </Animated.View>
 
-      <View style={[styles.content, scrolled && styles.contentCompact]}>
-        <HomeHeader minutes={minutes} compact={scrolled || isCompactWidth} />
+      <View style={[styles.content, scrolled && styles.contentSticky]}>
+        {/* Upper chrome — hides on scroll, returns at top */}
+        {!scrolled ? (
+          <HomeHeader minutes={minutes} compact={false} />
+        ) : null}
+
         <SearchBar
           onPress={onSearchPress}
           onMicPress={onMicPress}
           compact={scrolled}
           transparent
           glass={scrolled}
+          sticky={scrolled}
         />
-        {showChips ? (
+
+        {!scrolled && showChips ? (
           <LifestyleChips
             hubs={hubs}
             selectedId={selectedHub}
             onSelect={onSelectHub}
             transparent
-            compact={scrolled}
           />
         ) : null}
+
         {showCurve && !scrolled ? <View style={styles.curve} /> : null}
       </View>
     </View>
@@ -134,15 +168,15 @@ const styles = StyleSheet.create({
   },
   glassTint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 252, 245, 0.38)",
+    backgroundColor: "rgba(255, 252, 245, 0.42)",
   },
   glassSheen: {
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
-    height: "42%",
-    backgroundColor: "rgba(255,255,255,0.22)",
+    height: "48%",
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
   glassEdge: {
     position: "absolute",
@@ -156,8 +190,9 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 1,
   },
-  contentCompact: {
-    paddingBottom: 4,
+  contentSticky: {
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   curve: {
     height: 14,
