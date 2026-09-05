@@ -1,186 +1,205 @@
 import { useEffect, useRef, useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
-  Pressable,
-  Image,
-  Dimensions,
-  ScrollView,
   Animated,
+  useWindowDimensions,
+  Easing,
 } from "react-native";
-import { colors, spacing, radii } from "../theme/colors";
-import { fonts } from "../theme/typography";
+import HeroContent from "./hero/HeroContent";
+import HeroVisual from "./hero/HeroVisual";
+import {
+  ACTIVE_HERO_FESTIVAL,
+  getFestivalTheme,
+} from "./hero/festivalThemes";
+import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
+import { colors, spacing } from "../theme/colors";
 
-const W = Dimensions.get("window").width;
-const CARD_W = W - spacing.lg * 2;
+/**
+ * Premium festival-aware homepage hero.
+ * Preserves prior CTA contract: onCta(banner) using API banners when present.
+ */
+export default function HomeHeroBanner({
+  banners = [],
+  onCta,
+  festivalId = ACTIVE_HERO_FESTIVAL,
+}) {
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 400;
+  const reduceMotion = usePrefersReducedMotion();
+  const theme = getFestivalTheme(festivalId);
 
-export default function HomeHeroBanner({ banners = [], onCta }) {
-  const scrollRef = useRef(null);
-  const [index, setIndex] = useState(0);
-  const dotAnims = useRef(
-    banners.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))
-  ).current;
+  const entrance = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
+  const themeFade = useRef(new Animated.Value(1)).current;
+  const [displayTheme, setDisplayTheme] = useState(theme);
+  const themeIdRef = useRef(theme.id);
 
   useEffect(() => {
-    if (banners.length < 2) return undefined;
-    const id = setInterval(() => {
-      setIndex((prev) => {
-        const next = (prev + 1) % banners.length;
-        scrollRef.current?.scrollTo({
-          x: next * (CARD_W + 12),
-          animated: true,
-        });
-        return next;
-      });
-    }, 4500);
-    return () => clearInterval(id);
-  }, [banners.length]);
+    if (reduceMotion) {
+      entrance.setValue(1);
+      return undefined;
+    }
+    entrance.setValue(0);
+    const anim = Animated.timing(entrance, {
+      toValue: 1,
+      duration: 620,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [entrance, reduceMotion]);
 
   useEffect(() => {
-    dotAnims.forEach((anim, i) => {
-      Animated.spring(anim, {
-        toValue: i === index ? 1 : 0,
-        friction: 8,
-        useNativeDriver: false,
+    if (theme.id === themeIdRef.current) {
+      setDisplayTheme(theme);
+      return undefined;
+    }
+
+    if (reduceMotion) {
+      themeIdRef.current = theme.id;
+      setDisplayTheme(theme);
+      return undefined;
+    }
+
+    const out = Animated.timing(themeFade, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: true,
+    });
+    out.start(({ finished }) => {
+      if (!finished) return;
+      themeIdRef.current = theme.id;
+      setDisplayTheme(theme);
+      Animated.timing(themeFade, {
+        toValue: 1,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
       }).start();
     });
-  }, [index, dotAnims]);
+    return () => out.stop();
+  }, [theme, themeFade, reduceMotion]);
 
-  if (!banners.length) return null;
+  const primaryBanner = banners[0];
+  const secondaryBanner = banners[1];
+
+  function handlePrimary() {
+    if (primaryBanner) onCta?.(primaryBanner);
+    else onCta?.({ hub: "gifting", id: "hero-primary" });
+  }
+
+  function handleSecondary() {
+    if (secondaryBanner) onCta?.(secondaryBanner);
+    else onCta?.({ hub: "all", id: "hero-secondary" });
+  }
+
+  const palette = displayTheme.palette;
 
   return (
     <View style={styles.wrap}>
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        decelerationRate="fast"
-        snapToInterval={CARD_W + 12}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.row}
-        onMomentumScrollEnd={(e) => {
-          const x = e.nativeEvent.contentOffset.x;
-          setIndex(Math.round(x / (CARD_W + 12)));
-        }}
+      <Animated.View
+        style={[
+          styles.card,
+          {
+            backgroundColor: palette.bgBottom,
+            opacity: themeFade,
+          },
+        ]}
       >
-        {banners.map((b) => (
-          <Pressable
-            key={b.id}
-            style={styles.card}
-            onPress={() => onCta?.(b)}
+        <View
+          pointerEvents="none"
+          style={[styles.washTop, { backgroundColor: palette.bgTop }]}
+        />
+        <View
+          pointerEvents="none"
+          style={[styles.washOrb, { backgroundColor: palette.orbA }]}
+        />
+
+        <View style={styles.row}>
+          <View style={[styles.copyCol, isNarrow && styles.copyColNarrow]}>
+            <HeroContent
+              theme={displayTheme}
+              entrance={entrance}
+              onPrimary={handlePrimary}
+              onSecondary={handleSecondary}
+            />
+          </View>
+
+          <View
+            style={[styles.visualCol, isNarrow && styles.visualColNarrow]}
+            pointerEvents="none"
           >
-            <Image source={{ uri: b.image }} style={styles.image} />
-            <View style={styles.scrim} />
-            <View style={styles.copy}>
-              <Text style={styles.title}>{b.title}</Text>
-              <Text style={styles.subtitle} numberOfLines={2}>
-                {b.subtitle}
-              </Text>
-              <View
-                style={[
-                  styles.cta,
-                  { backgroundColor: b.accent || colors.primary },
-                ]}
-              >
-                <Text style={styles.ctaText}>{b.cta || "Shop now"}</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
-      <View style={styles.dots}>
-        {banners.map((b, i) => (
-          <Animated.View
-            key={b.id}
-            style={[
-              styles.dot,
-              {
-                width: dotAnims[i]?.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [5, 14],
-                }),
-                opacity: dotAnims[i]?.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.35, 1],
-                }),
-                backgroundColor: colors.text,
-              },
-            ]}
-          />
-        ))}
-      </View>
+            <HeroVisual theme={displayTheme} entrance={entrance} />
+          </View>
+        </View>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingTop: 14,
-    paddingBottom: 4,
+    paddingHorizontal: spacing.lg,
+    paddingTop: 12,
+    paddingBottom: 8,
     backgroundColor: colors.background,
   },
-  row: {
-    paddingHorizontal: spacing.lg,
-    gap: 12,
-  },
   card: {
-    width: CARD_W,
-    height: 168,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
-    backgroundColor: "#EEE",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(0,0,0,0.06)",
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    minHeight: 200,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
-  image: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
-  },
-  scrim: {
+  washTop: {
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 0,
+    top: 0,
     height: "58%",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    opacity: 0.95,
   },
-  copy: {
-    flex: 1,
-    justifyContent: "flex-end",
-    padding: 16,
+  washOrb: {
+    position: "absolute",
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    top: -40,
+    right: -30,
   },
-  title: {
-    color: colors.white,
-    fontSize: 20,
-    fontFamily: fonts.extraBold,
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    marginTop: 3,
-    color: "rgba(255,255,255,0.9)",
-    fontSize: 12,
-    fontFamily: fonts.semiBold,
-    lineHeight: 16,
-  },
-  cta: {
-    alignSelf: "flex-start",
-    marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  ctaText: {
-    color: colors.text,
-    fontFamily: fonts.extraBold,
-    fontSize: 11,
-  },
-  dots: {
+  row: {
     flexDirection: "row",
-    justifyContent: "center",
-    gap: 5,
-    marginTop: 10,
+    alignItems: "center",
+    position: "relative",
   },
-  dot: {
-    height: 5,
-    borderRadius: 3,
+  copyCol: {
+    flex: 1,
+    zIndex: 2,
+    paddingRight: 8,
+  },
+  copyColNarrow: {
+    paddingRight: 0,
+    maxWidth: "72%",
+  },
+  visualCol: {
+    width: "40%",
+    maxWidth: 200,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  visualColNarrow: {
+    position: "absolute",
+    right: -8,
+    top: -4,
+    width: 132,
+    opacity: 0.95,
   },
 });

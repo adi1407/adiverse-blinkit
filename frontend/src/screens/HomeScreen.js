@@ -5,15 +5,12 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
-  View,
   RefreshControl,
   Text,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-import HomeHeader from "../components/HomeHeader";
-import SearchBar from "../components/SearchBar";
-import LifestyleChips from "../components/LifestyleChips";
+import HomeNavbar from "../components/HomeNavbar";
 import HomeHeroBanner from "../components/HomeHeroBanner";
 import CategoryBlock from "../components/CategoryBlock";
 import DealsGrid from "../components/DealsGrid";
@@ -22,6 +19,7 @@ import { HomeFeedSkeleton } from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import { fetchHomeData } from "../api/catalogApi";
 import { useRecentlyViewed } from "../context/RecentlyViewedContext";
+import useScrollGlass from "../hooks/useScrollGlass";
 import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
@@ -36,6 +34,7 @@ const ESSENTIAL_TINTS = {
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { items: recentItems } = useRecentlyViewed();
+  const { scrolled, onScroll } = useScrollGlass({ threshold: 24 });
   const [data, setData] = useState(null);
   const [hub, setHub] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -144,18 +143,29 @@ export default function HomeScreen() {
     }
   }
 
+  const navbar = (
+    <HomeNavbar
+      minutes={data?.deliveryInfo?.minutes || 8}
+      hubs={data?.lifestyleHubs}
+      selectedHub={hub}
+      onSelectHub={onSelectHub}
+      scrolled={scrolled}
+      onSearchPress={() => navigation.navigate("Search")}
+      onMicPress={() => navigation.navigate("Search", { voice: true })}
+    />
+  );
+
   if (loading && !data) {
     return (
       <SafeAreaView style={styles.safe}>
-        <View style={styles.chrome}>
-          <HomeHeader minutes={8} />
-          <SearchBar
-            onPress={() => navigation.navigate("Search")}
-            onMicPress={() => navigation.navigate("Search", { voice: true })}
-          />
-          <LifestyleChips selectedId={hub} onSelect={onSelectHub} />
-          <View style={styles.heroCurve} />
-        </View>
+        <HomeNavbar
+          minutes={8}
+          selectedHub={hub}
+          onSelectHub={onSelectHub}
+          scrolled={false}
+          onSearchPress={() => navigation.navigate("Search")}
+          onMicPress={() => navigation.navigate("Search", { voice: true })}
+        />
         <HomeFeedSkeleton />
       </SafeAreaView>
     );
@@ -172,19 +182,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ExpoStatusBar style="dark" />
-      <View style={styles.chrome}>
-        <HomeHeader minutes={data?.deliveryInfo?.minutes || 8} />
-        <SearchBar
-          onPress={() => navigation.navigate("Search")}
-          onMicPress={() => navigation.navigate("Search", { voice: true })}
-        />
-        <LifestyleChips
-          hubs={data?.lifestyleHubs}
-          selectedId={hub}
-          onSelect={onSelectHub}
-        />
-        <View style={styles.heroCurve} />
-      </View>
+      {navbar}
 
       <FlatList
         style={styles.list}
@@ -193,8 +191,12 @@ export default function HomeScreen() {
         renderItem={renderSection}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         onEndReached={() => {
-          if (hasMore) setVisibleCount((c) => Math.min(c + PAGE_SIZE, allSections.length));
+          if (hasMore) {
+            setVisibleCount((c) => Math.min(c + PAGE_SIZE, allSections.length));
+          }
         }}
         onEndReachedThreshold={0.4}
         ListFooterComponent={
@@ -223,17 +225,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  chrome: {
-    backgroundColor: colors.primary,
-    zIndex: 2,
-  },
-  heroCurve: {
-    height: 16,
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: -1,
   },
   list: {
     flex: 1,

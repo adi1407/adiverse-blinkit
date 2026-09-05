@@ -13,11 +13,23 @@ const FALLBACK_HUBS = [
   { id: "imported", label: "Imported", icon: "Globe" },
 ];
 
-export default function LifestyleChips({ hubs, selectedId, onSelect }) {
+export default function LifestyleChips({
+  hubs,
+  selectedId,
+  onSelect,
+  transparent = false,
+  compact = false,
+}) {
   const list = hubs?.length ? hubs : FALLBACK_HUBS;
 
   return (
-    <View style={styles.wrap}>
+    <View
+      style={[
+        styles.wrap,
+        transparent && styles.wrapTransparent,
+        compact && styles.wrapCompact,
+      ]}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -30,9 +42,14 @@ export default function LifestyleChips({ hubs, selectedId, onSelect }) {
             <Pressable
               key={hub.id}
               onPress={() => onSelect?.(hub.id)}
-              style={[styles.chip, active && styles.chipActive]}
+              style={({ pressed }) => [
+                styles.chip,
+                active && styles.chipActive,
+                pressed && styles.chipPressed,
+              ]}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
+              accessibilityLabel={hub.label}
             >
               <View style={[styles.iconWrap, active && styles.iconWrapActive]}>
                 <Icon
@@ -57,6 +74,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingBottom: 12,
   },
+  wrapTransparent: {
+    backgroundColor: "transparent",
+  },
+  wrapCompact: {
+    paddingBottom: 8,
+  },
   row: {
     paddingHorizontal: spacing.lg,
     gap: 8,
@@ -76,6 +99,10 @@ const styles = StyleSheet.create({
   chipActive: {
     backgroundColor: colors.white,
     borderColor: colors.text,
+  },
+  chipPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   iconWrap: {
     width: 28,

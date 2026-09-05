@@ -33,6 +33,7 @@ function MainTabs() {
         tabBar={(props) => <BlinkitTabBar {...props} />}
         screenOptions={{
           headerShown: false,
+          sceneStyle: { backgroundColor: colors.background },
         }}
       >
         <Tab.Screen name="Home" component={HomeScreen} />

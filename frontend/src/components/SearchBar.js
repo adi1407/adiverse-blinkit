@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Pressable, Animated } from "react-native";
 import { Search, Mic } from "../utils/lucideIcons";
-import { colors, spacing, radii } from "../theme/colors";
+import { colors, spacing } from "../theme/colors";
 import { fonts } from "../theme/typography";
+import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 
 const HINTS = [
   'Search "milk"',
@@ -13,12 +14,20 @@ const HINTS = [
   'Search "banana"',
 ];
 
-export default function SearchBar({ onPress, onMicPress }) {
+export default function SearchBar({
+  onPress,
+  onMicPress,
+  compact = false,
+  transparent = false,
+}) {
   const [hintIndex, setHintIndex] = useState(0);
+  const [focusedVisual, setFocusedVisual] = useState(false);
   const fade = useRef(new Animated.Value(1)).current;
   const slide = useRef(new Animated.Value(0)).current;
+  const reduceMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (reduceMotion) return undefined;
     const id = setInterval(() => {
       Animated.parallel([
         Animated.timing(fade, {
@@ -49,17 +58,34 @@ export default function SearchBar({ onPress, onMicPress }) {
       });
     }, 2600);
     return () => clearInterval(id);
-  }, [fade, slide]);
+  }, [fade, slide, reduceMotion]);
 
   return (
-    <View style={styles.wrap}>
+    <View
+      style={[
+        styles.wrap,
+        transparent && styles.wrapTransparent,
+        compact && styles.wrapCompact,
+      ]}
+    >
       <Pressable
-        style={styles.bar}
+        style={({ pressed }) => [
+          styles.bar,
+          compact && styles.barCompact,
+          (pressed || focusedVisual) && styles.barFocus,
+        ]}
         onPress={onPress}
+        onPressIn={() => setFocusedVisual(true)}
+        onPressOut={() => setFocusedVisual(false)}
         accessibilityRole="search"
-        accessibilityLabel="Open search"
+        accessibilityLabel="Search products"
+        accessibilityHint="Opens search"
       >
-        <Search size={18} color="#363636" strokeWidth={2.4} />
+        <Search
+          size={compact ? 16 : 18}
+          color="#2F2F2F"
+          strokeWidth={2.4}
+        />
         <Animated.Text
           style={[
             styles.placeholder,
@@ -76,10 +102,14 @@ export default function SearchBar({ onPress, onMicPress }) {
             e?.stopPropagation?.();
             (onMicPress || onPress)?.();
           }}
-          style={styles.micBtn}
+          style={({ pressed }) => [
+            styles.micBtn,
+            pressed && styles.micBtnPressed,
+          ]}
+          accessibilityRole="button"
           accessibilityLabel="Voice search"
         >
-          <Mic size={18} color={colors.accent} strokeWidth={2.4} />
+          <Mic size={compact ? 16 : 18} color={colors.accent} strokeWidth={2.4} />
         </Pressable>
       </Pressable>
     </View>
@@ -92,26 +122,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
   },
+  wrapTransparent: {
+    backgroundColor: "transparent",
+  },
+  wrapCompact: {
+    paddingBottom: 10,
+  },
   bar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingLeft: 14,
     paddingRight: 4,
-    height: 50,
+    height: 48,
     gap: 10,
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.06)",
     shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  barCompact: {
+    height: 44,
+    borderRadius: 12,
+  },
+  barFocus: {
+    borderColor: colors.accent,
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    transform: [{ scale: 1.01 }],
   },
   placeholder: {
     flex: 1,
     fontSize: 14,
-    color: "#868686",
+    color: "#7A7A7A",
     fontFamily: fonts.medium,
+    letterSpacing: -0.1,
   },
   divider: {
     width: StyleSheet.hairlineWidth,
@@ -123,5 +172,9 @@ const styles = StyleSheet.create({
     height: 42,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 21,
+  },
+  micBtnPressed: {
+    backgroundColor: colors.accentSoft,
   },
 });
