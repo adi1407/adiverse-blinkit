@@ -73,7 +73,10 @@ function withTimeline(order) {
     };
   }
 
-  const status = statusForAge(ageSec);
+  // Admin-locked status skips the demo auto-advance clock.
+  const status = order.statusLocked
+    ? order.status
+    : statusForAge(ageSec);
   const stepIndex = STATUS_STEPS.findIndex((s) => s.key === status);
   const hasRating = Boolean(order.rating?.stars);
 
@@ -81,7 +84,7 @@ function withTimeline(order) {
     ...order,
     status,
     statusUpdatedAt: order.statusUpdatedAt || order.createdAt,
-    canCancel: status === "confirmed",
+    canCancel: status === "confirmed" && !order.statusLocked,
     canRate: status === "delivered" && !hasRating,
     timeline: STATUS_STEPS.map((step, index) => ({
       ...step,
@@ -95,7 +98,7 @@ function withTimeline(order) {
 function refreshAllStatuses() {
   let changed = false;
   orders = orders.map((order) => {
-    if (order.status === "cancelled") return order;
+    if (order.status === "cancelled" || order.statusLocked) return order;
 
     const next = withTimeline(order);
     if (next.status !== order.status) {
@@ -331,6 +334,79 @@ export function getOrderById(id) {
   refreshAllStatuses();
   const order = orders.find((o) => o.id === id);
   return order ? withTimeline(order) : null;
+}
+
+const ADMIN_STATUSES = [
+  "confirmed",
+  "packing",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+];
+
+/** Ops console: list / filter all orders (newest first). */
+export function listAllOrders({ status = "", q = "", limit = 80 } = {}) {
+  refreshAllStatuses();
+  const needle = String(q || "")
+    .trim()
+    .toLowerCase();
+  const statusFilter = String(status || "").trim();
+
+  let list = orders.map(withTimeline);
+  if (statusFilter) {
+    list = list.filter((o) => o.status === statusFilter);
+  }
+  if (needle) {
+    list = list.filter((o) => {
+      const hay = `${o.id} ${o.name || ""} ${o.phone || ""} ${o.address?.line1 || ""} ${o.address?.label || ""}`.toLowerCase();
+      return hay.includes(needle);
+    });
+  }
+
+  const capped = Math.min(200, Math.max(1, Number(limit) || 80));
+  return {
+    items: list.slice(0, capped),
+    total: list.length,
+  };
+}
+
+/** Ops: set status manually and lock auto-advance. */
+export function adminSetOrderStatus(orderId, status) {
+  refreshAllStatuses();
+  const nextStatus = String(status || "").trim();
+  if (!ADMIN_STATUSES.includes(nextStatus)) {
+    const err = new Error(`Invalid status. Use: ${ADMIN_STATUSES.join(", ")}`);
+    err.status = 400;
+    throw err;
+  }
+
+  const index = orders.findIndex((o) => o.id === orderId);
+  if (index < 0) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+
+  const now = new Date().toISOString();
+  const existing = orders[index];
+  const patched = {
+    ...existing,
+    status: nextStatus,
+    statusUpdatedAt: now,
+    statusLocked: true,
+  };
+  if (nextStatus === "cancelled") {
+    patched.cancelledAt = now;
+  }
+
+  orders[index] = patched;
+  saveOrders(orders);
+  return withTimeline(patched);
+}
+
+/** Ops cancel — no shopper phone check. */
+export function adminCancelOrder(orderId) {
+  return adminSetOrderStatus(orderId, "cancelled");
 }
 
 /** Unique products from a user's past orders (newest first). */

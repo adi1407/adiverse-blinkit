@@ -28,14 +28,19 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <form className="login-card" onSubmit={onSubmit}>
-        <div className="brand inline">
-          <span className="brand-mark">B</span>
-          <div>
-            <strong>Blinkit Ops</strong>
-            <p>Sign in to manage festivals & catalog</p>
+      <form className="login-shell login-card" onSubmit={onSubmit}>
+        <div className="login-card-head">
+          <div className="brand">
+            <span className="brand-mark">B</span>
+            <div className="brand-copy">
+              <strong>blinkit</strong>
+              <p>Admin</p>
+            </div>
           </div>
+          <h2>Sign in</h2>
+          <p className="muted">Ops credentials for this environment</p>
         </div>
+
         <label>
           Email
           <input
@@ -57,12 +62,10 @@ export default function LoginPage() {
           />
         </label>
         {error ? <p className="error">{error}</p> : null}
-        <button className="btn primary" type="submit" disabled={loading}>
+        <button className="btn primary block" type="submit" disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
         </button>
-        <p className="hint">
-          Default: admin@blinkit.local / admin123
-        </p>
+        <p className="hint">Default: admin@blinkit.local / admin123</p>
       </form>
     </div>
   );

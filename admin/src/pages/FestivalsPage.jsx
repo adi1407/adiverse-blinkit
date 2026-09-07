@@ -76,7 +76,11 @@ export default function FestivalsPage() {
   if (!store || !draft) {
     return (
       <div className="page">
-        <h1>Festivals</h1>
+        <header className="page-head">
+          <div>
+            <h2 className="page-title">Festivals</h2>
+          </div>
+        </header>
         {error ? <p className="error">{error}</p> : <p className="muted">Loading…</p>}
       </div>
     );
@@ -86,12 +90,12 @@ export default function FestivalsPage() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Festivals</h1>
+          <h2 className="page-title">Festivals</h2>
           <p className="muted">
-            Active: <strong>{store.activeId}</strong> — drives Expo hero
+            Active: <strong className="text-ink">{store.activeId}</strong>
           </p>
         </div>
-        <div className="row gap">
+        <div className="row gap wrap">
           <button
             type="button"
             className="btn"
@@ -137,6 +141,9 @@ export default function FestivalsPage() {
         </div>
 
         <div className="panel form-grid">
+          <div className="panel-head tight full">
+            <h2>Edit “{selectedId}”</h2>
+          </div>
           <label>
             Eyebrow
             <input

@@ -70,10 +70,10 @@ export default function BannersPage() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Hero banners</h1>
-          <p className="muted">Shown in the Expo home hero carousel</p>
+          <h2 className="page-title">Banners</h2>
+          <p className="muted">Home screen carousel</p>
         </div>
-        <button type="button" className="btn" onClick={startCreate}>
+        <button type="button" className="btn primary" onClick={startCreate}>
           New banner
         </button>
       </header>
@@ -113,8 +113,10 @@ export default function BannersPage() {
           </table>
         </div>
 
-        <form className="panel form-grid" onSubmit={save}>
-          <h2>{editingId ? "Edit banner" : "Create banner"}</h2>
+        <form className="panel form-grid sticky-panel" onSubmit={save}>
+          <div className="panel-head tight">
+            <h2>{editingId ? "Edit banner" : "Create banner"}</h2>
+          </div>
           <label className="full">
             Title
             <input

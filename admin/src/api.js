@@ -84,4 +84,17 @@ export const adminApi = {
     api(`/api/admin/products/${id}`, { method: "DELETE" }),
   getCategories: () => api("/api/admin/categories"),
   uploadImage: (file) => uploadFile("/api/admin/upload", file),
+  getOrders: (params = {}) => {
+    const q = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params).filter(([, v]) => v != null && v !== "")
+      )
+    ).toString();
+    return api(`/api/admin/orders${q ? `?${q}` : ""}`);
+  },
+  getOrder: (id) => api(`/api/admin/orders/${id}`),
+  updateOrderStatus: (id, status) =>
+    api(`/api/admin/orders/${id}`, { method: "PATCH", body: { status } }),
+  cancelOrder: (id) =>
+    api(`/api/admin/orders/${id}/cancel`, { method: "POST" }),
 };

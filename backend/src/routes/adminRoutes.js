@@ -27,23 +27,13 @@ import {
   getProductById,
   productExistsInBase,
 } from "../data/catalog.js";
+import {
+  adminCancelOrder,
+  adminSetOrderStatus,
+  getOrderById,
+  listAllOrders,
+} from "../data/orders.js";
 import { registerUploadRoute } from "./upload.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-function countOrders() {
-  try {
-    const file = path.join(__dirname, "../data/orders.store.json");
-    if (!fs.existsSync(file)) return 0;
-    const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
-    return Array.isArray(parsed.orders) ? parsed.orders.length : 0;
-  } catch {
-    return 0;
-  }
-}
 
 const router = Router();
 
@@ -88,7 +78,7 @@ registerUploadRoute(router);
 /** GET /api/admin/stats */
 router.get("/stats", (req, res) => {
   const { activeId, theme } = getActiveFestival();
-  const orders = countOrders();
+  const { total: orders } = listAllOrders({ limit: 1 });
   return ok(res, {
     products: catalogStats.totalProducts,
     categories: catalogStats.categories,
@@ -97,6 +87,47 @@ router.get("/stats", (req, res) => {
     activeFestivalId: activeId,
     activeFestivalLabel: theme?.eyebrow || activeId,
   });
+});
+
+/** GET /api/admin/orders?status=&q=&limit= */
+router.get("/orders", (req, res) => {
+  const data = listAllOrders({
+    status: req.query.status,
+    q: req.query.q,
+    limit: req.query.limit,
+  });
+  return ok(res, data);
+});
+
+/** GET /api/admin/orders/:id */
+router.get("/orders/:id", (req, res) => {
+  const order = getOrderById(req.params.id);
+  if (!order) {
+    return fail(res, Object.assign(new Error("Order not found"), { status: 404 }));
+  }
+  return ok(res, order);
+});
+
+/** PATCH /api/admin/orders/:id  { status } */
+router.patch("/orders/:id", (req, res) => {
+  try {
+    const status = String(req.body?.status || "").trim();
+    if (!status) {
+      return fail(res, new Error("status is required"));
+    }
+    return ok(res, adminSetOrderStatus(req.params.id, status));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+/** POST /api/admin/orders/:id/cancel */
+router.post("/orders/:id/cancel", (req, res) => {
+  try {
+    return ok(res, adminCancelOrder(req.params.id));
+  } catch (err) {
+    return fail(res, err);
+  }
 });
 
 /** GET /api/admin/festivals */

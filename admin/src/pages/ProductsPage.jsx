@@ -96,10 +96,10 @@ export default function ProductsPage() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Products</h1>
-          <p className="muted">{total} items (curated + overrides)</p>
+          <h2 className="page-title">Products</h2>
+          <p className="muted">{total} items</p>
         </div>
-        <button type="button" className="btn" onClick={startCreate}>
+        <button type="button" className="btn primary" onClick={startCreate}>
           Add product
         </button>
       </header>
@@ -186,8 +186,10 @@ export default function ProductsPage() {
           </table>
         </div>
 
-        <form className="panel form-grid" onSubmit={save}>
-          <h2>{editingId ? "Edit product" : "New product"}</h2>
+        <form className="panel form-grid sticky-panel" onSubmit={save}>
+          <div className="panel-head tight">
+            <h2>{editingId ? "Edit product" : "New product"}</h2>
+          </div>
           <label className="full">
             Name
             <input

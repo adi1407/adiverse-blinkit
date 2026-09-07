@@ -17,8 +17,8 @@ export default function DashboardPage() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Dashboard</h1>
-          <p className="muted">Ops overview for the shopper app</p>
+          <h2 className="page-title">Dashboard</h2>
+          <p className="muted">Catalog and live festival status</p>
         </div>
       </header>
 
@@ -32,20 +32,32 @@ export default function DashboardPage() {
       </div>
 
       <section className="panel">
-        <h2>Active festival</h2>
-        <p className="festival-chip">
-          {stats?.activeFestivalId || "…"}
-          <span>{stats?.activeFestivalLabel || ""}</span>
-        </p>
-        <div className="row gap">
-          <Link className="btn primary" to="/festivals">
+        <div className="panel-head">
+          <div>
+            <h2>Active festival</h2>
+            <p className="muted" style={{ marginTop: 4 }}>
+              Controls the shopper app hero theme
+            </p>
+          </div>
+          <p className="festival-chip">
+            <span className="chip-id">{stats?.activeFestivalId || "…"}</span>
+            <span className="chip-label">
+              {stats?.activeFestivalLabel || "Loading"}
+            </span>
+          </p>
+        </div>
+        <div className="action-row" style={{ marginTop: 12 }}>
+          <Link className="btn primary" to="/orders">
+            View orders
+          </Link>
+          <Link className="btn" to="/festivals">
             Manage festivals
           </Link>
           <Link className="btn" to="/banners">
             Edit banners
           </Link>
           <Link className="btn" to="/products">
-            Catalog
+            Products
           </Link>
         </div>
       </section>
@@ -56,8 +68,8 @@ export default function DashboardPage() {
 function Stat({ label, value }) {
   return (
     <div className="stat">
-      <p className="muted">{label}</p>
-      <strong>{value ?? "—"}</strong>
+      <p className="stat-label">{label}</p>
+      <strong className="stat-value">{value ?? "—"}</strong>
     </div>
   );
 }

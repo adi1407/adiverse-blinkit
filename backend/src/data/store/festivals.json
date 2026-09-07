@@ -23,7 +23,11 @@
         "soft": "#FFE58A",
         "particle": "rgba(12,131,31,0.22)"
       },
-      "decorations": ["leaf", "bag", "spark"],
+      "decorations": [
+        "leaf",
+        "bag",
+        "spark"
+      ],
       "assetUrls": null
     },
     "janmashtami": {
@@ -48,7 +52,12 @@
         "soft": "#E4D4FF",
         "particle": "rgba(248, 203, 70, 0.65)"
       },
-      "decorations": ["peacock", "flute", "matki", "diya"],
+      "decorations": [
+        "peacock",
+        "flute",
+        "matki",
+        "diya"
+      ],
       "assetUrls": {
         "krishna": null,
         "peacock": null,
@@ -77,7 +86,11 @@
         "soft": "#FFE0B2",
         "particle": "rgba(255, 193, 7, 0.5)"
       },
-      "decorations": ["diya", "spark", "bag"],
+      "decorations": [
+        "diya",
+        "spark",
+        "bag"
+      ],
       "assetUrls": null
     },
     "holi": {
@@ -102,7 +115,11 @@
         "soft": "#F8BBD0",
         "particle": "rgba(233, 30, 99, 0.35)"
       },
-      "decorations": ["spark", "leaf", "bag"],
+      "decorations": [
+        "spark",
+        "leaf",
+        "bag"
+      ],
       "assetUrls": null
     },
     "christmas": {
@@ -127,7 +144,11 @@
         "soft": "#C8E6C9",
         "particle": "rgba(255, 255, 255, 0.7)"
       },
-      "decorations": ["spark", "bag", "leaf"],
+      "decorations": [
+        "spark",
+        "bag",
+        "leaf"
+      ],
       "assetUrls": null
     }
   }
