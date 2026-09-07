@@ -11,9 +11,10 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import { ChevronLeft, Search, X, Clock, ChevronRight } from "../utils/lucideIcons";
+import { ChevronLeft, Search, X, Clock, ChevronRight, Mic } from "../utils/lucideIcons";
 import ProductCard from "../components/ProductCard";
 import ErrorState from "../components/ErrorState";
+import VoiceSearchOverlay from "../components/VoiceSearchOverlay";
 import { fetchSearch } from "../api/catalogApi";
 import { useSearchHistory } from "../context/SearchHistoryContext";
 import { colors, spacing, radii, shadows } from "../theme/colors";
@@ -28,21 +29,26 @@ function capitalize(term) {
 
 export default function SearchScreen({ navigation, route }) {
   const initialQuery = route.params?.query || "";
-  const isVoice = Boolean(route.params?.voice);
+  const openVoice = Boolean(route.params?.voice);
   const [query, setQuery] = useState(initialQuery);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(openVoice);
   const inputRef = useRef(null);
   const requestId = useRef(0);
   const historyTimer = useRef(null);
   const { recent, addQuery, removeQuery, clearHistory } = useSearchHistory();
 
   useEffect(() => {
+    if (openVoice) {
+      setVoiceOpen(true);
+      return undefined;
+    }
     const t = setTimeout(() => inputRef.current?.focus(), 250);
     return () => clearTimeout(t);
-  }, []);
+  }, [openVoice]);
 
   useEffect(() => {
     return () => {
@@ -70,7 +76,6 @@ export default function SearchScreen({ navigation, route }) {
         const data = await fetchSearch(q);
         if (id !== requestId.current) return;
         setProducts(data.products || []);
-        // Wait until typing pauses so we don't store "mi" / "mil" mid-word
         if (historyTimer.current) clearTimeout(historyTimer.current);
         historyTimer.current = setTimeout(() => {
           if (id === requestId.current) addQuery(q);
@@ -86,7 +91,6 @@ export default function SearchScreen({ navigation, route }) {
     [addQuery]
   );
 
-  // Debounce API calls while typing
   useEffect(() => {
     const id = setTimeout(() => runSearch(query), 320);
     return () => clearTimeout(id);
@@ -102,6 +106,13 @@ export default function SearchScreen({ navigation, route }) {
 
   function applySuggestion(term) {
     setQuery(term);
+  }
+
+  function onVoiceResult(text) {
+    const cleaned = String(text || "").trim();
+    if (!cleaned) return;
+    setQuery(cleaned);
+    setVoiceOpen(false);
   }
 
   const showIdle = !searched || query.trim().length === 0;
@@ -131,13 +142,19 @@ export default function SearchScreen({ navigation, route }) {
             <Pressable onPress={clearQuery} hitSlop={8} style={styles.clearBtn}>
               <X size={16} color={colors.textSecondary} strokeWidth={2.4} />
             </Pressable>
-          ) : null}
+          ) : (
+            <Pressable
+              onPress={() => setVoiceOpen(true)}
+              hitSlop={8}
+              style={styles.micInline}
+              accessibilityRole="button"
+              accessibilityLabel="Voice search"
+            >
+              <Mic size={18} color={colors.accent} strokeWidth={2.4} />
+            </Pressable>
+          )}
         </View>
       </View>
-
-      {isVoice ? (
-        <Text style={styles.voiceCaption}>Voice search — type your query</Text>
-      ) : null}
 
       <View style={styles.curve} />
 
@@ -250,6 +267,12 @@ export default function SearchScreen({ navigation, route }) {
           )}
         />
       )}
+
+      <VoiceSearchOverlay
+        visible={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        onResult={onVoiceResult}
+      />
     </SafeAreaView>
   );
 }
@@ -302,12 +325,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  voiceCaption: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-    fontSize: 12,
-    fontFamily: fonts.medium,
-    color: colors.textSecondary,
+  micInline: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
   curve: {
     height: 14,
