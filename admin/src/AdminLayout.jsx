@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext";
 const LINKS = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/orders", label: "Orders" },
+  { to: "/inventory", label: "Inventory" },
   { to: "/festivals", label: "Festivals" },
   { to: "/banners", label: "Banners" },
   { to: "/products", label: "Products" },
@@ -55,7 +56,7 @@ export default function AdminLayout() {
             </div>
           </div>
           <button type="button" className="btn ghost block" onClick={onLogout}>
-            Sign out
+            Logout
           </button>
         </div>
       </aside>
@@ -68,6 +69,9 @@ export default function AdminLayout() {
               <i />
               Connected
             </span>
+            <button type="button" className="btn" onClick={onLogout}>
+              Logout
+            </button>
           </div>
         </header>
         <main className="main">

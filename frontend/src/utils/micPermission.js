@@ -1,16 +1,9 @@
-import { Audio } from "expo-av";
-
 /**
- * Ask for mic access before starting voice search.
- * Works in Expo Go; returns false if the user denies.
+ * Mic gate for voice search.
+ * Avoids importing expo-av — that native module is missing in some Expo Go /
+ * development-build setups and crashes the whole app at startup.
+ * The Web Speech bridge requests mic access itself when listening starts.
  */
 export async function ensureMicPermission() {
-  try {
-    const current = await Audio.getPermissionsAsync();
-    if (current.granted) return true;
-    const next = await Audio.requestPermissionsAsync();
-    return Boolean(next.granted);
-  } catch {
-    return false;
-  }
+  return true;
 }

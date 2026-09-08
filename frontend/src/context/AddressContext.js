@@ -1,22 +1,32 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  checkServiceability,
+  enrichAddress,
+  migrateAddress,
+} from "../utils/serviceability";
 
 const AddressContext = createContext(null);
-const STORAGE_KEY = "@blinkit_clone_addresses";
+const STORAGE_KEY = "@blinkit_clone_addresses_v2";
+const LEGACY_KEY = "@blinkit_clone_addresses";
 
 const DEFAULT_ADDRESSES = [
-  {
+  enrichAddress({
     id: "addr_home",
     label: "Home",
     line1: "12th Cross, Indiranagar",
-    line2: "Bengaluru, Karnataka 560038",
-  },
-  {
+    line2: "Near metro · Bengaluru",
+    pincode: "560038",
+    areaId: "indir",
+  }),
+  enrichAddress({
     id: "addr_work",
     label: "Work",
     line1: "Manyata Tech Park, Nagavara",
-    line2: "Bengaluru, Karnataka 560045",
-  },
+    line2: "Gate 3 · Bengaluru",
+    pincode: "560045",
+    areaId: "nagavara",
+  }),
 ];
 
 export function AddressProvider({ children }) {
@@ -29,11 +39,27 @@ export function AddressProvider({ children }) {
 
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        let raw = await AsyncStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          // One-time migrate from pre-pin storage
+          const legacy = await AsyncStorage.getItem(LEGACY_KEY);
+          if (legacy) {
+            const parsed = JSON.parse(legacy);
+            const migrated = (parsed.addresses || [])
+              .map(migrateAddress)
+              .filter(Boolean);
+            raw = JSON.stringify({
+              addresses: migrated.length ? migrated : DEFAULT_ADDRESSES,
+              selectedId: parsed.selectedId || DEFAULT_ADDRESSES[0].id,
+            });
+            await AsyncStorage.setItem(STORAGE_KEY, raw);
+          }
+        }
+
         if (alive && raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed.addresses) && parsed.addresses.length) {
-            setAddresses(parsed.addresses);
+            setAddresses(parsed.addresses.map((a) => enrichAddress(a)));
           }
           if (parsed.selectedId) setSelectedId(parsed.selectedId);
         }
@@ -60,25 +86,40 @@ export function AddressProvider({ children }) {
   }
 
   async function selectAddress(id) {
+    const target = addresses.find((a) => a.id === id);
+    if (target && target.serviceable === false) {
+      throw new Error("This location is outside our delivery area");
+    }
     setSelectedId(id);
     await persist(addresses, id);
   }
 
-  async function addAddress({ label, line1, line2 }) {
-    const cleanLabel = String(label || "").trim() || "Other";
-    const cleanLine1 = String(line1 || "").trim();
-    const cleanLine2 = String(line2 || "").trim();
+  async function addAddress(payload) {
+    const cleanLabel = String(payload.label || "").trim() || "Other";
+    const cleanLine1 = String(payload.line1 || "").trim();
+    const cleanLine2 = String(payload.line2 || "").trim();
+    const pincode = String(payload.pincode || "").replace(/\D/g, "");
 
     if (cleanLine1.length < 5) {
       throw new Error("Enter a fuller street address");
     }
 
-    const next = {
+    const check = checkServiceability(pincode);
+    if (!check.ok) {
+      throw new Error(check.message || "We don’t deliver here yet");
+    }
+
+    const next = enrichAddress({
       id: `addr_${Date.now().toString(36)}`,
       label: cleanLabel,
       line1: cleanLine1,
       line2: cleanLine2,
-    };
+      pincode,
+      lat: payload.lat,
+      lng: payload.lng,
+      areaId: payload.areaId,
+      city: check.city,
+    });
 
     const nextAddresses = [...addresses, next];
     setAddresses(nextAddresses);
@@ -113,6 +154,7 @@ export function AddressProvider({ children }) {
       selectAddress,
       addAddress,
       removeAddress,
+      checkServiceability,
     }),
     [ready, addresses, selectedId, selectedAddress]
   );

@@ -1,0 +1,11 @@
+{
+  "items": {
+    "bulb-extension": {
+      "tracked": true,
+      "onHand": 3,
+      "lowStockAt": 5,
+      "updatedAt": "2026-09-08T05:07:17.987Z"
+    }
+  },
+  "updatedAt": "2026-09-08T05:07:17.987Z"
+}

@@ -26,9 +26,9 @@ export default function DashboardPage() {
 
       <div className="stat-grid">
         <Stat label="Products" value={stats?.products} />
-        <Stat label="Categories" value={stats?.categories} />
-        <Stat label="Banners" value={stats?.banners} />
         <Stat label="Orders" value={stats?.orders} />
+        <Stat label="Out of stock" value={stats?.inventoryOut} />
+        <Stat label="Low stock" value={stats?.inventoryLow} />
       </div>
 
       <section className="panel">
@@ -50,11 +50,11 @@ export default function DashboardPage() {
           <Link className="btn primary" to="/orders">
             View orders
           </Link>
+          <Link className="btn" to="/inventory">
+            Inventory
+          </Link>
           <Link className="btn" to="/festivals">
             Manage festivals
-          </Link>
-          <Link className="btn" to="/banners">
-            Edit banners
           </Link>
           <Link className="btn" to="/products">
             Products

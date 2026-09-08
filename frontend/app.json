@@ -47,13 +47,7 @@
           }
         }
       ],
-      "expo-status-bar",
-      [
-        "expo-av",
-        {
-          "microphonePermission": "Allow Blinkit Clone to use the microphone for voice search."
-        }
-      ]
+      "expo-status-bar"
     ]
   }
 }

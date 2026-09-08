@@ -33,6 +33,12 @@ import {
   getOrderById,
   listAllOrders,
 } from "../data/orders.js";
+import {
+  adjustInventory,
+  inventoryStats,
+  listInventoryMap,
+  setInventory,
+} from "../data/inventory.js";
 import { registerUploadRoute } from "./upload.js";
 
 const router = Router();
@@ -79,11 +85,16 @@ registerUploadRoute(router);
 router.get("/stats", (req, res) => {
   const { activeId, theme } = getActiveFestival();
   const { total: orders } = listAllOrders({ limit: 1 });
+  const products = getAllProducts();
+  const inv = inventoryStats(products.map((p) => p.id));
   return ok(res, {
     products: catalogStats.totalProducts,
     categories: catalogStats.categories,
     banners: getBanners().length,
     orders,
+    inventoryOut: inv.out,
+    inventoryLow: inv.low,
+    inventoryTracked: inv.tracked,
     activeFestivalId: activeId,
     activeFestivalLabel: theme?.eyebrow || activeId,
   });
@@ -268,5 +279,102 @@ router.delete("/products/:id", (req, res) => {
 });
 
 router.get("/categories", (req, res) => ok(res, categories));
+
+/** GET /api/admin/inventory?q=&status=&categoryId=&limit= */
+router.get("/inventory", (req, res) => {
+  const q = String(req.query.q || "")
+    .trim()
+    .toLowerCase();
+  const status = String(req.query.status || "").trim(); // out|low|ok|untracked|tracked|""
+  const categoryId = String(req.query.categoryId || "").trim();
+  const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 80));
+
+  let products = getAllProducts();
+  if (categoryId) {
+    products = products.filter((p) => p.categoryId === categoryId);
+  }
+  if (q) {
+    products = products.filter((p) => {
+      const hay = `${p.name} ${p.brand || ""} ${p.id}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  const map = listInventoryMap();
+  let rows = products.map((p) => {
+    const inv = map[p.id];
+    const stockStatus = p.stockStatus || inv?.status || "untracked";
+    return {
+      id: p.id,
+      name: p.name,
+      brand: p.brand || "",
+      unit: p.unit,
+      categoryId: p.categoryId,
+      image: p.image || p.images?.[0] || null,
+      price: p.price,
+      stockTracked: Boolean(p.stockTracked),
+      stockQty: p.stockQty,
+      lowStockAt: p.lowStockAt ?? inv?.lowStockAt ?? 5,
+      stockStatus,
+      updatedAt: inv?.updatedAt || null,
+    };
+  });
+
+  if (status === "tracked") {
+    rows = rows.filter((r) => r.stockTracked);
+  } else if (status === "untracked") {
+    rows = rows.filter((r) => !r.stockTracked);
+  } else if (status) {
+    rows = rows.filter((r) => r.stockStatus === status);
+  }
+
+  // Surface problems first when browsing all / tracked
+  if (!status || status === "tracked") {
+    const rank = { out: 0, low: 1, ok: 2, untracked: 3 };
+    rows.sort(
+      (a, b) =>
+        (rank[a.stockStatus] ?? 9) - (rank[b.stockStatus] ?? 9) ||
+        a.name.localeCompare(b.name)
+    );
+  }
+
+  const stats = inventoryStats(products.map((p) => p.id));
+  return ok(res, {
+    items: rows.slice(0, limit),
+    total: rows.length,
+    stats,
+    categories,
+  });
+});
+
+/** PUT /api/admin/inventory/:id  { onHand, lowStockAt, tracked } */
+router.put("/inventory/:id", (req, res) => {
+  try {
+    const body = req.body || {};
+    const record = setInventory(req.params.id, {
+      onHand: body.onHand,
+      lowStockAt: body.lowStockAt,
+      tracked: body.tracked !== false,
+    });
+    const product = getProductById(req.params.id);
+    return ok(res, { ...record, product });
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+/** POST /api/admin/inventory/:id/adjust  { delta, lowStockAt? } */
+router.post("/inventory/:id/adjust", (req, res) => {
+  try {
+    const delta = Number(req.body?.delta);
+    const record = adjustInventory(req.params.id, delta, {
+      lowStockAt: req.body?.lowStockAt,
+    });
+    const product = getProductById(req.params.id);
+    return ok(res, { ...record, product });
+  } catch (err) {
+    return fail(res, err);
+  }
+});
 
 export default router;

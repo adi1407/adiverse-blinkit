@@ -7,6 +7,7 @@ import FestivalsPage from "./pages/FestivalsPage";
 import BannersPage from "./pages/BannersPage";
 import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
+import InventoryPage from "./pages/InventoryPage";
 
 function Protected({ children }) {
   const { isAuthed } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="banners" element={<BannersPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="inventory" element={<InventoryPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

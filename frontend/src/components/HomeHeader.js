@@ -44,6 +44,7 @@ export default function HomeHeader({ minutes, compact = false }) {
 
   const label = selectedAddress?.label || "Home";
   const line = selectedAddress?.line1 || "Add delivery address";
+  const etaMins = selectedAddress?.etaMinutes || minutes;
 
   useEffect(() => {
     if (totalItems === prevItems.current) return;
@@ -87,7 +88,7 @@ export default function HomeHeader({ minutes, compact = false }) {
             style={[styles.etaValue, compact && styles.etaValueCompact]}
             numberOfLines={1}
           >
-            {minutes} mins
+            {etaMins} mins
           </Text>
           <View style={styles.addressRow}>
             <MapPin

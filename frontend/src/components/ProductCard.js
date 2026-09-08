@@ -19,6 +19,8 @@ function isOutOfStock(product) {
   if (product?.outOfStock === true) return true;
   if (product?.inStock === false) return true;
   if (product?.available === false) return true;
+  if (product?.stockTracked && Number(product?.stockQty) <= 0) return true;
+  if (product?.stockStatus === "out") return true;
   return false;
 }
 

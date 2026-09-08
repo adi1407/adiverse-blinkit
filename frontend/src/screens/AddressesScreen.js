@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -12,6 +12,7 @@ import {
   Alert,
   Modal,
   KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import {
   ChevronLeft,
@@ -21,9 +22,17 @@ import {
   Check,
   Plus,
   Trash2,
+  Bike,
 } from "../utils/lucideIcons";
+import AddressPinMap from "../components/AddressPinMap";
 import { useAddress } from "../context/AddressContext";
+import {
+  AREA_PRESETS,
+  checkServiceability,
+  normalizePincode,
+} from "../utils/serviceability";
 import { colors, spacing, radii, shadows } from "../theme/colors";
+import { fonts } from "../theme/typography";
 
 function labelIcon(label) {
   const key = String(label || "").toLowerCase();
@@ -44,23 +53,70 @@ export default function AddressesScreen({ navigation }) {
   const [label, setLabel] = useState("Home");
   const [line1, setLine1] = useState("");
   const [line2, setLine2] = useState("");
+  const [pincode, setPincode] = useState(AREA_PRESETS[0].pincode);
+  const [areaId, setAreaId] = useState(AREA_PRESETS[0].id);
+  const [lat, setLat] = useState(AREA_PRESETS[0].lat);
+  const [lng, setLng] = useState(AREA_PRESETS[0].lng);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const service = useMemo(
+    () => checkServiceability(pincode),
+    [pincode]
+  );
+
+  function resetForm(area = AREA_PRESETS[0]) {
+    setLabel("Home");
+    setLine1(area.line1);
+    setLine2(`${area.city}`);
+    setPincode(area.pincode);
+    setAreaId(area.id);
+    setLat(area.lat);
+    setLng(area.lng);
+    setError("");
+  }
+
+  function openModal() {
+    resetForm(AREA_PRESETS[0]);
+    setModalOpen(true);
+  }
+
+  function onSelectArea(area) {
+    setAreaId(area.id);
+    setPincode(area.pincode);
+    setLat(area.lat);
+    setLng(area.lng);
+    if (!line1.trim() || AREA_PRESETS.some((a) => a.line1 === line1)) {
+      setLine1(area.line1);
+    }
+    if (!line2.trim() || AREA_PRESETS.some((a) => a.city === line2)) {
+      setLine2(area.city);
+    }
+  }
+
   async function onSelect(id) {
-    await selectAddress(id);
-    if (navigation.canGoBack()) navigation.goBack();
+    try {
+      await selectAddress(id);
+      if (navigation.canGoBack()) navigation.goBack();
+    } catch (err) {
+      Alert.alert("Not serviceable", err.message || "Pick another address");
+    }
   }
 
   async function onSave() {
     setError("");
     setBusy(true);
     try {
-      await addAddress({ label, line1, line2 });
+      await addAddress({
+        label,
+        line1,
+        line2,
+        pincode,
+        lat,
+        lng,
+        areaId,
+      });
       setModalOpen(false);
-      setLine1("");
-      setLine2("");
-      setLabel("Home");
     } catch (err) {
       setError(err.message || "Could not save address");
     } finally {
@@ -101,14 +157,22 @@ export default function AddressesScreen({ navigation }) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <Text style={styles.hint}>Tap an address to deliver here</Text>
+          <Text style={styles.hint}>
+            Tap an address to deliver here · Bengaluru only
+          </Text>
         }
         renderItem={({ item }) => {
           const Icon = labelIcon(item.label);
           const selected = item.id === selectedId;
+          const unserviceable = item.serviceable === false;
           return (
             <Pressable
-              style={[styles.card, selected && styles.cardSelected, shadows.soft]}
+              style={[
+                styles.card,
+                selected && styles.cardSelected,
+                unserviceable && styles.cardBad,
+                shadows.soft,
+              ]}
               onPress={() => onSelect(item.id)}
             >
               <View style={styles.cardIcon}>
@@ -117,9 +181,24 @@ export default function AddressesScreen({ navigation }) {
               <View style={styles.cardCopy}>
                 <Text style={styles.cardLabel}>{item.label}</Text>
                 <Text style={styles.cardLine}>{item.line1}</Text>
-                {item.line2 ? (
-                  <Text style={styles.cardSub}>{item.line2}</Text>
-                ) : null}
+                <Text style={styles.cardSub}>
+                  {[item.line2, item.pincode].filter(Boolean).join(" · ")}
+                </Text>
+                <View style={styles.metaRow}>
+                  {item.serviceable !== false && item.etaMinutes ? (
+                    <View style={styles.etaPill}>
+                      <Bike size={11} color={colors.accentDark} strokeWidth={2.4} />
+                      <Text style={styles.etaText}>{item.etaMinutes} mins</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.badPill}>
+                      <Text style={styles.badText}>Not serviceable</Text>
+                    </View>
+                  )}
+                  {item.darkStore ? (
+                    <Text style={styles.storeText}>{item.darkStore}</Text>
+                  ) : null}
+                </View>
               </View>
               {selected ? (
                 <View style={styles.check}>
@@ -138,7 +217,7 @@ export default function AddressesScreen({ navigation }) {
           );
         }}
         ListFooterComponent={
-          <Pressable style={styles.addBtn} onPress={() => setModalOpen(true)}>
+          <Pressable style={styles.addBtn} onPress={openModal}>
             <Plus size={18} color={colors.accent} strokeWidth={2.4} />
             <Text style={styles.addText}>Add new address</Text>
           </Pressable>
@@ -155,51 +234,100 @@ export default function AddressesScreen({ navigation }) {
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>New address</Text>
 
-            <Text style={styles.fieldLabel}>Label</Text>
-            <View style={styles.chips}>
-              {["Home", "Work", "Other"].map((chip) => (
-                <Pressable
-                  key={chip}
-                  style={[styles.chip, label === chip && styles.chipOn]}
-                  onPress={() => setLabel(chip)}
-                >
-                  <Text style={[styles.chipText, label === chip && styles.chipTextOn]}>
-                    {chip}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            <Text style={styles.fieldLabel}>Address line</Text>
-            <TextInput
-              style={styles.input}
-              value={line1}
-              onChangeText={setLine1}
-              placeholder="House no., street, area"
-              placeholderTextColor={colors.textMuted}
-            />
-
-            <Text style={styles.fieldLabel}>Landmark / city</Text>
-            <TextInput
-              style={styles.input}
-              value={line2}
-              onChangeText={setLine2}
-              placeholder="Landmark, city, pincode"
-              placeholderTextColor={colors.textMuted}
-            />
-
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-
-            <Pressable
-              style={[styles.saveBtn, busy && { opacity: 0.7 }]}
-              onPress={onSave}
-              disabled={busy}
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <MapPin size={16} color={colors.white} strokeWidth={2.2} />
-              <Text style={styles.saveText}>
-                {busy ? "Saving…" : "Save & deliver here"}
-              </Text>
-            </Pressable>
+              <Text style={styles.fieldLabel}>Drop pin on map</Text>
+              <AddressPinMap
+                selectedAreaId={areaId}
+                onSelectArea={onSelectArea}
+                serviceable={service.serviceable}
+              />
+
+              <Text style={styles.fieldLabel}>Label</Text>
+              <View style={styles.chips}>
+                {["Home", "Work", "Other"].map((chip) => (
+                  <Pressable
+                    key={chip}
+                    style={[styles.chip, label === chip && styles.chipOn]}
+                    onPress={() => setLabel(chip)}
+                  >
+                    <Text
+                      style={[styles.chipText, label === chip && styles.chipTextOn]}
+                    >
+                      {chip}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={styles.fieldLabel}>Address line</Text>
+              <TextInput
+                style={styles.input}
+                value={line1}
+                onChangeText={setLine1}
+                placeholder="House no., street, area"
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.fieldLabel}>Landmark</Text>
+              <TextInput
+                style={styles.input}
+                value={line2}
+                onChangeText={setLine2}
+                placeholder="Landmark or building"
+                placeholderTextColor={colors.textMuted}
+              />
+
+              <Text style={styles.fieldLabel}>Pincode</Text>
+              <TextInput
+                style={styles.input}
+                value={pincode}
+                onChangeText={(t) => setPincode(normalizePincode(t))}
+                placeholder="560038"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="number-pad"
+                maxLength={6}
+              />
+
+              <View
+                style={[
+                  styles.serviceBanner,
+                  service.serviceable ? styles.serviceOk : styles.serviceBad,
+                ]}
+              >
+                <MapPin
+                  size={14}
+                  color={service.serviceable ? colors.accentDark : colors.danger}
+                  strokeWidth={2.3}
+                />
+                <Text
+                  style={[
+                    styles.serviceText,
+                    !service.serviceable && styles.serviceTextBad,
+                  ]}
+                >
+                  {service.message}
+                </Text>
+              </View>
+
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+
+              <Pressable
+                style={[
+                  styles.saveBtn,
+                  (busy || !service.serviceable) && { opacity: 0.55 },
+                ]}
+                onPress={onSave}
+                disabled={busy || !service.serviceable}
+              >
+                <MapPin size={16} color={colors.white} strokeWidth={2.2} />
+                <Text style={styles.saveText}>
+                  {busy ? "Saving…" : "Save & deliver here"}
+                </Text>
+              </Pressable>
+            </ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -228,7 +356,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
   },
   curve: {
@@ -246,7 +374,7 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: 13,
     color: colors.textMuted,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     marginBottom: spacing.md,
   },
   card: {
@@ -264,6 +392,10 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
     backgroundColor: "#F3FBF4",
   },
+  cardBad: {
+    borderColor: "#F0B4B0",
+    opacity: 0.9,
+  },
   cardIcon: {
     width: 40,
     height: 40,
@@ -275,20 +407,56 @@ const styles = StyleSheet.create({
   cardCopy: { flex: 1 },
   cardLabel: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: 2,
   },
   cardLine: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.textSecondary,
   },
   cardSub: {
     marginTop: 2,
     fontSize: 12,
     color: colors.textMuted,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+  },
+  etaPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  etaText: {
+    fontSize: 11,
+    fontFamily: fonts.bold,
+    color: colors.accentDark,
+  },
+  badPill: {
+    backgroundColor: "#FFF1F2",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  badText: {
+    fontSize: 11,
+    fontFamily: fonts.bold,
+    color: colors.danger,
+  },
+  storeText: {
+    fontSize: 11,
+    fontFamily: fonts.semiBold,
+    color: colors.textMuted,
   },
   check: {
     width: 26,
@@ -313,7 +481,7 @@ const styles = StyleSheet.create({
   },
   addText: {
     color: colors.accent,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 14,
   },
   modalRoot: {
@@ -330,6 +498,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 22,
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
+    maxHeight: "92%",
   },
   sheetHandle: {
     alignSelf: "center",
@@ -341,13 +510,13 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 18,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     color: colors.text,
     marginBottom: spacing.md,
   },
   fieldLabel: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.bold,
     color: colors.textSecondary,
     marginBottom: 6,
     marginTop: spacing.sm,
@@ -371,7 +540,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textSecondary,
   },
   chipTextOn: {
@@ -385,17 +554,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 46,
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: fonts.semiBold,
     color: colors.text,
+  },
+  serviceBanner: {
+    marginTop: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: radii.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  serviceOk: {
+    backgroundColor: colors.accentSoft,
+  },
+  serviceBad: {
+    backgroundColor: "#FFF1F2",
+  },
+  serviceText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: fonts.semiBold,
+    color: colors.accentDark,
+  },
+  serviceTextBad: {
+    color: colors.danger,
   },
   error: {
     marginTop: spacing.sm,
     color: colors.danger,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     fontSize: 13,
   },
   saveBtn: {
     marginTop: spacing.lg,
+    marginBottom: spacing.md,
     backgroundColor: colors.accent,
     borderRadius: radii.md,
     height: 48,
@@ -406,7 +600,7 @@ const styles = StyleSheet.create({
   },
   saveText: {
     color: colors.white,
-    fontWeight: "900",
+    fontFamily: fonts.extraBold,
     fontSize: 15,
   },
 });

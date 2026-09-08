@@ -23,6 +23,7 @@ import {
 } from "./curated/specialty.js";
 import imageOverrides from "./curated/imageOverrides.json" with { type: "json" };
 import { mergeAllProducts, mergeCategoryProducts } from "./productOverrides.js";
+import { applyInventoryToList, applyInventoryToProduct } from "./inventory.js";
 
 export const deliveryInfo = {
   minutes: 8,
@@ -141,7 +142,7 @@ export function getCategoryById(id) {
 
 export function getProductsByCategoryId(id) {
   const base = productsByCategory[id] || [];
-  return mergeCategoryProducts(base, id);
+  return applyInventoryToList(mergeCategoryProducts(base, id));
 }
 
 export function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) {
@@ -171,7 +172,7 @@ function getBaseAllProducts() {
 }
 
 export function getAllProducts() {
-  return mergeAllProducts(getBaseAllProducts);
+  return applyInventoryToList(mergeAllProducts(getBaseAllProducts));
 }
 
 export function productExistsInBase(id) {
@@ -179,7 +180,8 @@ export function productExistsInBase(id) {
 }
 
 export function getProductById(id) {
-  return getAllProducts().find((product) => product.id === id) || null;
+  const product = getAllProducts().find((p) => p.id === id) || null;
+  return product ? applyInventoryToProduct(product) : null;
 }
 
 export function getSimilarProducts(id, limit = 12) {

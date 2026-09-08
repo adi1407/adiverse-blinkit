@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -6,68 +6,64 @@ import {
   StyleSheet,
   Platform,
   Animated,
+  Easing,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BlurView } from "expo-blur";
-import {
-  House,
-  LayoutGrid,
-  Printer,
-  RotateCcw,
-} from "../utils/lucideIcons";
-import { colors } from "../theme/colors";
+import { TAB_ICONS } from "./tabIcons/TabIcons";
+import { colors, radii } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import { hapticLight } from "../utils/haptics";
 import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 
-/**
- * Route → tab presentation. Override via options.tabBarLabel / tabBarBadge.
- */
 const TAB_META = {
-  Home: { label: "Home", Icon: House, fillWhenActive: true },
-  Categories: { label: "Categories", Icon: LayoutGrid },
-  OrderAgain: { label: "Reorder", Icon: RotateCcw },
-  Print: { label: "Print", Icon: Printer, badge: "NEW" },
+  Home: { label: "Home" },
+  Categories: { label: "Categories" },
+  OrderAgain: { label: "Reorder" },
+  Print: { label: "Print", badge: "NEW" },
 };
 
 /** Chrome height above safe-area — FloatingCartBar sits above this. */
-export const TAB_BAR_BASE_HEIGHT = 64;
+export const TAB_BAR_BASE_HEIGHT = 62;
 
 function TabItem({ meta, focused, onPress, onLayout, reduceMotion }) {
   const press = useRef(new Animated.Value(1)).current;
-  const focus = useRef(new Animated.Value(focused ? 1 : 0)).current;
-  const Icon = meta.Icon || House;
+  const pill = useRef(new Animated.Value(focused ? 1 : 0)).current;
+  const Icon = TAB_ICONS[meta.name] || TAB_ICONS.Home;
 
   useEffect(() => {
-    Animated.spring(focus, {
+    if (reduceMotion) {
+      pill.setValue(focused ? 1 : 0);
+      return undefined;
+    }
+    const anim = Animated.timing(pill, {
       toValue: focused ? 1 : 0,
-      friction: 8,
-      tension: 160,
+      duration: focused ? 200 : 140,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
-    }).start();
-  }, [focused, focus]);
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [focused, pill, reduceMotion]);
 
   function handlePress() {
     hapticLight();
     if (!reduceMotion) {
       Animated.sequence([
         Animated.timing(press, {
-          toValue: 0.9,
+          toValue: 0.88,
           duration: 70,
           useNativeDriver: true,
         }),
         Animated.spring(press, {
           toValue: 1,
           friction: 4,
-          tension: 260,
+          tension: 280,
           useNativeDriver: true,
         }),
       ]).start();
     }
     onPress();
   }
-
-  const iconColor = focused ? colors.text : "#8A8A8A";
 
   return (
     <Pressable
@@ -83,27 +79,23 @@ function TabItem({ meta, focused, onPress, onLayout, reduceMotion }) {
       <Animated.View style={[styles.tabInner, { transform: [{ scale: press }] }]}>
         <View style={styles.iconWrap}>
           <Animated.View
+            pointerEvents="none"
             style={[
-              styles.iconPlate,
+              styles.pill,
               {
-                opacity: focus,
+                opacity: pill,
                 transform: [
                   {
-                    scale: focus.interpolate({
+                    scale: pill.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0.65, 1],
+                      outputRange: [0.75, 1],
                     }),
                   },
                 ],
               },
             ]}
           />
-          <Icon
-            size={focused ? 22 : 21}
-            color={iconColor}
-            strokeWidth={focused ? 2.5 : 2.05}
-            fill={focused && meta.fillWhenActive ? iconColor : "transparent"}
-          />
+          <Icon focused={focused} size={24} reduceMotion={reduceMotion} />
           {meta.badge ? (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{meta.badge}</Text>
@@ -125,22 +117,15 @@ function TabItem({ meta, focused, onPress, onLayout, reduceMotion }) {
 export default function BlinkitTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const reduceMotion = usePrefersReducedMotion();
-  const bottomPad = Math.max(insets.bottom, Platform.OS === "android" ? 8 : 6);
+  const bottomPad = Math.max(insets.bottom, Platform.OS === "android" ? 6 : 4);
 
-  const layouts = useRef({});
-  const [measured, setMeasured] = useState(false);
-  const indicatorX = useRef(new Animated.Value(0)).current;
-  const indicatorW = useRef(new Animated.Value(0)).current;
   const enter = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
 
   const tabs = useMemo(
     () =>
       state.routes.map((route) => {
         const options = descriptors[route.key]?.options || {};
-        const base = TAB_META[route.name] || {
-          label: route.name,
-          Icon: House,
-        };
+        const base = TAB_META[route.name] || { label: route.name };
         return {
           ...base,
           name: route.name,
@@ -162,46 +147,11 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
     }
     Animated.spring(enter, {
       toValue: 1,
-      friction: 8,
-      tension: 70,
+      friction: 9,
+      tension: 80,
       useNativeDriver: true,
     }).start();
   }, [enter, reduceMotion]);
-
-  useEffect(() => {
-    const layout = layouts.current[state.index];
-    if (!layout) return;
-
-    Animated.parallel([
-      Animated.spring(indicatorX, {
-        toValue: layout.x + layout.width * 0.16,
-        friction: 9,
-        tension: 140,
-        useNativeDriver: false,
-      }),
-      Animated.spring(indicatorW, {
-        toValue: layout.width * 0.68,
-        friction: 9,
-        tension: 140,
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [state.index, measured, indicatorX, indicatorW]);
-
-  function onTabLayout(index, e) {
-    const { x, width } = e.nativeEvent.layout;
-    layouts.current[index] = { x, width };
-    if (Object.keys(layouts.current).length < state.routes.length) return;
-
-    if (!measured) {
-      setMeasured(true);
-      const cur = layouts.current[state.index];
-      if (cur) {
-        indicatorX.setValue(cur.x + cur.width * 0.16);
-        indicatorW.setValue(cur.width * 0.68);
-      }
-    }
-  }
 
   return (
     <Animated.View
@@ -214,7 +164,7 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
             {
               translateY: enter.interpolate({
                 inputRange: [0, 1],
-                outputRange: [16, 0],
+                outputRange: [10, 0],
               }),
             },
           ],
@@ -222,30 +172,7 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
       ]}
     >
       <View style={styles.bar}>
-        <BlurView
-          intensity={Platform.OS === "ios" ? 70 : 100}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-          {...(Platform.OS === "android"
-            ? { experimentalBlurMethod: "dimezisBlurView" }
-            : null)}
-        />
-        <View style={styles.glassFill} />
-        <View style={styles.glassTopShine} />
-        <View style={styles.topHairline} />
-
         <View style={styles.row}>
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.slider,
-              {
-                width: indicatorW,
-                transform: [{ translateX: indicatorX }],
-              },
-            ]}
-          />
-
           {tabs.map((meta, index) => {
             const focused = state.index === index;
             return (
@@ -254,7 +181,7 @@ export default function BlinkitTabBar({ state, descriptors, navigation }) {
                 meta={meta}
                 focused={focused}
                 reduceMotion={reduceMotion}
-                onLayout={(e) => onTabLayout(index, e)}
+                onLayout={() => {}}
                 onPress={() => {
                   const event = navigation.emit({
                     type: "tabPress",
@@ -284,102 +211,70 @@ const styles = StyleSheet.create({
   },
   bar: {
     minHeight: TAB_BAR_BASE_HEIGHT,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.78)",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: "#FFFFFF",
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.9)",
+    borderTopColor: "#E8E8E8",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOpacity: 0.12,
-        shadowRadius: 18,
-        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: -2 },
       },
       android: {
-        elevation: 22,
+        elevation: 12,
       },
     }),
-  },
-  glassFill: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 252, 246, 0.5)",
-  },
-  glassTopShine: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 16,
-    backgroundColor: "rgba(255,255,255,0.45)",
-  },
-  topHairline: {
-    position: "absolute",
-    left: 28,
-    right: 28,
-    top: 0,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(248, 203, 70, 0.5)",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     minHeight: TAB_BAR_BASE_HEIGHT,
-    paddingHorizontal: 4,
-    paddingTop: 4,
-    position: "relative",
-  },
-  slider: {
-    position: "absolute",
-    top: 8,
-    height: 38,
-    borderRadius: 14,
-    backgroundColor: "rgba(248, 203, 70, 0.18)",
+    paddingHorizontal: 2,
+    paddingTop: 6,
   },
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    height: 56,
-    zIndex: 1,
+    height: 54,
   },
   tabInner: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
-    minWidth: 60,
+    gap: 2,
+    minWidth: 64,
   },
   iconWrap: {
-    width: 42,
-    height: 32,
+    width: 44,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
   },
-  iconPlate: {
+  pill: {
     position: "absolute",
     width: 42,
-    height: 30,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
+    height: 28,
+    borderRadius: radii.pill,
+    backgroundColor: colors.accentSoft,
   },
   label: {
     fontSize: 10,
-    letterSpacing: 0.12,
+    letterSpacing: 0.1,
     textAlign: "center",
   },
   labelIdle: {
-    color: "#8A8A8A",
+    color: colors.textMuted,
     fontFamily: fonts.semiBold,
   },
   labelActive: {
-    color: colors.text,
+    color: colors.accent,
     fontFamily: fonts.extraBold,
   },
   badge: {
     position: "absolute",
-    top: -4,
-    right: -12,
+    top: -5,
+    right: -10,
     backgroundColor: colors.danger,
     borderRadius: 6,
     paddingHorizontal: 4,

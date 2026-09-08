@@ -292,6 +292,10 @@ select {
   margin-bottom: 12px;
 }
 
+.stat-grid.inv-stats {
+  margin-bottom: 16px;
+}
+
 .stat {
   background: var(--panel);
   border: 1px solid var(--border);

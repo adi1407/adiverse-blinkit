@@ -6,6 +6,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { evaluateCoupon, getCouponByCode } from "./coupons.js";
 import { normalizePaymentMethod } from "./payments.js";
+import {
+  consumeStockForOrder,
+  restockForOrder,
+} from "./inventory.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STORE_PATH = path.join(__dirname, "orders.store.json");
@@ -243,6 +247,9 @@ export function createOrder({
   const itemOff = coupon?.type === "free_delivery" ? 0 : couponDiscount;
   const grandTotal = Math.max(0, itemTotal - itemOff + deliveryFee + tip);
 
+  // Enforce tracked inventory before persisting the order.
+  consumeStockForOrder(normalized);
+
   const deliveryAddress = address
     ? {
         label: String(address.label || "Home").trim() || "Home",
@@ -320,6 +327,7 @@ export function cancelOrder({ orderId, phone }) {
 
   orders[index] = cancelled;
   saveOrders(orders);
+  restockForOrder(cancelled.items || []);
   return withTimeline(cancelled);
 }
 
@@ -448,6 +456,7 @@ export function adminSetOrderStatus(orderId, status) {
 
   const now = new Date().toISOString();
   const existing = orders[index];
+  const wasCancelled = existing.status === "cancelled";
   const patched = {
     ...existing,
     status: nextStatus,
@@ -460,6 +469,11 @@ export function adminSetOrderStatus(orderId, status) {
 
   orders[index] = patched;
   saveOrders(orders);
+
+  if (nextStatus === "cancelled" && !wasCancelled) {
+    restockForOrder(existing.items || []);
+  }
+
   return withTimeline(patched);
 }
 

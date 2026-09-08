@@ -172,6 +172,9 @@ export default function CartScreen({ navigation }) {
           label: selectedAddress.label,
           line1: selectedAddress.line1,
           line2: selectedAddress.line2 || "",
+          pincode: selectedAddress.pincode || "",
+          lat: selectedAddress.lat,
+          lng: selectedAddress.lng,
         },
         couponCode: applied?.coupon?.code || undefined,
         paymentMethod,
@@ -327,12 +330,22 @@ export default function CartScreen({ navigation }) {
                     <Text style={styles.addressLine} numberOfLines={2}>
                       {selectedAddress
                         ? `${selectedAddress.line1}${
-                            selectedAddress.line2
-                              ? `, ${selectedAddress.line2}`
-                              : ""
+                            selectedAddress.pincode
+                              ? ` · ${selectedAddress.pincode}`
+                              : selectedAddress.line2
+                                ? `, ${selectedAddress.line2}`
+                                : ""
                           }`
                         : "Add a delivery address"}
                     </Text>
+                    {selectedAddress?.etaMinutes ? (
+                      <Text style={styles.addressEta}>
+                        Delivery in {selectedAddress.etaMinutes} mins
+                        {selectedAddress.darkStore
+                          ? ` · ${selectedAddress.darkStore}`
+                          : ""}
+                      </Text>
+                    ) : null}
                   </View>
                   <Text style={styles.changeText}>Change</Text>
                 </Pressable>
@@ -754,6 +767,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     fontFamily: fonts.medium,
+  },
+  addressEta: {
+    marginTop: 4,
+    fontSize: 11,
+    fontFamily: fonts.bold,
+    color: colors.accentDark,
   },
   changeText: {
     fontSize: 12,
