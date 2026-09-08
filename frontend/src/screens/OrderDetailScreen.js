@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Platform,
   Pressable,
   Alert,
+  Linking,
 } from "react-native";
 import {
   ChevronLeft,
@@ -20,10 +21,13 @@ import {
   RefreshCw,
   Star,
   Share2,
+  Phone,
+  Bike,
 } from "../utils/lucideIcons";
 import ProductImage from "../components/ProductImage";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
+import DeliveryTrackingMap from "../components/DeliveryTrackingMap";
 import { cancelOrder, fetchOrderById, rateOrder } from "../api/ordersApi";
 import { useAuth } from "../context/AuthContext";
 import { statusLabel } from "../utils/orderStatus";
@@ -53,25 +57,50 @@ function formatWhen(iso) {
   }
 }
 
-/** Prefer explicit ETA fields; otherwise a soft fallback. */
-function orderEtaLabel(order) {
-  if (!order || order.status === "delivered" || order.status === "cancelled") {
-    return null;
-  }
+/** Live countdown from server etaSeconds, ticking locally between polls. */
+function useEtaClock(order) {
+  const [tick, setTick] = useState(0);
 
-  const raw =
-    order.deliveryMinutes ??
-    order.etaMinutes ??
-    order.eta?.minutes ??
-    order.estimatedMinutes;
+  useEffect(() => {
+    if (
+      !order ||
+      order.status === "delivered" ||
+      order.status === "cancelled" ||
+      order.etaSeconds == null
+    ) {
+      return undefined;
+    }
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [order?.id, order?.status, order?.etaSeconds]);
 
-  const mins = Number(raw);
-  if (Number.isFinite(mins) && mins > 0) {
-    const rounded = Math.max(1, Math.round(mins));
-    return `Arriving in ${rounded} min`;
-  }
+  return useMemo(() => {
+    if (!order || order.status === "delivered") {
+      return { label: null, seconds: 0 };
+    }
+    if (order.status === "cancelled") {
+      return { label: null, seconds: null };
+    }
+    if (order.etaSeconds == null) {
+      return { label: "Arriving soon", seconds: null };
+    }
 
-  return "Arriving soon";
+    // Recompute from createdAt so local clock stays accurate between polls.
+    const created = new Date(order.createdAt).getTime();
+    const ageSec = Math.max(0, Math.floor((Date.now() - created) / 1000));
+    const deliverAfter = 90;
+    const remaining = Math.max(0, deliverAfter - ageSec);
+    void tick;
+
+    if (remaining <= 0) {
+      return { label: "Arriving now", seconds: 0 };
+    }
+    if (remaining < 60) {
+      return { label: `Arriving in ${remaining}s`, seconds: remaining };
+    }
+    const mins = Math.ceil(remaining / 60);
+    return { label: `Arriving in ${mins} min`, seconds: remaining };
+  }, [order, tick]);
 }
 
 function StarsRow({ value, onChange, size = 28, interactive = true }) {
@@ -110,6 +139,7 @@ export default function OrderDetailScreen({ navigation, route }) {
   const [reviewChips, setReviewChips] = useState([]);
   const [submittingRate, setSubmittingRate] = useState(false);
   const [error, setError] = useState("");
+  const eta = useEtaClock(order);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -129,12 +159,13 @@ export default function OrderDetailScreen({ navigation, route }) {
     load();
   }, [load]);
 
-  // Poll while order is still moving
+  // Poll while order is still moving (faster while tracking)
   useEffect(() => {
     if (!order || order.status === "delivered" || order.status === "cancelled") {
       return undefined;
     }
-    const id = setInterval(load, 8000);
+    const ms = order.status === "out_for_delivery" ? 3000 : 5000;
+    const id = setInterval(load, ms);
     return () => clearInterval(id);
   }, [order?.status, load]);
 
@@ -149,11 +180,18 @@ export default function OrderDetailScreen({ navigation, route }) {
     try {
       await shareOrder(order);
     } catch (err) {
-      // User dismisses sheet → often no error; real failures only
       if (err?.message && !/dismiss|cancel/i.test(String(err.message))) {
         Alert.alert("Could not share", err.message);
       }
     }
+  }
+
+  function onCallPartner() {
+    const phone = order?.partner?.phone;
+    if (!phone) return;
+    Linking.openURL(`tel:${phone}`).catch(() => {
+      Alert.alert("Call partner", `Partner number: ${phone}`);
+    });
   }
 
   async function onSubmitRating() {
@@ -214,7 +252,6 @@ export default function OrderDetailScreen({ navigation, route }) {
   const cancelled = order?.status === "cancelled";
   const delivered = order?.status === "delivered";
   const alreadyRated = Boolean(order?.rating?.stars);
-  const etaLabel = order ? orderEtaLabel(order) : null;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -256,7 +293,17 @@ export default function OrderDetailScreen({ navigation, route }) {
             <Text style={[styles.heroStatus, cancelled && styles.heroStatusCancelled]}>
               {statusLabel(order.status)}
             </Text>
-            {etaLabel ? <Text style={styles.heroEta}>{etaLabel}</Text> : null}
+            {eta.label ? <Text style={styles.heroEta}>{eta.label}</Text> : null}
+            {eta.seconds != null && eta.seconds > 0 && eta.seconds < 60 ? (
+              <View style={styles.etaBarTrack}>
+                <View
+                  style={[
+                    styles.etaBarFill,
+                    { width: `${Math.max(8, (eta.seconds / 60) * 100)}%` },
+                  ]}
+                />
+              </View>
+            ) : null}
             <Text style={styles.heroId}>{order.id}</Text>
             <Text style={styles.heroWhen}>Placed {formatWhen(order.createdAt)}</Text>
             {cancelled && order.cancelledAt ? (
@@ -265,6 +312,45 @@ export default function OrderDetailScreen({ navigation, route }) {
               </Text>
             ) : null}
           </View>
+
+          {!cancelled ? (
+            <DeliveryTrackingMap
+              progress={order.deliveryProgress ?? 0}
+              phase={order.status}
+              storeLabel={order.tracking?.storeLabel || "blinkit store"}
+              destinationLabel={
+                order.tracking?.destinationLabel ||
+                order.address?.label ||
+                "Home"
+              }
+            />
+          ) : null}
+
+          {order.partner ? (
+            <View style={[styles.partnerCard, shadows.soft]}>
+              <View style={styles.partnerAvatar}>
+                <Text style={styles.partnerInitial}>
+                  {order.partner.name.slice(0, 1)}
+                </Text>
+              </View>
+              <View style={styles.partnerCopy}>
+                <Text style={styles.partnerName}>{order.partner.name}</Text>
+                <View style={styles.partnerMeta}>
+                  <Bike size={13} color={colors.textMuted} strokeWidth={2.2} />
+                  <Text style={styles.partnerMetaText}>
+                    {order.partner.vehicle} · {order.partner.code}
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                style={styles.callBtn}
+                onPress={onCallPartner}
+                accessibilityLabel="Call delivery partner"
+              >
+                <Phone size={16} color={colors.white} strokeWidth={2.3} />
+              </Pressable>
+            </View>
+          ) : null}
 
           <Pressable style={[styles.shareBtn, shadows.soft]} onPress={onShare}>
             <Share2 size={16} color={colors.accent} strokeWidth={2.3} />
@@ -511,7 +597,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.05)",
     padding: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   heroEyebrow: {
     fontSize: 11,
@@ -541,6 +627,18 @@ const styles = StyleSheet.create({
     color: colors.text,
     letterSpacing: -0.4,
   },
+  etaBarTrack: {
+    marginTop: 10,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(0,0,0,0.08)",
+    overflow: "hidden",
+  },
+  etaBarFill: {
+    height: "100%",
+    borderRadius: 2,
+    backgroundColor: colors.accent,
+  },
   heroId: {
     marginTop: spacing.sm,
     fontSize: 12,
@@ -559,6 +657,59 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontFamily: fonts.medium,
     lineHeight: 16,
+  },
+  partnerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: colors.white,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  partnerAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.accentSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  partnerInitial: {
+    fontSize: 18,
+    fontFamily: fonts.extraBold,
+    color: colors.accentDark,
+  },
+  partnerCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+  partnerName: {
+    fontSize: 15,
+    fontFamily: fonts.extraBold,
+    color: colors.text,
+    letterSpacing: -0.2,
+  },
+  partnerMeta: {
+    marginTop: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  partnerMetaText: {
+    fontSize: 12,
+    fontFamily: fonts.semiBold,
+    color: colors.textMuted,
+  },
+  callBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
   },
   shareBtn: {
     flexDirection: "row",

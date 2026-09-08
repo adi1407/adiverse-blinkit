@@ -54,9 +54,27 @@ function statusForAge(ageSec) {
   return current;
 }
 
+const PARTNERS = [
+  { name: "Rahul S.", phone: "9876501234", vehicle: "Bike", code: "BK-214" },
+  { name: "Aisha K.", phone: "9876505678", vehicle: "Scooter", code: "SC-883" },
+  { name: "Vikram P.", phone: "9876509012", vehicle: "Bike", code: "BK-551" },
+  { name: "Neha M.", phone: "9876503456", vehicle: "Scooter", code: "SC-107" },
+];
+
+function partnerForOrder(orderId) {
+  const id = String(orderId || "");
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash + id.charCodeAt(i) * (i + 1)) % PARTNERS.length;
+  }
+  return PARTNERS[hash];
+}
+
 function withTimeline(order) {
   const created = new Date(order.createdAt).getTime();
   const ageSec = Math.max(0, Math.floor((Date.now() - created) / 1000));
+  const deliverAfter =
+    STATUS_STEPS.find((s) => s.key === "delivered")?.afterSec ?? 90;
 
   if (order.status === "cancelled") {
     return {
@@ -65,6 +83,11 @@ function withTimeline(order) {
       canCancel: false,
       canRate: false,
       ageSec,
+      etaMinutes: null,
+      etaSeconds: null,
+      deliveryProgress: 0,
+      partner: null,
+      tracking: null,
       timeline: STATUS_STEPS.map((step) => ({
         ...step,
         done: false,
@@ -80,6 +103,33 @@ function withTimeline(order) {
   const stepIndex = STATUS_STEPS.findIndex((s) => s.key === status);
   const hasRating = Boolean(order.rating?.stars);
 
+  const remainingSec = Math.max(0, deliverAfter - ageSec);
+  const etaSeconds =
+    status === "delivered" ? 0 : order.statusLocked ? null : remainingSec;
+  const etaMinutes =
+    etaSeconds == null
+      ? null
+      : etaSeconds <= 0
+        ? 0
+        : Math.max(1, Math.ceil(etaSeconds / 60));
+
+  // Map marker: slow crawl until OFD, then ride to home.
+  let deliveryProgress = 0;
+  if (status === "confirmed") deliveryProgress = 0.08;
+  else if (status === "packing") deliveryProgress = 0.22;
+  else if (status === "out_for_delivery") {
+    const ofdAt =
+      STATUS_STEPS.find((s) => s.key === "out_for_delivery")?.afterSec ?? 50;
+    const span = Math.max(1, deliverAfter - ofdAt);
+    const ride = Math.min(1, Math.max(0, (ageSec - ofdAt) / span));
+    deliveryProgress = 0.28 + ride * 0.7;
+  } else if (status === "delivered") deliveryProgress = 1;
+
+  const showPartner =
+    status === "packing" ||
+    status === "out_for_delivery" ||
+    status === "delivered";
+
   return {
     ...order,
     status,
@@ -92,6 +142,15 @@ function withTimeline(order) {
       active: index === stepIndex,
     })),
     ageSec,
+    etaMinutes,
+    etaSeconds,
+    deliveryProgress,
+    partner: showPartner ? partnerForOrder(order.id) : null,
+    tracking: {
+      storeLabel: "blinkit · Indiranagar",
+      destinationLabel: order.address?.label || "Home",
+      phase: status,
+    },
   };
 }
 

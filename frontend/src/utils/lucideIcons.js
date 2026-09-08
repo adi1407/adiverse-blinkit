@@ -60,6 +60,7 @@ export { default as Sparkles } from "lucide-react-native/icons/sparkles";
 export { default as SprayCan } from "lucide-react-native/icons/spray-can";
 export { default as Smartphone } from "lucide-react-native/icons/smartphone";
 export { default as Star } from "lucide-react-native/icons/star";
+export { default as Store } from "lucide-react-native/icons/store";
 export { default as Trash2 } from "lucide-react-native/icons/trash-2";
 export { default as TriangleAlert } from "lucide-react-native/icons/triangle-alert";
 export { default as Truck } from "lucide-react-native/icons/truck";
