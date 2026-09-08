@@ -11,10 +11,10 @@ export const PAYMENT_METHODS = [
     label: "Credit / Debit card",
     hint: "Visa · Mastercard · RuPay",
   },
-  {
+    {
     id: "wallet",
     label: "Blinkit Wallet",
-    hint: "Demo balance · instant",
+    hint: "₹500 available · instant",
   },
   {
     id: "cod",

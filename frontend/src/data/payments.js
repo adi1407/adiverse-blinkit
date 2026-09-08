@@ -1,4 +1,5 @@
-// Demo payment methods — no real PSP; backend just records the choice.
+// Payment methods shown at checkout. Amounts are settled in-app only
+// (no external PSP) — the UI still follows a real payment handoff flow.
 
 export const PAYMENT_METHODS = [
   {
@@ -16,7 +17,7 @@ export const PAYMENT_METHODS = [
   {
     id: "wallet",
     label: "Blinkit Wallet",
-    hint: "Demo balance · instant",
+    hint: "₹500 available · instant",
     icon: "Wallet",
   },
   {

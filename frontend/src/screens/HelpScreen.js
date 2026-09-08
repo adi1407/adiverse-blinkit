@@ -40,8 +40,8 @@ const FAQS = [
   },
   {
     id: "payment",
-    q: "Is payment real?",
-    a: "No. UPI / Card / Wallet / COD are demo methods. Nothing charges your bank — the order only stores which method you chose.",
+    q: "How does payment work?",
+    a: "Checkout runs a full payment sheet (UPI / card / wallet / COD). This learning build settles orders in-app — your bank is never charged.",
   },
   {
     id: "print",

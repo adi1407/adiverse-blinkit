@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -33,10 +33,11 @@ import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
 import { placeOrder } from "../api/ordersApi";
 import { COUPONS, evaluateCoupon } from "../data/coupons";
-import { PAYMENT_METHODS } from "../data/payments";
+import { PAYMENT_METHODS, getPaymentMethod } from "../data/payments";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { fonts } from "../theme/typography";
 import FreeDeliveryBanner from "../components/FreeDeliveryBanner";
+import PaymentProcessingModal from "../components/PaymentProcessingModal";
 import {
   FREE_DELIVERY_MIN,
   BASE_DELIVERY_FEE,
@@ -93,6 +94,7 @@ export default function CartScreen({ navigation }) {
   const { notifyOrderPlaced } = useNotifications();
   const isEmpty = items.length === 0;
   const [placing, setPlacing] = useState(false);
+  const [paySheetOpen, setPaySheetOpen] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [tipAmount, setTipAmount] = useState(0);
@@ -158,37 +160,11 @@ export default function CartScreen({ navigation }) {
     setTipAmount(0);
   }
 
-  async function onProceed() {
-    if (!isLoggedIn) {
-      Alert.alert("Login required", "Please login to place your order.", [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Login",
-          onPress: () => navigation.navigate("Login", { returnTo: "Cart" }),
-        },
-      ]);
-      return;
-    }
-
-    if (!selectedAddress) {
-      Alert.alert("Add address", "Pick a delivery address first.", [
-        {
-          text: "Add address",
-          onPress: () => navigation.navigate("Addresses"),
-        },
-      ]);
-      return;
-    }
-
+  const submitOrder = useCallback(async () => {
     if (placing) return;
     setPlacing(true);
 
     try {
-      // Demo "payment gateway" pause for online methods
-      if (paymentMethod !== "cod") {
-        await new Promise((resolve) => setTimeout(resolve, 900));
-      }
-
       const order = await placeOrder({
         name: user.name,
         phone: user.phone,
@@ -213,11 +189,15 @@ export default function CartScreen({ navigation }) {
       clearCart();
       setCouponCode(null);
       setTipAmount(0);
+      setPaySheetOpen(false);
       notifyOrderPlaced(order);
       const payLabel = order.payment?.label || paymentMethod;
+      const isCod = order.payment?.id === "cod" || paymentMethod === "cod";
       Alert.alert(
-        "Order placed!",
-        `Paid via ${payLabel}. Delivering to ${selectedAddress.label}. Order ${order.id} for ₹${order.grandTotal}.`,
+        isCod ? "Order confirmed" : "Payment successful",
+        isCod
+          ? `Pay ₹${order.grandTotal} on delivery to ${selectedAddress.label}. Order ${order.id}.`
+          : `₹${order.grandTotal} paid via ${payLabel}. Delivering to ${selectedAddress.label}.`,
         [
           {
             text: "Track order",
@@ -229,10 +209,48 @@ export default function CartScreen({ navigation }) {
         ]
       );
     } catch (err) {
+      setPaySheetOpen(false);
       Alert.alert("Checkout failed", err.message || "Could not place order");
     } finally {
       setPlacing(false);
     }
+  }, [
+    placing,
+    user,
+    selectedAddress,
+    applied,
+    paymentMethod,
+    tipAmount,
+    items,
+    clearCart,
+    notifyOrderPlaced,
+    navigation,
+  ]);
+
+  function onProceed() {
+    if (!isLoggedIn) {
+      Alert.alert("Login required", "Please login to place your order.", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Login",
+          onPress: () => navigation.navigate("Login", { returnTo: "Cart" }),
+        },
+      ]);
+      return;
+    }
+
+    if (!selectedAddress) {
+      Alert.alert("Add address", "Pick a delivery address first.", [
+        {
+          text: "Add address",
+          onPress: () => navigation.navigate("Addresses"),
+        },
+      ]);
+      return;
+    }
+
+    if (placing) return;
+    setPaySheetOpen(true);
   }
 
   return (
@@ -395,7 +413,9 @@ export default function CartScreen({ navigation }) {
 
                 <View style={[styles.payCard, shadows.soft]}>
                   <Text style={styles.payTitle}>Payment method</Text>
-                  <Text style={styles.paySubtitle}>Demo checkout — no real money</Text>
+                  <Text style={styles.paySubtitle}>
+                    Choose how you want to pay
+                  </Text>
                   {PAYMENT_METHODS.map((method) => {
                     const Icon = PAYMENT_ICONS[method.icon] || Wallet;
                     const selected = paymentMethod === method.id;
@@ -511,29 +531,36 @@ export default function CartScreen({ navigation }) {
 
           <View style={styles.footer}>
             <Pressable
-              style={[styles.checkoutBtn, placing && styles.checkoutDisabled]}
+              style={[styles.checkoutBtn, (placing || paySheetOpen) && styles.checkoutDisabled]}
               onPress={onProceed}
-              disabled={placing}
+              disabled={placing || paySheetOpen}
             >
               <View>
                 <Text style={styles.checkoutPrice}>₹{grandTotal}</Text>
                 <Text style={styles.checkoutSub}>TOTAL</Text>
               </View>
               <Text style={styles.checkoutText}>
-                {placing
-                  ? paymentMethod === "cod"
-                    ? "Placing…"
-                    : "Paying…"
-                  : isLoggedIn
-                    ? paymentMethod === "cod"
-                      ? "Place order →"
-                      : "Pay & place →"
-                    : "Login to proceed →"}
+                {!isLoggedIn
+                  ? "Login to proceed →"
+                  : paymentMethod === "cod"
+                    ? "Place order →"
+                    : "Pay & place →"}
               </Text>
             </Pressable>
           </View>
         </View>
       )}
+
+      <PaymentProcessingModal
+        visible={paySheetOpen}
+        methodId={paymentMethod}
+        methodLabel={getPaymentMethod(paymentMethod)?.label || "Payment"}
+        amount={grandTotal}
+        onCancel={() => {
+          if (!placing) setPaySheetOpen(false);
+        }}
+        onSuccess={submitOrder}
+      />
     </SafeAreaView>
   );
 }

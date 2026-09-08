@@ -25,7 +25,7 @@ export function buildOrderShareMessage(order) {
     "Items:",
     ...lines,
     "",
-    "Shared from the Blinkit Clone demo app.",
+    "Shared from Blinkit Clone.",
   ].join("\n");
 }
 
@@ -46,7 +46,7 @@ export function buildProductShareMessage(product, categoryLabel) {
     `Price: ${priceLine}`,
     cat.trim() || null,
     "",
-    "Shared from the Blinkit Clone demo app.",
+    "Shared from Blinkit Clone.",
   ]
     .filter(Boolean)
     .join("\n");
