@@ -110,6 +110,18 @@ export const adminApi = {
     api(`/api/admin/print-jobs/${id}`, { method: "PATCH", body: { status } }),
   cancelPrintJob: (id) =>
     api(`/api/admin/print-jobs/${id}/cancel`, { method: "POST" }),
+  getCoupons: () => api("/api/admin/coupons"),
+  createCoupon: (body) =>
+    api("/api/admin/coupons", { method: "POST", body }),
+  updateCoupon: (code, body) =>
+    api(`/api/admin/coupons/${encodeURIComponent(code)}`, {
+      method: "PATCH",
+      body,
+    }),
+  deleteCoupon: (code) =>
+    api(`/api/admin/coupons/${encodeURIComponent(code)}`, {
+      method: "DELETE",
+    }),
   getInventory: (params = {}) => {
     const q = new URLSearchParams(
       Object.fromEntries(

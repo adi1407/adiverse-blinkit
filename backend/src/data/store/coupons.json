@@ -1,0 +1,40 @@
+{
+  "coupons": [
+    {
+      "code": "BLINKIT50",
+      "title": "₹50 off",
+      "description": "Flat ₹50 · min order ₹199",
+      "type": "flat",
+      "value": 50,
+      "minOrder": 199,
+      "active": true
+    },
+    {
+      "code": "SAVE20",
+      "title": "20% off",
+      "description": "Up to ₹80 · min order ₹149",
+      "type": "percent",
+      "value": 20,
+      "maxDiscount": 80,
+      "minOrder": 149,
+      "active": true
+    },
+    {
+      "code": "FREESHIP",
+      "title": "Free delivery",
+      "description": "Waive partner fee · min ₹99",
+      "type": "free_delivery",
+      "minOrder": 99,
+      "active": true
+    },
+    {
+      "code": "WELCOME100",
+      "title": "₹100 off",
+      "description": "Flat ₹100 · min order ₹499",
+      "type": "flat",
+      "value": 100,
+      "minOrder": 499,
+      "active": true
+    }
+  ]
+}

@@ -1,46 +1,140 @@
-// Demo promo codes — mirrored on the frontend for instant bill preview.
-// Backend re-validates on place order (source of truth).
+/**
+ * Promo coupons — JSON store under data/store/coupons.json.
+ * evaluateCoupon is the checkout source of truth; shopper UI previews the same rules.
+ */
 
-export const COUPONS = [
-  {
-    code: "BLINKIT50",
-    title: "₹50 off",
-    description: "Flat ₹50 · min order ₹199",
-    type: "flat",
-    value: 50,
-    minOrder: 199,
-  },
-  {
-    code: "SAVE20",
-    title: "20% off",
-    description: "Up to ₹80 · min order ₹149",
-    type: "percent",
-    value: 20,
-    maxDiscount: 80,
-    minOrder: 149,
-  },
-  {
-    code: "FREESHIP",
-    title: "Free delivery",
-    description: "Waive partner fee · min ₹99",
-    type: "free_delivery",
-    minOrder: 99,
-  },
-  {
-    code: "WELCOME100",
-    title: "₹100 off",
-    description: "Flat ₹100 · min order ₹499",
-    type: "flat",
-    value: 100,
-    minOrder: 499,
-  },
-];
+import { readJson, writeJson } from "./cmsStore.js";
 
-export function getCouponByCode(code) {
-  const key = String(code || "")
+const COUPON_TYPES = new Set(["flat", "percent", "free_delivery"]);
+const FALLBACK = { coupons: [] };
+
+function normalizeCode(code) {
+  return String(code || "")
     .trim()
-    .toUpperCase();
-  return COUPONS.find((c) => c.code === key) || null;
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "");
+}
+
+function loadStore() {
+  const store = readJson("coupons.json", FALLBACK);
+  return Array.isArray(store.coupons) ? store.coupons : [];
+}
+
+function saveStore(coupons) {
+  writeJson("coupons.json", { coupons });
+  return coupons;
+}
+
+function normalizeCoupon(input, { requireCode = true } = {}) {
+  const code = normalizeCode(input.code);
+  if (requireCode && (code.length < 3 || code.length > 24)) {
+    const err = new Error("Coupon code must be 3–24 letters/numbers");
+    err.status = 400;
+    throw err;
+  }
+
+  const type = String(input.type || "").trim();
+  if (!COUPON_TYPES.has(type)) {
+    const err = new Error("type must be flat, percent, or free_delivery");
+    err.status = 400;
+    throw err;
+  }
+
+  const title = String(input.title || "").trim() || code;
+  const description = String(input.description || "").trim();
+  const minOrder = Math.max(0, Math.round(Number(input.minOrder) || 0));
+  const active = input.active !== false;
+
+  const coupon = { code, title, description, type, minOrder, active };
+
+  if (type === "flat") {
+    const value = Math.max(1, Math.round(Number(input.value) || 0));
+    if (!value) {
+      const err = new Error("flat coupons need a value ≥ 1");
+      err.status = 400;
+      throw err;
+    }
+    coupon.value = value;
+  } else if (type === "percent") {
+    const value = Math.max(1, Math.min(100, Math.round(Number(input.value) || 0)));
+    if (!value) {
+      const err = new Error("percent coupons need value 1–100");
+      err.status = 400;
+      throw err;
+    }
+    coupon.value = value;
+    coupon.maxDiscount = Math.max(
+      1,
+      Math.round(Number(input.maxDiscount) || value)
+    );
+  }
+
+  return coupon;
+}
+
+/** All coupons (admin), including inactive. */
+export function listCoupons() {
+  return loadStore().map((c) => ({ ...c }));
+}
+
+/** Active coupons only (shopper chips + checkout). */
+export function listActiveCoupons() {
+  return loadStore().filter((c) => c.active !== false);
+}
+
+export function getCouponByCode(code, { includeInactive = false } = {}) {
+  const key = normalizeCode(code);
+  const coupon = loadStore().find((c) => c.code === key) || null;
+  if (!coupon) return null;
+  if (!includeInactive && coupon.active === false) return null;
+  return { ...coupon };
+}
+
+export function createCoupon(input) {
+  const coupons = loadStore();
+  const coupon = normalizeCoupon(input);
+  if (coupons.some((c) => c.code === coupon.code)) {
+    const err = new Error(`Coupon ${coupon.code} already exists`);
+    err.status = 409;
+    throw err;
+  }
+  coupons.push(coupon);
+  saveStore(coupons);
+  return coupon;
+}
+
+export function updateCoupon(code, patch) {
+  const key = normalizeCode(code);
+  const coupons = loadStore();
+  const idx = coupons.findIndex((c) => c.code === key);
+  if (idx < 0) {
+    const err = new Error("Coupon not found");
+    err.status = 404;
+    throw err;
+  }
+
+  const merged = {
+    ...coupons[idx],
+    ...patch,
+    code: key, // code is identity — do not rename via patch
+  };
+  const next = normalizeCoupon(merged);
+  coupons[idx] = next;
+  saveStore(coupons);
+  return next;
+}
+
+export function deleteCoupon(code) {
+  const key = normalizeCode(code);
+  const coupons = loadStore();
+  const next = coupons.filter((c) => c.code !== key);
+  if (next.length === coupons.length) {
+    const err = new Error("Coupon not found");
+    err.status = 404;
+    throw err;
+  }
+  saveStore(next);
+  return { code: key };
 }
 
 /**

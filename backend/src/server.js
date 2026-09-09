@@ -7,6 +7,7 @@ import printRoutes from "./routes/printRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import festivalRoutes from "./routes/festivalRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
 import { UPLOADS_DIR } from "./routes/upload.js";
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api", authRoutes);
 app.use("/api", festivalRoutes);
+app.use("/api", couponRoutes);
 app.use("/api", catalogRoutes);
 app.use("/api", orderRoutes);
 app.use("/api", printRoutes);

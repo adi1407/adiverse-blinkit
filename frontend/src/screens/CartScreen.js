@@ -32,7 +32,8 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
 import { placeOrder } from "../api/ordersApi";
-import { COUPONS, evaluateCoupon } from "../data/coupons";
+import { fetchCoupons } from "../api/couponsApi";
+import { evaluateCoupon } from "../data/coupons";
 import { PAYMENT_METHODS, getPaymentMethod } from "../data/payments";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { fonts } from "../theme/typography";
@@ -96,10 +97,23 @@ export default function CartScreen({ navigation }) {
   const [placing, setPlacing] = useState(false);
   const [paySheetOpen, setPaySheetOpen] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
+  const [coupons, setCoupons] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [tipAmount, setTipAmount] = useState(0);
 
   const TIP_OPTIONS = [0, 10, 20, 30, 50];
+
+  useEffect(() => {
+    let alive = true;
+    fetchCoupons()
+      .then((list) => {
+        if (alive) setCoupons(list);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const mrpSavings = useMemo(
     () =>
@@ -121,8 +135,8 @@ export default function CartScreen({ navigation }) {
         deliveryFee: baseDeliveryFee,
       };
     }
-    return evaluateCoupon(couponCode, totalPrice, baseDeliveryFee);
-  }, [couponCode, totalPrice, baseDeliveryFee]);
+    return evaluateCoupon(couponCode, totalPrice, baseDeliveryFee, coupons);
+  }, [couponCode, totalPrice, baseDeliveryFee, coupons]);
 
   useEffect(() => {
     if (isEmpty && couponCode) setCouponCode(null);
@@ -146,7 +160,7 @@ export default function CartScreen({ navigation }) {
       return;
     }
 
-    const result = evaluateCoupon(code, totalPrice, baseDeliveryFee);
+    const result = evaluateCoupon(code, totalPrice, baseDeliveryFee, coupons);
     if (!result.ok) {
       Alert.alert("Coupon locked", result.message || "Not applicable yet");
       return;
@@ -380,11 +394,12 @@ export default function CartScreen({ navigation }) {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.couponChips}
                   >
-                    {COUPONS.map((coupon) => {
+                    {coupons.map((coupon) => {
                       const preview = evaluateCoupon(
                         coupon.code,
                         totalPrice,
-                        baseDeliveryFee
+                        baseDeliveryFee,
+                        coupons
                       );
                       const selected = couponCode === coupon.code;
                       const locked = !preview.ok;

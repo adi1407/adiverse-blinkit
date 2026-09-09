@@ -1,7 +1,10 @@
-// Demo promo codes — same rules as backend/src/data/coupons.js
-// Frontend uses this for instant bill UI; server re-checks on checkout.
+/**
+ * Client-side coupon preview helpers.
+ * Catalog comes from GET /api/coupons; checkout re-validates on the server.
+ */
 
-export const COUPONS = [
+/** Offline fallback if the API is unreachable — same seed as the backend store. */
+export const FALLBACK_COUPONS = [
   {
     code: "BLINKIT50",
     title: "₹50 off",
@@ -9,6 +12,7 @@ export const COUPONS = [
     type: "flat",
     value: 50,
     minOrder: 199,
+    active: true,
   },
   {
     code: "SAVE20",
@@ -18,6 +22,7 @@ export const COUPONS = [
     value: 20,
     maxDiscount: 80,
     minOrder: 149,
+    active: true,
   },
   {
     code: "FREESHIP",
@@ -25,6 +30,7 @@ export const COUPONS = [
     description: "Waive partner fee · min ₹99",
     type: "free_delivery",
     minOrder: 99,
+    active: true,
   },
   {
     code: "WELCOME100",
@@ -33,18 +39,24 @@ export const COUPONS = [
     type: "flat",
     value: 100,
     minOrder: 499,
+    active: true,
   },
 ];
 
-export function getCouponByCode(code) {
+export function getCouponByCode(code, coupons = FALLBACK_COUPONS) {
   const key = String(code || "")
     .trim()
     .toUpperCase();
-  return COUPONS.find((c) => c.code === key) || null;
+  return (coupons || []).find((c) => c.code === key) || null;
 }
 
-export function evaluateCoupon(code, itemTotal, baseDeliveryFee) {
-  const coupon = getCouponByCode(code);
+export function evaluateCoupon(
+  code,
+  itemTotal,
+  baseDeliveryFee,
+  coupons = FALLBACK_COUPONS
+) {
+  const coupon = getCouponByCode(code, coupons);
   if (!coupon) {
     return {
       ok: false,

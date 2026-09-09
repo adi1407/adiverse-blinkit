@@ -16,6 +16,12 @@ import {
   upsertFestivalTheme,
 } from "../data/cmsStore.js";
 import {
+  createCoupon,
+  deleteCoupon,
+  listCoupons,
+  updateCoupon,
+} from "../data/coupons.js";
+import {
   createProductOverride,
   deleteProductOverride,
   updateProductOverride,
@@ -252,6 +258,33 @@ router.patch("/banners/:id", (req, res) => {
 router.delete("/banners/:id", (req, res) => {
   try {
     return ok(res, deleteBanner(req.params.id));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+/** Coupons CRUD */
+router.get("/coupons", (_req, res) => ok(res, listCoupons()));
+
+router.post("/coupons", (req, res) => {
+  try {
+    return ok(res, createCoupon(req.body || {}));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+router.patch("/coupons/:code", (req, res) => {
+  try {
+    return ok(res, updateCoupon(req.params.code, req.body || {}));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+router.delete("/coupons/:code", (req, res) => {
+  try {
+    return ok(res, deleteCoupon(req.params.code));
   } catch (err) {
     return fail(res, err);
   }
