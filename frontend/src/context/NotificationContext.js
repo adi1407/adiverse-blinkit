@@ -150,7 +150,7 @@ export function NotificationProvider({ children }) {
   const syncOrders = useCallback(async () => {
     if (!phone) return;
     try {
-      const data = await fetchOrders(phone);
+      const data = await fetchOrders();
       const orders = Array.isArray(data?.orders)
         ? data.orders
         : Array.isArray(data)

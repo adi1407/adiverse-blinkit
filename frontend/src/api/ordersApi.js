@@ -1,17 +1,14 @@
 import { apiGet, apiPost } from "./client";
 
 export function placeOrder({
-  name,
-  phone,
   items,
   address,
   couponCode,
   paymentMethod,
   tipAmount,
+  // name/phone ignored — identity comes from the Bearer token
 }) {
   return apiPost("/api/orders", {
-    name,
-    phone,
     items,
     address,
     couponCode,
@@ -20,26 +17,25 @@ export function placeOrder({
   });
 }
 
-export function fetchOrders(phone) {
-  return apiGet(`/api/orders?phone=${encodeURIComponent(phone)}`);
+export function fetchOrders() {
+  return apiGet("/api/orders");
 }
 
 export function fetchOrderById(orderId) {
   return apiGet(`/api/orders/${encodeURIComponent(orderId)}`);
 }
 
-export function cancelOrder({ orderId, phone }) {
-  return apiPost(`/api/orders/${encodeURIComponent(orderId)}/cancel`, { phone });
+export function cancelOrder({ orderId }) {
+  return apiPost(`/api/orders/${encodeURIComponent(orderId)}/cancel`, {});
 }
 
-export function rateOrder({ orderId, phone, stars, review }) {
+export function rateOrder({ orderId, stars, review }) {
   return apiPost(`/api/orders/${encodeURIComponent(orderId)}/rate`, {
-    phone,
     stars,
     review,
   });
 }
 
-export function fetchReorderProducts(phone) {
-  return apiGet(`/api/orders/reorder?phone=${encodeURIComponent(phone)}`);
+export function fetchReorderProducts() {
+  return apiGet("/api/orders/reorder");
 }

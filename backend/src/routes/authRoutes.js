@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createOtpChallenge, verifyOtpChallenge } from "../data/otpStore.js";
+import { signShopperToken } from "../middleware/shopperAuth.js";
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.post("/auth/send-otp", (req, res) => {
   }
 });
 
-// POST /api/auth/verify-otp — verify code; challenge deleted on success
+// POST /api/auth/verify-otp — verify code; issue Bearer session token
 router.post("/auth/verify-otp", (req, res) => {
   try {
     const { phone, otp, name } = req.body || {};
@@ -29,10 +30,21 @@ router.post("/auth/verify-otp", (req, res) => {
     if (name && String(name).trim()) {
       user.name = String(name).trim();
     }
+    const token = signShopperToken({
+      phone: user.phone,
+      name: user.name,
+      sessionId: user.sessionId,
+    });
     res.json({
       success: true,
       message: "Logged in",
-      data: { user },
+      data: {
+        user: {
+          ...user,
+          token,
+        },
+        token,
+      },
     });
   } catch (err) {
     res.status(err.status || 500).json({

@@ -2,10 +2,22 @@
   "items": {
     "bulb-extension": {
       "tracked": true,
-      "onHand": 3,
+      "onHand": 18,
       "lowStockAt": 5,
-      "updatedAt": "2026-09-08T05:07:17.987Z"
+      "updatedAt": "2026-09-08T07:31:35.130Z"
+    },
+    "nam-haldiram-bhujia": {
+      "tracked": true,
+      "onHand": 20,
+      "lowStockAt": 5,
+      "updatedAt": "2026-09-08T07:30:50.063Z"
+    },
+    "veg-carrot": {
+      "tracked": true,
+      "onHand": 20,
+      "lowStockAt": 5,
+      "updatedAt": "2026-09-08T07:30:57.470Z"
     }
   },
-  "updatedAt": "2026-09-08T05:07:17.987Z"
+  "updatedAt": "2026-09-08T07:31:35.131Z"
 }

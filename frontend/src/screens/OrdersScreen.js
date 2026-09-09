@@ -135,7 +135,7 @@ export default function OrdersScreen({ navigation }) {
       else setLoading(true);
       setError("");
       try {
-        const data = await fetchOrders(user.phone);
+        const data = await fetchOrders();
         setOrders(data.orders || []);
       } catch (err) {
         setError(err.message || "Failed to load orders");

@@ -7,24 +7,36 @@ import {
   getReorderProducts,
   rateOrder,
 } from "../data/orders.js";
+import { requireShopper } from "../middleware/shopperAuth.js";
 
 const router = Router();
+
+function assertOwnsOrder(order, phone) {
+  if (!order) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+  const owner = String(order.phone || "").replace(/\D/g, "");
+  if (owner !== phone) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+}
+
+// All order endpoints require a shopper session. Phone comes from the token,
+// never from the request body/query — that was an IDOR waiting to happen.
+router.use("/orders", requireShopper);
 
 // POST /api/orders — place an order
 router.post("/orders", (req, res) => {
   try {
-    const {
-      name,
-      phone,
-      items,
-      address,
-      couponCode,
-      paymentMethod,
-      tipAmount,
-    } = req.body || {};
+    const { items, address, couponCode, paymentMethod, tipAmount } =
+      req.body || {};
     const order = createOrder({
-      name,
-      phone,
+      name: req.shopper.name,
+      phone: req.shopper.phone,
       items,
       address,
       couponCode,
@@ -43,8 +55,10 @@ router.post("/orders", (req, res) => {
 // POST /api/orders/:id/cancel
 router.post("/orders/:id/cancel", (req, res) => {
   try {
-    const phone = req.body?.phone;
-    const order = cancelOrder({ orderId: req.params.id, phone });
+    const order = cancelOrder({
+      orderId: req.params.id,
+      phone: req.shopper.phone,
+    });
     res.json({ success: true, data: order });
   } catch (err) {
     res.status(err.status || 500).json({
@@ -57,10 +71,10 @@ router.post("/orders/:id/cancel", (req, res) => {
 // POST /api/orders/:id/rate
 router.post("/orders/:id/rate", (req, res) => {
   try {
-    const { phone, stars, review } = req.body || {};
+    const { stars, review } = req.body || {};
     const order = rateOrder({
       orderId: req.params.id,
-      phone,
+      phone: req.shopper.phone,
       stars,
       review,
     });
@@ -73,17 +87,9 @@ router.post("/orders/:id/rate", (req, res) => {
   }
 });
 
-// GET /api/orders?phone=9876543210
+// GET /api/orders
 router.get("/orders", (req, res) => {
-  const phone = String(req.query.phone || "").replace(/\D/g, "");
-
-  if (phone.length !== 10) {
-    return res.status(400).json({
-      success: false,
-      message: "Query phone (10 digits) is required",
-    });
-  }
-
+  const phone = req.shopper.phone;
   const list = getOrdersByPhone(phone);
   res.json({
     success: true,
@@ -95,17 +101,9 @@ router.get("/orders", (req, res) => {
   });
 });
 
-// GET /api/orders/reorder?phone=...
+// GET /api/orders/reorder
 router.get("/orders/reorder", (req, res) => {
-  const phone = String(req.query.phone || "").replace(/\D/g, "");
-
-  if (phone.length !== 10) {
-    return res.status(400).json({
-      success: false,
-      message: "Query phone (10 digits) is required",
-    });
-  }
-
+  const phone = req.shopper.phone;
   const products = getReorderProducts(phone);
   res.json({
     success: true,
@@ -117,16 +115,18 @@ router.get("/orders/reorder", (req, res) => {
   });
 });
 
-// GET /api/orders/:id
+// GET /api/orders/:id — owner only (404 for others to avoid leaking existence)
 router.get("/orders/:id", (req, res) => {
-  const order = getOrderById(req.params.id);
-  if (!order) {
-    return res.status(404).json({
+  try {
+    const order = getOrderById(req.params.id);
+    assertOwnsOrder(order, req.shopper.phone);
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(err.status || 500).json({
       success: false,
-      message: "Order not found",
+      message: err.message || "Could not load order",
     });
   }
-  res.json({ success: true, data: order });
 });
 
 export default router;

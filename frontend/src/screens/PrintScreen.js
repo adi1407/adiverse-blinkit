@@ -202,8 +202,6 @@ export default function PrintScreen({ navigation }) {
 
     try {
       const job = await placePrintJob({
-        name: user.name,
-        phone: user.phone,
         kind,
         color,
         copies: quote.copies,

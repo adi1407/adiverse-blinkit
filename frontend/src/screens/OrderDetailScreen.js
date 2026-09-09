@@ -205,7 +205,6 @@ export default function OrderDetailScreen({ navigation, route }) {
     try {
       const data = await rateOrder({
         orderId,
-        phone: user.phone,
         stars: ratingStars,
         review: reviewChips.join(" · "),
       });
@@ -231,10 +230,7 @@ export default function OrderDetailScreen({ navigation, route }) {
             if (!user?.phone || cancelling) return;
             setCancelling(true);
             try {
-              const data = await cancelOrder({
-                orderId,
-                phone: user.phone,
-              });
+              const data = await cancelOrder({ orderId });
               setOrder(data);
               Alert.alert("Cancelled", "Your order was cancelled successfully.");
             } catch (err) {

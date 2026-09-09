@@ -55,7 +55,7 @@ export default function PrintJobsScreen({ navigation }) {
 
     setError("");
     try {
-      const data = await fetchPrintJobs(user.phone);
+      const data = await fetchPrintJobs();
       setJobs(data.jobs || []);
     } catch (err) {
       setError(err.message || "Failed to load print jobs");
@@ -78,7 +78,7 @@ export default function PrintJobsScreen({ navigation }) {
         style: "destructive",
         onPress: async () => {
           try {
-            await cancelPrintJob({ jobId: job.id, phone: user.phone });
+            await cancelPrintJob({ jobId: job.id });
             load();
           } catch (err) {
             Alert.alert("Cancel failed", err.message || "Try again");

@@ -1,9 +1,26 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sendOtp as apiSendOtp, verifyOtp as apiVerifyOtp } from "../api/authApi";
+import { setShopperToken } from "../api/client";
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = "@blinkit_clone_user";
+
+function normalizeStoredUser(raw) {
+  if (!raw?.phone) return null;
+  const phone = String(raw.phone).replace(/\D/g, "");
+  if (phone.length !== 10) return null;
+  const token = raw.token || null;
+  // Pre-auth sessions (phone only, no Bearer) are treated as logged out so
+  // the user re-verifies OTP instead of hitting 401s on every request.
+  if (!token) return null;
+  return {
+    name: String(raw.name || "").trim() || "Blinkit User",
+    phone,
+    sessionId: raw.sessionId || null,
+    token,
+  };
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -16,11 +33,18 @@ export function AuthProvider({ children }) {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (alive && raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed?.phone) setUser(parsed);
+          const next = normalizeStoredUser(JSON.parse(raw));
+          if (next) {
+            setShopperToken(next.token);
+            setUser(next);
+          } else {
+            await AsyncStorage.removeItem(STORAGE_KEY);
+            setShopperToken("");
+          }
         }
       } catch {
         // Corrupt storage — start logged out
+        setShopperToken("");
       } finally {
         if (alive) setReady(true);
       }
@@ -60,12 +84,19 @@ export function AuthProvider({ children }) {
       name: cleanName,
     });
 
-    const nextUser = data.user || {
-      name: cleanName,
-      phone: cleanPhone,
-      sessionId: `demo-${cleanPhone}`,
+    const token = data.token || data.user?.token;
+    if (!token) {
+      throw new Error("Login succeeded but no session token was returned");
+    }
+
+    const nextUser = {
+      name: data.user?.name || cleanName,
+      phone: data.user?.phone || cleanPhone,
+      sessionId: data.user?.sessionId || null,
+      token,
     };
 
+    setShopperToken(token);
     setUser(nextUser);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
     return nextUser;
@@ -81,11 +112,12 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     setUser(null);
+    setShopperToken("");
     await AsyncStorage.removeItem(STORAGE_KEY);
   }
 
   async function updateProfile({ name }) {
-    if (!user?.phone) {
+    if (!user?.phone || !user?.token) {
       throw new Error("Login required to edit profile");
     }
 
@@ -111,7 +143,7 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       ready,
-      isLoggedIn: Boolean(user),
+      isLoggedIn: Boolean(user?.token),
       login,
       requestOtp,
       verifyOtpAndLogin,

@@ -51,7 +51,7 @@ export default function OrderAgainScreen() {
         setRows(featured);
 
         if (isLoggedIn) {
-          const data = await fetchReorderProducts(user.phone);
+          const data = await fetchReorderProducts();
           setPastProducts(data.products || []);
         } else {
           setPastProducts([]);

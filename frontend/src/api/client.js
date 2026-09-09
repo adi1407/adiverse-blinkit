@@ -1,5 +1,16 @@
 import { API_BASE_URL } from "../config/api";
 
+/** Module-level token so apiGet/apiPost can attach Bearer without React. */
+let shopperToken = "";
+
+export function setShopperToken(token) {
+  shopperToken = token ? String(token) : "";
+}
+
+export function getShopperToken() {
+  return shopperToken;
+}
+
 async function parseResponse(response) {
   let body;
   try {
@@ -9,18 +20,39 @@ async function parseResponse(response) {
   }
 
   if (!response.ok || body.success === false) {
-    throw new Error(body.message || `Request failed (${response.status})`);
+    const err = new Error(body.message || `Request failed (${response.status})`);
+    err.status = response.status;
+    throw err;
   }
 
   return body.data;
 }
 
-async function request(path, options) {
+function buildHeaders({ json = false, auth = true } = {}) {
+  const headers = {};
+  if (json) headers["Content-Type"] = "application/json";
+  if (auth && shopperToken) {
+    headers.Authorization = `Bearer ${shopperToken}`;
+  }
+  return headers;
+}
+
+async function request(path, options = {}) {
+  const { auth = true, headers: extra, ...rest } = options;
   const url = `${API_BASE_URL}${path}`;
 
   let response;
   try {
-    response = await fetch(url, options);
+    response = await fetch(url, {
+      ...rest,
+      headers: {
+        ...buildHeaders({
+          json: Boolean(rest.body),
+          auth,
+        }),
+        ...extra,
+      },
+    });
   } catch {
     throw new Error(
       `Cannot reach API at ${API_BASE_URL}. Is the backend running on port 5000?`
@@ -30,14 +62,14 @@ async function request(path, options) {
   return parseResponse(response);
 }
 
-export function apiGet(path) {
-  return request(path);
+export function apiGet(path, { auth = true } = {}) {
+  return request(path, { method: "GET", auth });
 }
 
-export function apiPost(path, body) {
+export function apiPost(path, body, { auth = true } = {}) {
   return request(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    auth,
+    body: body != null ? JSON.stringify(body) : undefined,
   });
 }

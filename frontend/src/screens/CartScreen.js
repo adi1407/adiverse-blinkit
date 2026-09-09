@@ -166,8 +166,6 @@ export default function CartScreen({ navigation }) {
 
     try {
       const order = await placeOrder({
-        name: user.name,
-        phone: user.phone,
         address: {
           label: selectedAddress.label,
           line1: selectedAddress.line1,
