@@ -1,7 +1,15 @@
-import { apiGet, apiPost } from "./client";
+import { apiGet, apiPost, apiUpload } from "./client";
 
 export function quotePrintJob(payload) {
   return apiPost("/api/print/quote", payload, { auth: false });
+}
+
+export function uploadPrintFile(file) {
+  return apiUpload("/api/print/upload", {
+    uri: file.uri,
+    name: file.name || "file",
+    type: file.mimeType || "application/octet-stream",
+  });
 }
 
 export function placePrintJob(payload) {

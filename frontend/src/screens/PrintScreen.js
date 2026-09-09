@@ -27,7 +27,7 @@ import {
 import ScreenHeader from "../components/ScreenHeader";
 import { useAuth } from "../context/AuthContext";
 import { useAddress } from "../context/AddressContext";
-import { placePrintJob } from "../api/printApi";
+import { placePrintJob, uploadPrintFile } from "../api/printApi";
 import { colors, spacing, radii, shadows } from "../theme/colors";
 import { fonts } from "../theme/typography";
 
@@ -201,6 +201,18 @@ export default function PrintScreen({ navigation }) {
     setPlacing(true);
 
     try {
+      const uploaded = [];
+      for (let i = 0; i < files.length; i += 1) {
+        const file = files[i];
+        const data = await uploadPrintFile(file);
+        uploaded.push({
+          name: data.name || file.name,
+          size: data.size || file.size,
+          mimeType: data.mimeType || file.mimeType,
+          url: data.url,
+        });
+      }
+
       const job = await placePrintJob({
         kind,
         color,
@@ -212,17 +224,13 @@ export default function PrintScreen({ navigation }) {
           line1: selectedAddress.line1,
           line2: selectedAddress.line2 || "",
         },
-        files: files.map((file) => ({
-          name: file.name,
-          size: file.size,
-          mimeType: file.mimeType,
-        })),
+        files: uploaded,
       });
 
       resetComposer();
       Alert.alert(
         "Print order placed!",
-        `${job.id} · ₹${job.grandTotal} · arriving in minutes`,
+        `${job.id} · ₹${job.grandTotal}`,
         [
           {
             text: "View print jobs",
@@ -496,7 +504,7 @@ export default function PrintScreen({ navigation }) {
             >
               <Text style={styles.placeText}>
                 {placing
-                  ? "Placing…"
+                  ? "Uploading & placing…"
                   : isLoggedIn
                     ? `Place print · ₹${quote.grandTotal}`
                     : "Login to place print"}

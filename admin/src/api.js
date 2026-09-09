@@ -97,6 +97,19 @@ export const adminApi = {
     api(`/api/admin/orders/${id}`, { method: "PATCH", body: { status } }),
   cancelOrder: (id) =>
     api(`/api/admin/orders/${id}/cancel`, { method: "POST" }),
+  getPrintJobs: (params = {}) => {
+    const q = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params).filter(([, v]) => v != null && v !== "")
+      )
+    ).toString();
+    return api(`/api/admin/print-jobs${q ? `?${q}` : ""}`);
+  },
+  getPrintJob: (id) => api(`/api/admin/print-jobs/${id}`),
+  updatePrintJobStatus: (id, status) =>
+    api(`/api/admin/print-jobs/${id}`, { method: "PATCH", body: { status } }),
+  cancelPrintJob: (id) =>
+    api(`/api/admin/print-jobs/${id}/cancel`, { method: "POST" }),
   getInventory: (params = {}) => {
     const q = new URLSearchParams(
       Object.fromEntries(

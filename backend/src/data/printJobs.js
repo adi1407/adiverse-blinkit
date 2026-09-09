@@ -1,4 +1,7 @@
-// Print jobs store (JSON file) — metadata only; files stay on the phone.
+/**
+ * Print jobs store — files live under /uploads/print/; status is ops-owned.
+ * Shopper cancel is only allowed while status is still `confirmed`.
+ */
 
 import fs from "fs";
 import path from "path";
@@ -10,6 +13,14 @@ const STORE_PATH = path.join(__dirname, "print.store.json");
 const DOC_RATE = { bw: 3, color: 8 };
 const PHOTO_RATE = { "4x6": 12, polaroid: 25 };
 const DELIVERY_FEE = 15;
+
+export const PRINT_STATUSES = [
+  "confirmed",
+  "printing",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+];
 
 function loadJobs() {
   try {
@@ -37,26 +48,28 @@ function makeId() {
   return `print_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-function statusForAge(ageSec) {
-  if (ageSec >= 70) return "delivered";
-  if (ageSec >= 35) return "out_for_delivery";
-  if (ageSec >= 15) return "printing";
-  return "confirmed";
+function normalizeFile(file) {
+  const url = String(file?.url || "").trim();
+  if (!url.startsWith("/uploads/print/")) {
+    const err = new Error(
+      "Each file must be uploaded first (missing /uploads/print/ url)"
+    );
+    err.status = 400;
+    throw err;
+  }
+  return {
+    name: String(file.name || "file").slice(0, 120),
+    size: Number(file.size) || 0,
+    mimeType: String(file.mimeType || ""),
+    url,
+  };
 }
 
 function withStatus(job) {
-  const ageSec = Math.max(
-    0,
-    Math.floor((Date.now() - new Date(job.createdAt).getTime()) / 1000)
-  );
-  if (job.status === "cancelled") {
-    return { ...job, status: "cancelled", ageSec, canCancel: false };
-  }
-  const status = statusForAge(ageSec);
+  const status = PRINT_STATUSES.includes(job.status) ? job.status : "confirmed";
   return {
     ...job,
     status,
-    ageSec,
     canCancel: status === "confirmed",
   };
 }
@@ -111,7 +124,7 @@ export function createPrintJob({
 }) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
   const cleanName = String(name || "").trim() || "Blinkit User";
-  const list = Array.isArray(files) ? files : [];
+  const rawFiles = Array.isArray(files) ? files : [];
 
   if (cleanPhone.length !== 10) {
     const err = new Error("Valid 10-digit phone is required");
@@ -119,7 +132,7 @@ export function createPrintJob({
     throw err;
   }
 
-  if (list.length === 0) {
+  if (rawFiles.length === 0) {
     const err = new Error("Add at least one file to print");
     err.status = 400;
     throw err;
@@ -131,7 +144,15 @@ export function createPrintJob({
     throw err;
   }
 
-  const quote = quotePrintJob({ kind, files: list, color, copies, photoSize, pages });
+  const list = rawFiles.map(normalizeFile);
+  const quote = quotePrintJob({
+    kind,
+    files: list,
+    color,
+    copies,
+    photoSize,
+    pages,
+  });
 
   const deliveryAddress = address
     ? {
@@ -155,17 +176,19 @@ export function createPrintJob({
     address: deliveryAddress,
     kind,
     color: Boolean(color),
-    photoSize: kind === "photo" ? (photoSize === "polaroid" ? "polaroid" : "4x6") : null,
-    pages: kind === "document" ? Math.max(1, Math.min(50, Number(pages) || list.length || 1)) : null,
+    photoSize:
+      kind === "photo" ? (photoSize === "polaroid" ? "polaroid" : "4x6") : null,
+    pages:
+      kind === "document"
+        ? Math.max(1, Math.min(50, Number(pages) || list.length || 1))
+        : null,
     copies: quote.copies,
-    files: list.map((file) => ({
-      name: String(file.name || "file").slice(0, 120),
-      size: Number(file.size) || 0,
-      mimeType: String(file.mimeType || ""),
-    })),
+    files: list,
     ...quote,
     status: "confirmed",
+    statusLocked: true,
     createdAt: now,
+    statusUpdatedAt: now,
   };
 
   jobs = [job, ...jobs];
@@ -207,12 +230,77 @@ export function cancelPrintJob({ jobId, phone }) {
     throw err;
   }
 
+  const now = new Date().toISOString();
   const cancelled = {
     ...existing,
     status: "cancelled",
-    cancelledAt: new Date().toISOString(),
+    statusLocked: true,
+    cancelledAt: now,
+    statusUpdatedAt: now,
   };
   jobs[index] = cancelled;
   saveJobs(jobs);
   return withStatus(cancelled);
+}
+
+export function listAllPrintJobs({ status = "", q = "", limit = 80 } = {}) {
+  const needle = String(q || "").trim().toLowerCase();
+  const want = String(status || "").trim();
+
+  let list = jobs.map(withStatus);
+
+  if (want && PRINT_STATUSES.includes(want)) {
+    list = list.filter((job) => job.status === want);
+  }
+
+  if (needle) {
+    list = list.filter((job) => {
+      const hay = `${job.id} ${job.phone} ${job.name} ${job.kind}`.toLowerCase();
+      return hay.includes(needle);
+    });
+  }
+
+  list.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+  const capped = Math.min(200, Math.max(1, Number(limit) || 80));
+  return {
+    items: list.slice(0, capped),
+    total: list.length,
+  };
+}
+
+export function adminSetPrintJobStatus(jobId, status) {
+  const nextStatus = String(status || "").trim();
+  if (!PRINT_STATUSES.includes(nextStatus)) {
+    const err = new Error(`Invalid status. Use: ${PRINT_STATUSES.join(", ")}`);
+    err.status = 400;
+    throw err;
+  }
+
+  const index = jobs.findIndex((j) => j.id === jobId);
+  if (index < 0) {
+    const err = new Error("Print job not found");
+    err.status = 404;
+    throw err;
+  }
+
+  const now = new Date().toISOString();
+  const existing = jobs[index];
+  const patched = {
+    ...existing,
+    status: nextStatus,
+    statusLocked: true,
+    statusUpdatedAt: now,
+  };
+  if (nextStatus === "cancelled") {
+    patched.cancelledAt = now;
+  }
+
+  jobs[index] = patched;
+  saveJobs(jobs);
+  return withStatus(patched);
+}
+
+export function adminCancelPrintJob(jobId) {
+  return adminSetPrintJobStatus(jobId, "cancelled");
 }

@@ -34,6 +34,12 @@ import {
   listAllOrders,
 } from "../data/orders.js";
 import {
+  adminCancelPrintJob,
+  adminSetPrintJobStatus,
+  getPrintJobById,
+  listAllPrintJobs,
+} from "../data/printJobs.js";
+import {
   adjustInventory,
   inventoryStats,
   listInventoryMap,
@@ -136,6 +142,47 @@ router.patch("/orders/:id", (req, res) => {
 router.post("/orders/:id/cancel", (req, res) => {
   try {
     return ok(res, adminCancelOrder(req.params.id));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+/** GET /api/admin/print-jobs?status=&q=&limit= */
+router.get("/print-jobs", (req, res) => {
+  const data = listAllPrintJobs({
+    status: req.query.status,
+    q: req.query.q,
+    limit: req.query.limit,
+  });
+  return ok(res, data);
+});
+
+/** GET /api/admin/print-jobs/:id */
+router.get("/print-jobs/:id", (req, res) => {
+  const job = getPrintJobById(req.params.id);
+  if (!job) {
+    return fail(res, Object.assign(new Error("Print job not found"), { status: 404 }));
+  }
+  return ok(res, job);
+});
+
+/** PATCH /api/admin/print-jobs/:id  { status } */
+router.patch("/print-jobs/:id", (req, res) => {
+  try {
+    const status = String(req.body?.status || "").trim();
+    if (!status) {
+      return fail(res, new Error("status is required"));
+    }
+    return ok(res, adminSetPrintJobStatus(req.params.id, status));
+  } catch (err) {
+    return fail(res, err);
+  }
+});
+
+/** POST /api/admin/print-jobs/:id/cancel */
+router.post("/print-jobs/:id/cancel", (req, res) => {
+  try {
+    return ok(res, adminCancelPrintJob(req.params.id));
   } catch (err) {
     return fail(res, err);
   }

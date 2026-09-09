@@ -73,3 +73,37 @@ export function apiPost(path, body, { auth = true } = {}) {
     body: body != null ? JSON.stringify(body) : undefined,
   });
 }
+
+/**
+ * Multipart upload for React Native / Expo.
+ * Pass `{ uri, name, type }` (or a web File). Do not set Content-Type —
+ * fetch sets the multipart boundary itself.
+ */
+export async function apiUpload(path, file, { auth = true, fieldName = "file" } = {}) {
+  const form = new FormData();
+  if (file?.uri) {
+    form.append(fieldName, {
+      uri: file.uri,
+      name: file.name || "upload.bin",
+      type: file.type || file.mimeType || "application/octet-stream",
+    });
+  } else {
+    form.append(fieldName, file);
+  }
+
+  const url = `${API_BASE_URL}${path}`;
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: buildHeaders({ json: false, auth }),
+      body: form,
+    });
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_BASE_URL}. Is the backend running on port 5000?`
+    );
+  }
+
+  return parseResponse(response);
+}
