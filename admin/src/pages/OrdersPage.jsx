@@ -235,7 +235,14 @@ export default function OrdersPage() {
                     {selected.payment?.label ||
                       selected.payment?.id ||
                       "—"}{" "}
-                    · {selected.paymentStatus || "—"}
+                    ·{" "}
+                    {selected.paymentStatus === "demo"
+                      ? "Demo · unpaid"
+                      : selected.paymentStatus === "paid"
+                        ? "Paid"
+                        : selected.paymentStatus === "pending"
+                          ? "Pay on delivery"
+                          : selected.paymentStatus || "—"}
                   </dd>
                 </div>
                 <div>

@@ -527,7 +527,12 @@ export default function OrderDetailScreen({ navigation, route }) {
               <Text style={styles.billLabel}>Payment</Text>
               <Text style={styles.billValue}>
                 {order.payment?.label || "Cash on delivery"}
-                {order.paymentStatus === "paid" ? " · Paid" : " · Pay on delivery"}
+                {" · "}
+                {order.paymentStatus === "demo"
+                  ? "Demo · unpaid"
+                  : order.paymentStatus === "paid"
+                    ? "Paid"
+                    : "Pay on delivery"}
               </Text>
             </View>
             {order.tipAmount > 0 ? (

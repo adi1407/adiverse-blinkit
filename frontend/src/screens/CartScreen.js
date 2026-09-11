@@ -98,7 +98,7 @@ export default function CartScreen({ navigation }) {
   const [paySheetOpen, setPaySheetOpen] = useState(false);
   const [couponCode, setCouponCode] = useState(null);
   const [coupons, setCoupons] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [tipAmount, setTipAmount] = useState(0);
 
   const TIP_OPTIONS = [0, 10, 20, 30, 50];
@@ -209,10 +209,10 @@ export default function CartScreen({ navigation }) {
       const payLabel = order.payment?.label || paymentMethod;
       const isCod = order.payment?.id === "cod" || paymentMethod === "cod";
       Alert.alert(
-        isCod ? "Order confirmed" : "Payment successful",
+        isCod ? "Order confirmed" : "Order placed",
         isCod
           ? `Pay ₹${order.grandTotal} on delivery to ${selectedAddress.label}. Order ${order.id}.`
-          : `₹${order.grandTotal} paid via ${payLabel}. Delivering to ${selectedAddress.label}.`,
+          : `₹${order.grandTotal} via ${payLabel} (demo · no charge). Delivering to ${selectedAddress.label}.`,
         [
           {
             text: "Track order",
@@ -265,6 +265,12 @@ export default function CartScreen({ navigation }) {
     }
 
     if (placing) return;
+
+    // COD places immediately; digital methods open the honest demo sheet.
+    if (paymentMethod === "cod") {
+      submitOrder();
+      return;
+    }
     setPaySheetOpen(true);
   }
 
@@ -440,7 +446,7 @@ export default function CartScreen({ navigation }) {
                 <View style={[styles.payCard, shadows.soft]}>
                   <Text style={styles.payTitle}>Payment method</Text>
                   <Text style={styles.paySubtitle}>
-                    Choose how you want to pay
+                    COD is real · UPI / card / wallet are demo (no charge)
                   </Text>
                   {PAYMENT_METHODS.map((method) => {
                     const Icon = PAYMENT_ICONS[method.icon] || Wallet;
@@ -570,7 +576,7 @@ export default function CartScreen({ navigation }) {
                   ? "Login to proceed →"
                   : paymentMethod === "cod"
                     ? "Place order →"
-                    : "Pay & place →"}
+                    : "Demo pay & place →"}
               </Text>
             </Pressable>
           </View>

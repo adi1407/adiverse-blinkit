@@ -1,25 +1,26 @@
-// Demo payment methods — mirrored on the frontend for the cart picker.
+// Payment methods — mirrored on the frontend for the cart picker.
+// COD is real; digital methods are demo-only (no PSP).
 
 export const PAYMENT_METHODS = [
-  {
-    id: "upi",
-    label: "UPI",
-    hint: "GPay · PhonePe · Paytm",
-  },
-  {
-    id: "card",
-    label: "Credit / Debit card",
-    hint: "Visa · Mastercard · RuPay",
-  },
-    {
-    id: "wallet",
-    label: "Blinkit Wallet",
-    hint: "₹500 available · instant",
-  },
   {
     id: "cod",
     label: "Cash on delivery",
     hint: "Pay when order arrives",
+  },
+  {
+    id: "upi",
+    label: "UPI",
+    hint: "Demo · no bank charge",
+  },
+  {
+    id: "card",
+    label: "Credit / Debit card",
+    hint: "Demo · no bank charge",
+  },
+  {
+    id: "wallet",
+    label: "Blinkit Wallet",
+    hint: "Demo · no bank charge",
   },
 ];
 
@@ -31,4 +32,8 @@ export function normalizePaymentMethod(id) {
   return method
     ? { id: method.id, label: method.label }
     : { id: "cod", label: "Cash on delivery" };
+}
+
+export function paymentStatusForMethod(paymentId) {
+  return paymentId === "cod" ? "pending" : "demo";
 }

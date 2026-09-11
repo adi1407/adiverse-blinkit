@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { evaluateCoupon, getCouponByCode } from "./coupons.js";
-import { normalizePaymentMethod } from "./payments.js";
+import { normalizePaymentMethod, paymentStatusForMethod } from "./payments.js";
 import {
   consumeStockForOrder,
   restockForOrder,
@@ -271,7 +271,7 @@ export function createOrder({
     coupon,
     couponDiscount,
     payment,
-    paymentStatus: payment.id === "cod" ? "pending" : "paid",
+    paymentStatus: paymentStatusForMethod(payment.id),
     grandTotal,
     status: "confirmed",
     statusUpdatedAt: now,
