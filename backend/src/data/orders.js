@@ -1,18 +1,13 @@
-// Orders store backed by a JSON file (survives backend restarts).
+// Orders store backed by Postgres (JSONB payload + indexed columns).
 // Status auto-advances over time for demo tracking (unless cancelled).
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { query } from "../db/pool.js";
 import { evaluateCoupon, getCouponByCode } from "./coupons.js";
 import { normalizePaymentMethod, paymentStatusForMethod } from "./payments.js";
 import {
   consumeStockForOrder,
   restockForOrder,
 } from "./inventory.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STORE_PATH = path.join(__dirname, "orders.store.json");
 
 /** Demo timeline (seconds after place order). Real apps use rider GPS/events. */
 export const STATUS_STEPS = [
@@ -22,29 +17,42 @@ export const STATUS_STEPS = [
   { key: "delivered", afterSec: 90, title: "Delivered", hint: "Enjoy your order" },
 ];
 
-function loadOrders() {
-  try {
-    if (!fs.existsSync(STORE_PATH)) return [];
-    const raw = fs.readFileSync(STORE_PATH, "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed.orders) ? parsed.orders : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveOrders(list) {
-  const tmp = `${STORE_PATH}.tmp`;
-  const payload = JSON.stringify(
-    { updatedAt: new Date().toISOString(), orders: list },
-    null,
-    2
+async function loadAllOrders() {
+  const res = await query(
+    "SELECT payload FROM orders ORDER BY created_at DESC"
   );
-  fs.writeFileSync(tmp, payload, "utf8");
-  fs.renameSync(tmp, STORE_PATH);
+  return res.rows.map((row) => row.payload);
 }
 
-let orders = loadOrders();
+async function saveOrder(order) {
+  const createdAt = order.createdAt || new Date().toISOString();
+  await query(
+    `INSERT INTO orders (id, phone, status, payment_status, grand_total, created_at, updated_at, payload)
+     VALUES ($1, $2, $3, $4, $5, $6::timestamptz, NOW(), $7::jsonb)
+     ON CONFLICT (id) DO UPDATE SET
+       phone = EXCLUDED.phone,
+       status = EXCLUDED.status,
+       payment_status = EXCLUDED.payment_status,
+       grand_total = EXCLUDED.grand_total,
+       updated_at = NOW(),
+       payload = EXCLUDED.payload`,
+    [
+      order.id,
+      order.phone,
+      order.status,
+      order.paymentStatus ?? null,
+      order.grandTotal ?? null,
+      createdAt,
+      JSON.stringify(order),
+    ]
+  );
+  return order;
+}
+
+async function findOrder(id) {
+  const res = await query("SELECT payload FROM orders WHERE id = $1", [id]);
+  return res.rows[0]?.payload ?? null;
+}
 
 function makeId() {
   return `ord_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -158,26 +166,23 @@ function withTimeline(order) {
   };
 }
 
-function refreshAllStatuses() {
-  let changed = false;
-  orders = orders.map((order) => {
-    if (order.status === "cancelled" || order.statusLocked) return order;
+async function refreshAllStatuses() {
+  const orders = await loadAllOrders();
+  for (const order of orders) {
+    if (order.status === "cancelled" || order.statusLocked) continue;
 
     const next = withTimeline(order);
     if (next.status !== order.status) {
-      changed = true;
-      return {
+      await saveOrder({
         ...order,
         status: next.status,
         statusUpdatedAt: new Date().toISOString(),
-      };
+      });
     }
-    return order;
-  });
-  if (changed) saveOrders(orders);
+  }
 }
 
-export function createOrder({
+export async function createOrder({
   name,
   phone,
   items,
@@ -227,14 +232,14 @@ export function createOrder({
 
   const requested = String(couponCode || "").trim();
   if (requested) {
-    const result = evaluateCoupon(requested, itemTotal, baseDeliveryFee);
+    const result = await evaluateCoupon(requested, itemTotal, baseDeliveryFee);
     if (!result.ok) {
       const err = new Error(result.message || "Coupon not applicable");
       err.status = 400;
       throw err;
     }
 
-    const meta = getCouponByCode(requested);
+    const meta = await getCouponByCode(requested);
     coupon = {
       code: meta.code,
       title: meta.title,
@@ -248,7 +253,7 @@ export function createOrder({
   const grandTotal = Math.max(0, itemTotal - itemOff + deliveryFee + tip);
 
   // Enforce tracked inventory before persisting the order.
-  consumeStockForOrder(normalized);
+  await consumeStockForOrder(normalized);
 
   const deliveryAddress = address
     ? {
@@ -278,24 +283,22 @@ export function createOrder({
     createdAt: now,
   };
 
-  orders = [order, ...orders];
-  saveOrders(orders);
+  await saveOrder(order);
   return withTimeline(order);
 }
 
-export function cancelOrder({ orderId, phone }) {
-  refreshAllStatuses();
+export async function cancelOrder({ orderId, phone }) {
+  await refreshAllStatuses();
 
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  const index = orders.findIndex((o) => o.id === orderId);
+  const existing = await findOrder(orderId);
 
-  if (index < 0) {
+  if (!existing) {
     const err = new Error("Order not found");
     err.status = 404;
     throw err;
   }
 
-  const existing = orders[index];
   if (existing.phone !== cleanPhone) {
     const err = new Error("Order does not belong to this phone");
     err.status = 403;
@@ -325,25 +328,23 @@ export function cancelOrder({ orderId, phone }) {
     cancelledAt: now,
   };
 
-  orders[index] = cancelled;
-  saveOrders(orders);
-  restockForOrder(cancelled.items || []);
+  await saveOrder(cancelled);
+  await restockForOrder(cancelled.items || []);
   return withTimeline(cancelled);
 }
 
-export function rateOrder({ orderId, phone, stars, review }) {
-  refreshAllStatuses();
+export async function rateOrder({ orderId, phone, stars, review }) {
+  await refreshAllStatuses();
 
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  const index = orders.findIndex((o) => o.id === orderId);
+  const existing = await findOrder(orderId);
 
-  if (index < 0) {
+  if (!existing) {
     const err = new Error("Order not found");
     err.status = 404;
     throw err;
   }
 
-  const existing = orders[index];
   if (existing.phone !== cleanPhone) {
     const err = new Error("Order does not belong to this phone");
     err.status = 403;
@@ -384,22 +385,23 @@ export function rateOrder({ orderId, phone, stars, review }) {
     },
   };
 
-  orders[index] = rated;
-  saveOrders(orders);
+  await saveOrder(rated);
   return withTimeline(rated);
 }
 
-export function getOrdersByPhone(phone) {
-  refreshAllStatuses();
+export async function getOrdersByPhone(phone) {
+  await refreshAllStatuses();
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  return orders
-    .filter((order) => order.phone === cleanPhone)
-    .map(withTimeline);
+  const res = await query(
+    "SELECT payload FROM orders WHERE phone = $1 ORDER BY created_at DESC",
+    [cleanPhone]
+  );
+  return res.rows.map((row) => withTimeline(row.payload));
 }
 
-export function getOrderById(id) {
-  refreshAllStatuses();
-  const order = orders.find((o) => o.id === id);
+export async function getOrderById(id) {
+  await refreshAllStatuses();
+  const order = await findOrder(id);
   return order ? withTimeline(order) : null;
 }
 
@@ -412,13 +414,14 @@ const ADMIN_STATUSES = [
 ];
 
 /** Ops console: list / filter all orders (newest first). */
-export function listAllOrders({ status = "", q = "", limit = 80 } = {}) {
-  refreshAllStatuses();
+export async function listAllOrders({ status = "", q = "", limit = 80 } = {}) {
+  await refreshAllStatuses();
   const needle = String(q || "")
     .trim()
     .toLowerCase();
   const statusFilter = String(status || "").trim();
 
+  const orders = await loadAllOrders();
   let list = orders.map(withTimeline);
   if (statusFilter) {
     list = list.filter((o) => o.status === statusFilter);
@@ -438,8 +441,8 @@ export function listAllOrders({ status = "", q = "", limit = 80 } = {}) {
 }
 
 /** Ops: set status manually and lock auto-advance. */
-export function adminSetOrderStatus(orderId, status) {
-  refreshAllStatuses();
+export async function adminSetOrderStatus(orderId, status) {
+  await refreshAllStatuses();
   const nextStatus = String(status || "").trim();
   if (!ADMIN_STATUSES.includes(nextStatus)) {
     const err = new Error(`Invalid status. Use: ${ADMIN_STATUSES.join(", ")}`);
@@ -447,15 +450,14 @@ export function adminSetOrderStatus(orderId, status) {
     throw err;
   }
 
-  const index = orders.findIndex((o) => o.id === orderId);
-  if (index < 0) {
+  const existing = await findOrder(orderId);
+  if (!existing) {
     const err = new Error("Order not found");
     err.status = 404;
     throw err;
   }
 
   const now = new Date().toISOString();
-  const existing = orders[index];
   const wasCancelled = existing.status === "cancelled";
   const patched = {
     ...existing,
@@ -467,27 +469,26 @@ export function adminSetOrderStatus(orderId, status) {
     patched.cancelledAt = now;
   }
 
-  orders[index] = patched;
-  saveOrders(orders);
+  await saveOrder(patched);
 
   if (nextStatus === "cancelled" && !wasCancelled) {
-    restockForOrder(existing.items || []);
+    await restockForOrder(existing.items || []);
   }
 
   return withTimeline(patched);
 }
 
 /** Ops cancel — no shopper phone check. */
-export function adminCancelOrder(orderId) {
+export async function adminCancelOrder(orderId) {
   return adminSetOrderStatus(orderId, "cancelled");
 }
 
 /** Unique products from a user's past orders (newest first). */
-export function getReorderProducts(phone) {
+export async function getReorderProducts(phone) {
   const seen = new Set();
   const products = [];
 
-  for (const order of getOrdersByPhone(phone)) {
+  for (const order of await getOrdersByPhone(phone)) {
     if (order.status === "cancelled") continue;
 
     for (const item of order.items) {

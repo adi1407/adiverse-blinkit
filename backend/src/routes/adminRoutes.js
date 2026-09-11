@@ -94,15 +94,17 @@ router.use(requireAdmin);
 registerUploadRoute(router);
 
 /** GET /api/admin/stats */
-router.get("/stats", (req, res) => {
-  const { activeId, theme } = getActiveFestival();
-  const { total: orders } = listAllOrders({ limit: 1 });
-  const products = getAllProducts();
-  const inv = inventoryStats(products.map((p) => p.id));
+router.get("/stats", async (req, res) => {
+  const { activeId, theme } = await getActiveFestival();
+  const { total: orders } = await listAllOrders({ limit: 1 });
+  const products = await getAllProducts();
+  const inv = await inventoryStats(products.map((p) => p.id));
+  const stats = await catalogStats();
+  const banners = await getBanners();
   return ok(res, {
-    products: catalogStats.totalProducts,
-    categories: catalogStats.categories,
-    banners: getBanners().length,
+    products: stats.totalProducts,
+    categories: stats.categories,
+    banners: banners.length,
     orders,
     inventoryOut: inv.out,
     inventoryLow: inv.low,
@@ -113,8 +115,8 @@ router.get("/stats", (req, res) => {
 });
 
 /** GET /api/admin/orders?status=&q=&limit= */
-router.get("/orders", (req, res) => {
-  const data = listAllOrders({
+router.get("/orders", async (req, res) => {
+  const data = await listAllOrders({
     status: req.query.status,
     q: req.query.q,
     limit: req.query.limit,
@@ -123,8 +125,8 @@ router.get("/orders", (req, res) => {
 });
 
 /** GET /api/admin/orders/:id */
-router.get("/orders/:id", (req, res) => {
-  const order = getOrderById(req.params.id);
+router.get("/orders/:id", async (req, res) => {
+  const order = await getOrderById(req.params.id);
   if (!order) {
     return fail(res, Object.assign(new Error("Order not found"), { status: 404 }));
   }
@@ -132,30 +134,30 @@ router.get("/orders/:id", (req, res) => {
 });
 
 /** PATCH /api/admin/orders/:id  { status } */
-router.patch("/orders/:id", (req, res) => {
+router.patch("/orders/:id", async (req, res) => {
   try {
     const status = String(req.body?.status || "").trim();
     if (!status) {
       return fail(res, new Error("status is required"));
     }
-    return ok(res, adminSetOrderStatus(req.params.id, status));
+    return ok(res, await adminSetOrderStatus(req.params.id, status));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** POST /api/admin/orders/:id/cancel */
-router.post("/orders/:id/cancel", (req, res) => {
+router.post("/orders/:id/cancel", async (req, res) => {
   try {
-    return ok(res, adminCancelOrder(req.params.id));
+    return ok(res, await adminCancelOrder(req.params.id));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** GET /api/admin/print-jobs?status=&q=&limit= */
-router.get("/print-jobs", (req, res) => {
-  const data = listAllPrintJobs({
+router.get("/print-jobs", async (req, res) => {
+  const data = await listAllPrintJobs({
     status: req.query.status,
     q: req.query.q,
     limit: req.query.limit,
@@ -164,8 +166,8 @@ router.get("/print-jobs", (req, res) => {
 });
 
 /** GET /api/admin/print-jobs/:id */
-router.get("/print-jobs/:id", (req, res) => {
-  const job = getPrintJobById(req.params.id);
+router.get("/print-jobs/:id", async (req, res) => {
+  const job = await getPrintJobById(req.params.id);
   if (!job) {
     return fail(res, Object.assign(new Error("Print job not found"), { status: 404 }));
   }
@@ -173,38 +175,38 @@ router.get("/print-jobs/:id", (req, res) => {
 });
 
 /** PATCH /api/admin/print-jobs/:id  { status } */
-router.patch("/print-jobs/:id", (req, res) => {
+router.patch("/print-jobs/:id", async (req, res) => {
   try {
     const status = String(req.body?.status || "").trim();
     if (!status) {
       return fail(res, new Error("status is required"));
     }
-    return ok(res, adminSetPrintJobStatus(req.params.id, status));
+    return ok(res, await adminSetPrintJobStatus(req.params.id, status));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** POST /api/admin/print-jobs/:id/cancel */
-router.post("/print-jobs/:id/cancel", (req, res) => {
+router.post("/print-jobs/:id/cancel", async (req, res) => {
   try {
-    return ok(res, adminCancelPrintJob(req.params.id));
+    return ok(res, await adminCancelPrintJob(req.params.id));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** GET /api/admin/festivals */
-router.get("/festivals", (req, res) => {
-  const store = getFestivalsStore();
+router.get("/festivals", async (req, res) => {
+  const store = await getFestivalsStore();
   return ok(res, store);
 });
 
 /** PUT /api/admin/festivals/active  { id } */
-router.put("/festivals/active", (req, res) => {
+router.put("/festivals/active", async (req, res) => {
   try {
     const id = String(req.body?.id || "").trim();
-    const result = setActiveFestivalId(id);
+    const result = await setActiveFestivalId(id);
     return ok(res, result);
   } catch (err) {
     return fail(res, err);
@@ -212,10 +214,10 @@ router.put("/festivals/active", (req, res) => {
 });
 
 /** PUT /api/admin/festivals/:id — upsert theme fields */
-router.put("/festivals/:id", (req, res) => {
+router.put("/festivals/:id", async (req, res) => {
   try {
     const id = String(req.params.id || "").trim();
-    const theme = upsertFestivalTheme(id, req.body || {});
+    const theme = await upsertFestivalTheme(id, req.body || {});
     return ok(res, theme);
   } catch (err) {
     return fail(res, err);
@@ -223,80 +225,81 @@ router.put("/festivals/:id", (req, res) => {
 });
 
 /** PUT /api/admin/festivals — replace whole store (optional bulk) */
-router.put("/festivals", (req, res) => {
+router.put("/festivals", async (req, res) => {
   const body = req.body || {};
   if (!body.themes || typeof body.themes !== "object") {
     return fail(res, new Error("themes object required"));
   }
+  const current = await getFestivalsStore();
   const next = {
-    activeId: body.activeId || getFestivalsStore().activeId,
+    activeId: body.activeId || current.activeId,
     themes: body.themes,
   };
-  saveFestivalsStore(next);
+  await saveFestivalsStore(next);
   return ok(res, next);
 });
 
 /** Banners CRUD */
-router.get("/banners", (req, res) => ok(res, getBanners()));
+router.get("/banners", async (req, res) => ok(res, await getBanners()));
 
-router.post("/banners", (req, res) => {
+router.post("/banners", async (req, res) => {
   try {
-    return ok(res, createBanner(req.body || {}));
+    return ok(res, await createBanner(req.body || {}));
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.patch("/banners/:id", (req, res) => {
+router.patch("/banners/:id", async (req, res) => {
   try {
-    return ok(res, updateBanner(req.params.id, req.body || {}));
+    return ok(res, await updateBanner(req.params.id, req.body || {}));
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.delete("/banners/:id", (req, res) => {
+router.delete("/banners/:id", async (req, res) => {
   try {
-    return ok(res, deleteBanner(req.params.id));
+    return ok(res, await deleteBanner(req.params.id));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** Coupons CRUD */
-router.get("/coupons", (_req, res) => ok(res, listCoupons()));
+router.get("/coupons", async (_req, res) => ok(res, await listCoupons()));
 
-router.post("/coupons", (req, res) => {
+router.post("/coupons", async (req, res) => {
   try {
-    return ok(res, createCoupon(req.body || {}));
+    return ok(res, await createCoupon(req.body || {}));
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.patch("/coupons/:code", (req, res) => {
+router.patch("/coupons/:code", async (req, res) => {
   try {
-    return ok(res, updateCoupon(req.params.code, req.body || {}));
+    return ok(res, await updateCoupon(req.params.code, req.body || {}));
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.delete("/coupons/:code", (req, res) => {
+router.delete("/coupons/:code", async (req, res) => {
   try {
-    return ok(res, deleteCoupon(req.params.code));
+    return ok(res, await deleteCoupon(req.params.code));
   } catch (err) {
     return fail(res, err);
   }
 });
 
 /** Products */
-router.get("/products", (req, res) => {
+router.get("/products", async (req, res) => {
   const q = String(req.query.q || "")
     .trim()
     .toLowerCase();
   const categoryId = String(req.query.categoryId || "").trim();
-  let list = getAllProducts();
+  let list = await getAllProducts();
   if (categoryId) list = list.filter((p) => p.categoryId === categoryId);
   if (q) {
     list = list.filter((p) => {
@@ -316,42 +319,42 @@ router.get("/products", (req, res) => {
   });
 });
 
-router.get("/products/:id", (req, res) => {
-  const product = getProductById(req.params.id);
+router.get("/products/:id", async (req, res) => {
+  const product = await getProductById(req.params.id);
   if (!product) {
     return fail(res, Object.assign(new Error("Product not found"), { status: 404 }));
   }
   return ok(res, product);
 });
 
-router.post("/products", (req, res) => {
+router.post("/products", async (req, res) => {
   try {
-    return ok(res, createProductOverride(req.body || {}));
+    return ok(res, await createProductOverride(req.body || {}));
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.patch("/products/:id", (req, res) => {
+router.patch("/products/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const result = updateProductOverride(
+    const result = await updateProductOverride(
       id,
       req.body || {},
       productExistsInBase(id)
     );
-    return ok(res, getProductById(id) || result);
+    return ok(res, (await getProductById(id)) || result);
   } catch (err) {
     return fail(res, err);
   }
 });
 
-router.delete("/products/:id", (req, res) => {
+router.delete("/products/:id", async (req, res) => {
   try {
     const id = req.params.id;
     return ok(
       res,
-      deleteProductOverride(id, productExistsInBase(id))
+      await deleteProductOverride(id, productExistsInBase(id))
     );
   } catch (err) {
     return fail(res, err);
@@ -361,7 +364,7 @@ router.delete("/products/:id", (req, res) => {
 router.get("/categories", (req, res) => ok(res, categories));
 
 /** GET /api/admin/inventory?q=&status=&categoryId=&limit= */
-router.get("/inventory", (req, res) => {
+router.get("/inventory", async (req, res) => {
   const q = String(req.query.q || "")
     .trim()
     .toLowerCase();
@@ -369,7 +372,7 @@ router.get("/inventory", (req, res) => {
   const categoryId = String(req.query.categoryId || "").trim();
   const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 80));
 
-  let products = getAllProducts();
+  let products = await getAllProducts();
   if (categoryId) {
     products = products.filter((p) => p.categoryId === categoryId);
   }
@@ -380,7 +383,7 @@ router.get("/inventory", (req, res) => {
     });
   }
 
-  const map = listInventoryMap();
+  const map = await listInventoryMap();
   let rows = products.map((p) => {
     const inv = map[p.id];
     const stockStatus = p.stockStatus || inv?.status || "untracked";
@@ -418,7 +421,7 @@ router.get("/inventory", (req, res) => {
     );
   }
 
-  const stats = inventoryStats(products.map((p) => p.id));
+  const stats = await inventoryStats(products.map((p) => p.id));
   return ok(res, {
     items: rows.slice(0, limit),
     total: rows.length,
@@ -428,15 +431,15 @@ router.get("/inventory", (req, res) => {
 });
 
 /** PUT /api/admin/inventory/:id  { onHand, lowStockAt, tracked } */
-router.put("/inventory/:id", (req, res) => {
+router.put("/inventory/:id", async (req, res) => {
   try {
     const body = req.body || {};
-    const record = setInventory(req.params.id, {
+    const record = await setInventory(req.params.id, {
       onHand: body.onHand,
       lowStockAt: body.lowStockAt,
       tracked: body.tracked !== false,
     });
-    const product = getProductById(req.params.id);
+    const product = await getProductById(req.params.id);
     return ok(res, { ...record, product });
   } catch (err) {
     return fail(res, err);
@@ -444,13 +447,13 @@ router.put("/inventory/:id", (req, res) => {
 });
 
 /** POST /api/admin/inventory/:id/adjust  { delta, lowStockAt? } */
-router.post("/inventory/:id/adjust", (req, res) => {
+router.post("/inventory/:id/adjust", async (req, res) => {
   try {
     const delta = Number(req.body?.delta);
-    const record = adjustInventory(req.params.id, delta, {
+    const record = await adjustInventory(req.params.id, delta, {
       lowStockAt: req.body?.lowStockAt,
     });
-    const product = getProductById(req.params.id);
+    const product = await getProductById(req.params.id);
     return ok(res, { ...record, product });
   } catch (err) {
     return fail(res, err);

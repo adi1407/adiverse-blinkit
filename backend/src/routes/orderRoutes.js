@@ -30,11 +30,11 @@ function assertOwnsOrder(order, phone) {
 router.use("/orders", requireShopper);
 
 // POST /api/orders — place an order
-router.post("/orders", (req, res) => {
+router.post("/orders", async (req, res) => {
   try {
     const { items, address, couponCode, paymentMethod, tipAmount } =
       req.body || {};
-    const order = createOrder({
+    const order = await createOrder({
       name: req.shopper.name,
       phone: req.shopper.phone,
       items,
@@ -53,9 +53,9 @@ router.post("/orders", (req, res) => {
 });
 
 // POST /api/orders/:id/cancel
-router.post("/orders/:id/cancel", (req, res) => {
+router.post("/orders/:id/cancel", async (req, res) => {
   try {
-    const order = cancelOrder({
+    const order = await cancelOrder({
       orderId: req.params.id,
       phone: req.shopper.phone,
     });
@@ -69,10 +69,10 @@ router.post("/orders/:id/cancel", (req, res) => {
 });
 
 // POST /api/orders/:id/rate
-router.post("/orders/:id/rate", (req, res) => {
+router.post("/orders/:id/rate", async (req, res) => {
   try {
     const { stars, review } = req.body || {};
-    const order = rateOrder({
+    const order = await rateOrder({
       orderId: req.params.id,
       phone: req.shopper.phone,
       stars,
@@ -88,9 +88,9 @@ router.post("/orders/:id/rate", (req, res) => {
 });
 
 // GET /api/orders
-router.get("/orders", (req, res) => {
+router.get("/orders", async (req, res) => {
   const phone = req.shopper.phone;
-  const list = getOrdersByPhone(phone);
+  const list = await getOrdersByPhone(phone);
   res.json({
     success: true,
     data: {
@@ -102,9 +102,9 @@ router.get("/orders", (req, res) => {
 });
 
 // GET /api/orders/reorder
-router.get("/orders/reorder", (req, res) => {
+router.get("/orders/reorder", async (req, res) => {
   const phone = req.shopper.phone;
-  const products = getReorderProducts(phone);
+  const products = await getReorderProducts(phone);
   res.json({
     success: true,
     data: {
@@ -116,9 +116,9 @@ router.get("/orders/reorder", (req, res) => {
 });
 
 // GET /api/orders/:id — owner only (404 for others to avoid leaking existence)
-router.get("/orders/:id", (req, res) => {
+router.get("/orders/:id", async (req, res) => {
   try {
-    const order = getOrderById(req.params.id);
+    const order = await getOrderById(req.params.id);
     assertOwnsOrder(order, req.shopper.phone);
     res.json({ success: true, data: order });
   } catch (err) {

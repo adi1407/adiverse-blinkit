@@ -9,6 +9,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import festivalRoutes from "./routes/festivalRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 import { UPLOADS_DIR } from "./routes/upload.js";
+import { migrate } from "./db/migrate.js";
 
 dotenv.config();
 
@@ -34,8 +35,19 @@ app.use("/api", orderRoutes);
 app.use("/api", printRoutes);
 app.use("/api/admin", adminRoutes);
 
-// 0.0.0.0 = reachable from phone on same Wi‑Fi (not only this PC)
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Phone / Expo Go: use http://<YOUR_PC_IP>:${PORT}`);
-});
+async function boot() {
+  try {
+    await migrate();
+  } catch (err) {
+    console.error("Migration failed:", err);
+    process.exit(1);
+  }
+
+  // 0.0.0.0 = reachable from phone on same Wi‑Fi (not only this PC)
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Phone / Expo Go: use http://<YOUR_PC_IP>:${PORT}`);
+  });
+}
+
+boot();

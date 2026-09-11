@@ -19,9 +19,9 @@ import {
 const router = Router();
 
 // GET /api/home — everything the Home screen needs (?hub=beauty)
-router.get("/home", (req, res) => {
+router.get("/home", async (req, res) => {
   const hub = String(req.query.hub || "all").trim() || "all";
-  const sections = buildHomeSections({ hub });
+  const sections = await buildHomeSections({ hub });
   const rows = buildFeaturedRowsFromSections(sections);
   res.json({
     success: true,
@@ -31,7 +31,7 @@ router.get("/home", (req, res) => {
       lifestyleHubs,
       sections,
       featuredRows: rows.length ? rows : featuredRows,
-      stats: catalogStats,
+      stats: await catalogStats(),
       hub,
     },
   });
@@ -63,7 +63,7 @@ router.get("/categories/:id", (req, res) => {
 });
 
 // GET /api/categories/:id/products?page=1&limit=40&q=lays&sort=price_asc
-router.get("/categories/:id/products", (req, res) => {
+router.get("/categories/:id/products", async (req, res) => {
   const category = getCategoryById(req.params.id);
 
   if (!category) {
@@ -75,7 +75,7 @@ router.get("/categories/:id/products", (req, res) => {
 
   const q = String(req.query.q || "").trim();
   const sort = String(req.query.sort || "relevance");
-  const all = filterCategoryProducts(req.params.id, { q, sort });
+  const all = await filterCategoryProducts(req.params.id, { q, sort });
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(60, Math.max(1, Number(req.query.limit) || 40));
   const start = (page - 1) * limit;
@@ -99,9 +99,9 @@ router.get("/categories/:id/products", (req, res) => {
 });
 
 // GET /api/search?q=milk
-router.get("/search", (req, res) => {
+router.get("/search", async (req, res) => {
   const q = String(req.query.q || "").trim();
-  const products = searchProducts(q);
+  const products = await searchProducts(q);
 
   res.json({
     success: true,
@@ -114,8 +114,8 @@ router.get("/search", (req, res) => {
 });
 
 // GET /api/products/:id — PDP + similar picks
-router.get("/products/:id", (req, res) => {
-  const product = getProductById(req.params.id);
+router.get("/products/:id", async (req, res) => {
+  const product = await getProductById(req.params.id);
 
   if (!product) {
     return res.status(404).json({
@@ -125,7 +125,7 @@ router.get("/products/:id", (req, res) => {
   }
 
   const category = getCategoryById(product.categoryId);
-  const similar = getSimilarProducts(product.id, 12);
+  const similar = await getSimilarProducts(product.id, 12);
 
   res.json({
     success: true,

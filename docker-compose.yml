@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blinkit-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: blinkit
+      POSTGRES_PASSWORD: blinkit
+      POSTGRES_DB: blinkit
+    volumes:
+      - blinkit_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blinkit -d blinkit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  blinkit_pg_data:

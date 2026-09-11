@@ -23,7 +23,7 @@ import {
 } from "./curated/specialty.js";
 import imageOverrides from "./curated/imageOverrides.json" with { type: "json" };
 import { mergeAllProducts, mergeCategoryProducts } from "./productOverrides.js";
-import { applyInventoryToList, applyInventoryToProduct } from "./inventory.js";
+import { applyInventoryToList } from "./inventory.js";
 
 export const deliveryInfo = {
   minutes: 8,
@@ -140,22 +140,23 @@ export function getCategoryById(id) {
   return categories.find((cat) => cat.id === id);
 }
 
-export function getProductsByCategoryId(id) {
+export async function getProductsByCategoryId(id) {
   const base = productsByCategory[id] || [];
-  return applyInventoryToList(mergeCategoryProducts(base, id));
+  const merged = await mergeCategoryProducts(base, id);
+  return applyInventoryToList(merged);
 }
 
-export function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) {
-  const query = String(q || "")
+export async function filterCategoryProducts(id, { q = "", sort = "relevance" } = {}) {
+  const queryText = String(q || "")
     .trim()
     .toLowerCase();
 
-  let listItems = [...getProductsByCategoryId(id)];
+  let listItems = [...(await getProductsByCategoryId(id))];
 
-  if (query) {
+  if (queryText) {
     listItems = listItems.filter((product) => {
       const haystack = `${product.name} ${product.brand || ""} ${product.unit}`.toLowerCase();
-      return haystack.includes(query);
+      return haystack.includes(queryText);
     });
   }
 
@@ -171,21 +172,22 @@ function getBaseAllProducts() {
   );
 }
 
-export function getAllProducts() {
-  return applyInventoryToList(mergeAllProducts(getBaseAllProducts));
+export async function getAllProducts() {
+  const merged = await mergeAllProducts(getBaseAllProducts);
+  return applyInventoryToList(merged);
 }
 
 export function productExistsInBase(id) {
   return getBaseAllProducts().some((p) => p.id === id);
 }
 
-export function getProductById(id) {
-  const product = getAllProducts().find((p) => p.id === id) || null;
-  return product ? applyInventoryToProduct(product) : null;
+export async function getProductById(id) {
+  const all = await getAllProducts();
+  return all.find((p) => p.id === id) || null;
 }
 
-export function getSimilarProducts(id, limit = 12) {
-  const product = getProductById(id);
+export async function getSimilarProducts(id, limit = 12) {
+  const product = await getProductById(id);
   if (!product) return [];
 
   const tokens = String(product.name || "")
@@ -193,7 +195,8 @@ export function getSimilarProducts(id, limit = 12) {
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length > 2);
 
-  const scored = getProductsByCategoryId(product.categoryId)
+  const categoryProducts = await getProductsByCategoryId(product.categoryId);
+  const scored = categoryProducts
     .filter((item) => item.id !== id)
     .map((item) => {
       const haystack = `${item.name} ${item.brand || ""} ${item.unit}`.toLowerCase();
@@ -208,13 +211,14 @@ export function getSimilarProducts(id, limit = 12) {
   return scored.slice(0, limit).map(({ item }) => item);
 }
 
-export function searchProducts(query) {
+export async function searchProducts(query) {
   const q = String(query || "")
     .trim()
     .toLowerCase();
   if (!q) return [];
 
-  return getAllProducts()
+  const all = await getAllProducts();
+  return all
     .filter((product) => {
       const haystack = `${product.name} ${product.brand || ""} ${product.unit}`.toLowerCase();
       return haystack.includes(q);
@@ -222,23 +226,17 @@ export function searchProducts(query) {
     .slice(0, 80);
 }
 
-export const catalogStats = {
-  get generatedCount() {
-    return 0;
-  },
-  get totalProducts() {
-    return getAllProducts().length;
-  },
-  get snacks() {
-    return getProductsByCategoryId("c8").length;
-  },
-  get drinks() {
-    return getProductsByCategoryId("c7").length;
-  },
-  get masalas() {
-    return getProductsByCategoryId("c4").length;
-  },
-  get categories() {
-    return categories.length;
-  },
-};
+export async function catalogStats() {
+  const all = await getAllProducts();
+  const snacks = await getProductsByCategoryId("c8");
+  const drinks = await getProductsByCategoryId("c7");
+  const masalas = await getProductsByCategoryId("c4");
+  return {
+    generatedCount: 0,
+    totalProducts: all.length,
+    snacks: snacks.length,
+    drinks: drinks.length,
+    masalas: masalas.length,
+    categories: categories.length,
+  };
+}

@@ -1,41 +1,32 @@
 /**
- * Inventory ops layer — separate from catalog merchandising.
- *
- * Model (v1 / dark-store lite):
- * - Untracked SKU  → treated as in stock (unlimited) until ops enables tracking
- * - Tracked SKU    → onHand qty; lowStockAt threshold; status = ok | low | out
- * - Checkout       → refuses OOS / oversell; decrements onHand
- * - Cancel         → restocks qty (confirmed cancellations)
- *
- * Later (not in this file yet): multi-store bins, reservations, WMS sync.
+ * Inventory ops layer — Postgres-backed.
  */
-import { readJson, writeJson } from "./cmsStore.js";
-
-const FILE = "inventory.json";
-const FALLBACK = { items: {}, updatedAt: null };
-
-function load() {
-  const data = readJson(FILE, FALLBACK);
-  if (!data.items || typeof data.items !== "object") {
-    return { items: {}, updatedAt: null };
-  }
-  return data;
-}
-
-function save(store) {
-  store.updatedAt = new Date().toISOString();
-  writeJson(FILE, store);
-  return store;
-}
+import { query, withTransaction } from "../db/pool.js";
 
 function normalizeRecord(raw = {}) {
-  const onHand = Math.max(0, Math.floor(Number(raw.onHand) || 0));
-  const lowStockAt = Math.max(0, Math.floor(Number(raw.lowStockAt) || 5));
+  const onHand = Math.max(0, Math.floor(Number(raw.onHand ?? raw.on_hand) || 0));
+  const lowStockAt = Math.max(
+    0,
+    Math.floor(Number(raw.lowStockAt ?? raw.low_stock_at) || 5)
+  );
   return {
     tracked: raw.tracked !== false,
     onHand,
     lowStockAt,
-    updatedAt: raw.updatedAt || new Date().toISOString(),
+    updatedAt:
+      raw.updatedAt ||
+      raw.updated_at ||
+      new Date().toISOString(),
+  };
+}
+
+function rowToRecord(row) {
+  if (!row) return null;
+  const record = normalizeRecord(row);
+  return {
+    productId: row.product_id,
+    ...record,
+    status: stockStatusFor(record),
   };
 }
 
@@ -46,11 +37,10 @@ export function stockStatusFor(record) {
   return "ok";
 }
 
-export function applyInventoryToProduct(product) {
+function applyFromMap(product, map) {
   if (!product?.id) return product;
-  const store = load();
-  const raw = store.items[product.id];
-  if (!raw || raw.tracked === false) {
+  const row = map[product.id];
+  if (!row || row.tracked === false) {
     return {
       ...product,
       stockTracked: false,
@@ -59,51 +49,58 @@ export function applyInventoryToProduct(product) {
       inStock: product.inStock !== false,
     };
   }
-  const record = normalizeRecord(raw);
-  const status = stockStatusFor(record);
   return {
     ...product,
     stockTracked: true,
-    stockQty: record.onHand,
-    lowStockAt: record.lowStockAt,
-    stockStatus: status,
-    inStock: status !== "out",
-    outOfStock: status === "out",
+    stockQty: row.onHand,
+    lowStockAt: row.lowStockAt,
+    stockStatus: row.status,
+    inStock: row.status !== "out",
+    outOfStock: row.status === "out",
   };
 }
 
-export function applyInventoryToList(list) {
-  return (list || []).map(applyInventoryToProduct);
-}
-
-export function getInventoryRecord(productId) {
-  const store = load();
-  const raw = store.items[productId];
-  if (!raw) return null;
-  const record = normalizeRecord(raw);
-  return {
-    productId,
-    ...record,
-    status: stockStatusFor(record),
-  };
-}
-
-export function listInventoryMap() {
-  const store = load();
+export async function listInventoryMap() {
+  const res = await query("SELECT * FROM inventory");
   const map = {};
-  for (const [productId, raw] of Object.entries(store.items || {})) {
-    const record = normalizeRecord(raw);
-    map[productId] = {
-      productId,
-      ...record,
-      status: stockStatusFor(record),
-    };
+  for (const row of res.rows) {
+    const record = rowToRecord(row);
+    map[record.productId] = record;
   }
   return map;
 }
 
-/** Set absolute stock and enable tracking. */
-export function setInventory(productId, { onHand, lowStockAt, tracked = true } = {}) {
+export async function applyInventoryToProduct(product) {
+  if (!product?.id) return product;
+  const res = await query(
+    "SELECT * FROM inventory WHERE product_id = $1",
+    [product.id]
+  );
+  const map = {};
+  if (res.rows[0]) {
+    const record = rowToRecord(res.rows[0]);
+    map[record.productId] = record;
+  }
+  return applyFromMap(product, map);
+}
+
+export async function applyInventoryToList(list) {
+  const map = await listInventoryMap();
+  return (list || []).map((p) => applyFromMap(p, map));
+}
+
+export async function getInventoryRecord(productId) {
+  const res = await query(
+    "SELECT * FROM inventory WHERE product_id = $1",
+    [productId]
+  );
+  return rowToRecord(res.rows[0]);
+}
+
+export async function setInventory(
+  productId,
+  { onHand, lowStockAt, tracked = true } = {}
+) {
   const id = String(productId || "").trim();
   if (!id) {
     const err = new Error("productId required");
@@ -111,32 +108,38 @@ export function setInventory(productId, { onHand, lowStockAt, tracked = true } =
     throw err;
   }
 
-  const store = load();
-  const prev = store.items[id] ? normalizeRecord(store.items[id]) : null;
+  if (tracked === false) {
+    await query("DELETE FROM inventory WHERE product_id = $1", [id]);
+    return {
+      productId: id,
+      tracked: false,
+      onHand: null,
+      lowStockAt: null,
+      status: "untracked",
+    };
+  }
+
+  const prev = await getInventoryRecord(id);
   const next = normalizeRecord({
-    tracked,
+    tracked: true,
     onHand: onHand != null ? onHand : prev?.onHand ?? 0,
     lowStockAt: lowStockAt != null ? lowStockAt : prev?.lowStockAt ?? 5,
-    updatedAt: new Date().toISOString(),
   });
 
-  if (tracked === false) {
-    delete store.items[id];
-  } else {
-    store.items[id] = next;
-  }
-  save(store);
-  return getInventoryRecord(id) || {
-    productId: id,
-    tracked: false,
-    onHand: null,
-    lowStockAt: null,
-    status: "untracked",
-  };
+  await query(
+    `INSERT INTO inventory (product_id, tracked, on_hand, low_stock_at, updated_at)
+     VALUES ($1, TRUE, $2, $3, NOW())
+     ON CONFLICT (product_id) DO UPDATE SET
+       tracked = TRUE,
+       on_hand = EXCLUDED.on_hand,
+       low_stock_at = EXCLUDED.low_stock_at,
+       updated_at = NOW()`,
+    [id, next.onHand, next.lowStockAt]
+  );
+  return getInventoryRecord(id);
 }
 
-/** Relative adjust: delta can be +/−. Enables tracking if missing. */
-export function adjustInventory(productId, delta, { lowStockAt } = {}) {
+export async function adjustInventory(productId, delta, { lowStockAt } = {}) {
   const id = String(productId || "").trim();
   const change = Math.trunc(Number(delta));
   if (!id || !Number.isFinite(change) || change === 0) {
@@ -145,86 +148,83 @@ export function adjustInventory(productId, delta, { lowStockAt } = {}) {
     throw err;
   }
 
-  const store = load();
-  const prev = store.items[id]
-    ? normalizeRecord(store.items[id])
-    : normalizeRecord({ tracked: true, onHand: 0, lowStockAt: 5 });
+  const prev =
+    (await getInventoryRecord(id)) ||
+    normalizeRecord({ tracked: true, onHand: 0, lowStockAt: 5 });
 
-  const next = normalizeRecord({
-    ...prev,
-    onHand: Math.max(0, prev.onHand + change),
+  return setInventory(id, {
+    tracked: true,
+    onHand: Math.max(0, (prev.onHand || 0) + change),
     lowStockAt: lowStockAt != null ? lowStockAt : prev.lowStockAt,
-    updatedAt: new Date().toISOString(),
   });
-  store.items[id] = next;
-  save(store);
-  return getInventoryRecord(id);
 }
 
-/**
- * Checkout guard + decrement.
- * Only tracked SKUs are enforced; untracked pass through.
- */
-export function consumeStockForOrder(items) {
-  const store = load();
+export async function consumeStockForOrder(items) {
   const lines = Array.isArray(items) ? items : [];
 
-  for (const line of lines) {
-    const id = line.id;
-    const qty = Math.max(1, Number(line.qty) || 1);
-    const raw = store.items[id];
-    if (!raw || raw.tracked === false) continue;
-    const record = normalizeRecord(raw);
-    if (record.onHand < qty) {
-      const err = new Error(
-        record.onHand <= 0
-          ? `${line.name || "Item"} is out of stock`
-          : `Only ${record.onHand} left for ${line.name || "item"}`
+  await withTransaction(async (client) => {
+    for (const line of lines) {
+      const id = line.id;
+      const qty = Math.max(1, Number(line.qty) || 1);
+      const res = await client.query(
+        "SELECT * FROM inventory WHERE product_id = $1 FOR UPDATE",
+        [id]
       );
-      err.status = 409;
-      throw err;
+      const row = res.rows[0];
+      if (!row || row.tracked === false) continue;
+      const record = normalizeRecord(row);
+      if (record.onHand < qty) {
+        const err = new Error(
+          record.onHand <= 0
+            ? `${line.name || "Item"} is out of stock`
+            : `Only ${record.onHand} left for ${line.name || "item"}`
+        );
+        err.status = 409;
+        throw err;
+      }
     }
-  }
 
-  let changed = false;
-  for (const line of lines) {
-    const id = line.id;
-    const qty = Math.max(1, Number(line.qty) || 1);
-    const raw = store.items[id];
-    if (!raw || raw.tracked === false) continue;
-    const record = normalizeRecord(raw);
-    store.items[id] = normalizeRecord({
-      ...record,
-      onHand: Math.max(0, record.onHand - qty),
-      updatedAt: new Date().toISOString(),
-    });
-    changed = true;
-  }
-  if (changed) save(store);
+    for (const line of lines) {
+      const id = line.id;
+      const qty = Math.max(1, Number(line.qty) || 1);
+      const res = await client.query(
+        "SELECT * FROM inventory WHERE product_id = $1 FOR UPDATE",
+        [id]
+      );
+      const row = res.rows[0];
+      if (!row || row.tracked === false) continue;
+      const record = normalizeRecord(row);
+      await client.query(
+        `UPDATE inventory SET on_hand = $2, updated_at = NOW() WHERE product_id = $1`,
+        [id, Math.max(0, record.onHand - qty)]
+      );
+    }
+  });
 }
 
-export function restockForOrder(items) {
-  const store = load();
+export async function restockForOrder(items) {
   const lines = Array.isArray(items) ? items : [];
-  let changed = false;
-  for (const line of lines) {
-    const id = line.id;
-    const qty = Math.max(1, Number(line.qty) || 1);
-    const raw = store.items[id];
-    if (!raw || raw.tracked === false) continue;
-    const record = normalizeRecord(raw);
-    store.items[id] = normalizeRecord({
-      ...record,
-      onHand: record.onHand + qty,
-      updatedAt: new Date().toISOString(),
-    });
-    changed = true;
-  }
-  if (changed) save(store);
+  await withTransaction(async (client) => {
+    for (const line of lines) {
+      const id = line.id;
+      const qty = Math.max(1, Number(line.qty) || 1);
+      const res = await client.query(
+        "SELECT * FROM inventory WHERE product_id = $1 FOR UPDATE",
+        [id]
+      );
+      const row = res.rows[0];
+      if (!row || row.tracked === false) continue;
+      const record = normalizeRecord(row);
+      await client.query(
+        `UPDATE inventory SET on_hand = $2, updated_at = NOW() WHERE product_id = $1`,
+        [id, record.onHand + qty]
+      );
+    }
+  });
 }
 
-export function inventoryStats(productIds = []) {
-  const map = listInventoryMap();
+export async function inventoryStats(productIds = []) {
+  const map = await listInventoryMap();
   let tracked = 0;
   let out = 0;
   let low = 0;

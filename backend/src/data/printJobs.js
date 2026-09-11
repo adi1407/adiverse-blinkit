@@ -1,14 +1,10 @@
 /**
  * Print jobs store — files live under /uploads/print/; status is ops-owned.
  * Shopper cancel is only allowed while status is still `confirmed`.
+ * Postgres-backed (JSONB payload + indexed columns).
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STORE_PATH = path.join(__dirname, "print.store.json");
+import { query } from "../db/pool.js";
 
 const DOC_RATE = { bw: 3, color: 8 };
 const PHOTO_RATE = { "4x6": 12, polaroid: 25 };
@@ -22,27 +18,42 @@ export const PRINT_STATUSES = [
   "cancelled",
 ];
 
-function loadJobs() {
-  try {
-    if (!fs.existsSync(STORE_PATH)) return [];
-    const parsed = JSON.parse(fs.readFileSync(STORE_PATH, "utf8"));
-    return Array.isArray(parsed.jobs) ? parsed.jobs : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveJobs(list) {
-  const tmp = `${STORE_PATH}.tmp`;
-  fs.writeFileSync(
-    tmp,
-    JSON.stringify({ updatedAt: new Date().toISOString(), jobs: list }, null, 2),
-    "utf8"
+async function loadAllJobs() {
+  const res = await query(
+    "SELECT payload FROM print_jobs ORDER BY created_at DESC"
   );
-  fs.renameSync(tmp, STORE_PATH);
+  return res.rows.map((row) => row.payload);
 }
 
-let jobs = loadJobs();
+async function saveJob(job) {
+  const createdAt = job.createdAt || new Date().toISOString();
+  await query(
+    `INSERT INTO print_jobs (id, phone, status, kind, grand_total, created_at, updated_at, payload)
+     VALUES ($1, $2, $3, $4, $5, $6::timestamptz, NOW(), $7::jsonb)
+     ON CONFLICT (id) DO UPDATE SET
+       phone = EXCLUDED.phone,
+       status = EXCLUDED.status,
+       kind = EXCLUDED.kind,
+       grand_total = EXCLUDED.grand_total,
+       updated_at = NOW(),
+       payload = EXCLUDED.payload`,
+    [
+      job.id,
+      job.phone,
+      job.status,
+      job.kind ?? null,
+      job.grandTotal ?? null,
+      createdAt,
+      JSON.stringify(job),
+    ]
+  );
+  return job;
+}
+
+async function findJob(id) {
+  const res = await query("SELECT payload FROM print_jobs WHERE id = $1", [id]);
+  return res.rows[0]?.payload ?? null;
+}
 
 function makeId() {
   return `print_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -111,7 +122,7 @@ export function quotePrintJob({ kind, files, color, copies, photoSize, pages }) 
   };
 }
 
-export function createPrintJob({
+export async function createPrintJob({
   name,
   phone,
   address,
@@ -191,32 +202,34 @@ export function createPrintJob({
     statusUpdatedAt: now,
   };
 
-  jobs = [job, ...jobs];
-  saveJobs(jobs);
+  await saveJob(job);
   return withStatus(job);
 }
 
-export function getPrintJobsByPhone(phone) {
+export async function getPrintJobsByPhone(phone) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  return jobs.filter((job) => job.phone === cleanPhone).map(withStatus);
+  const res = await query(
+    "SELECT payload FROM print_jobs WHERE phone = $1 ORDER BY created_at DESC",
+    [cleanPhone]
+  );
+  return res.rows.map((row) => withStatus(row.payload));
 }
 
-export function getPrintJobById(id) {
-  const job = jobs.find((j) => j.id === id);
+export async function getPrintJobById(id) {
+  const job = await findJob(id);
   return job ? withStatus(job) : null;
 }
 
-export function cancelPrintJob({ jobId, phone }) {
+export async function cancelPrintJob({ jobId, phone }) {
   const cleanPhone = String(phone || "").replace(/\D/g, "");
-  const index = jobs.findIndex((j) => j.id === jobId);
+  const existing = await findJob(jobId);
 
-  if (index < 0) {
+  if (!existing) {
     const err = new Error("Print job not found");
     err.status = 404;
     throw err;
   }
 
-  const existing = jobs[index];
   if (existing.phone !== cleanPhone) {
     const err = new Error("Print job does not belong to this phone");
     err.status = 403;
@@ -238,15 +251,15 @@ export function cancelPrintJob({ jobId, phone }) {
     cancelledAt: now,
     statusUpdatedAt: now,
   };
-  jobs[index] = cancelled;
-  saveJobs(jobs);
+  await saveJob(cancelled);
   return withStatus(cancelled);
 }
 
-export function listAllPrintJobs({ status = "", q = "", limit = 80 } = {}) {
+export async function listAllPrintJobs({ status = "", q = "", limit = 80 } = {}) {
   const needle = String(q || "").trim().toLowerCase();
   const want = String(status || "").trim();
 
+  const jobs = await loadAllJobs();
   let list = jobs.map(withStatus);
 
   if (want && PRINT_STATUSES.includes(want)) {
@@ -269,7 +282,7 @@ export function listAllPrintJobs({ status = "", q = "", limit = 80 } = {}) {
   };
 }
 
-export function adminSetPrintJobStatus(jobId, status) {
+export async function adminSetPrintJobStatus(jobId, status) {
   const nextStatus = String(status || "").trim();
   if (!PRINT_STATUSES.includes(nextStatus)) {
     const err = new Error(`Invalid status. Use: ${PRINT_STATUSES.join(", ")}`);
@@ -277,15 +290,14 @@ export function adminSetPrintJobStatus(jobId, status) {
     throw err;
   }
 
-  const index = jobs.findIndex((j) => j.id === jobId);
-  if (index < 0) {
+  const existing = await findJob(jobId);
+  if (!existing) {
     const err = new Error("Print job not found");
     err.status = 404;
     throw err;
   }
 
   const now = new Date().toISOString();
-  const existing = jobs[index];
   const patched = {
     ...existing,
     status: nextStatus,
@@ -296,11 +308,10 @@ export function adminSetPrintJobStatus(jobId, status) {
     patched.cancelledAt = now;
   }
 
-  jobs[index] = patched;
-  saveJobs(jobs);
+  await saveJob(patched);
   return withStatus(patched);
 }
 
-export function adminCancelPrintJob(jobId) {
+export async function adminCancelPrintJob(jobId) {
   return adminSetPrintJobStatus(jobId, "cancelled");
 }

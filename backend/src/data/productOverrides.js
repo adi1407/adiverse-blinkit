@@ -3,8 +3,8 @@
  */
 import { getProductOverrides, saveProductOverrides } from "./cmsStore.js";
 
-function applyOverridesToList(baseList, categoryId) {
-  const { created = [], updated = {}, deleted = [] } = getProductOverrides();
+function applyOverridesToList(baseList, categoryId, overrides) {
+  const { created = [], updated = {}, deleted = [] } = overrides;
   const deletedSet = new Set(deleted);
 
   let list = baseList
@@ -41,12 +41,14 @@ function applyOverridesToList(baseList, categoryId) {
   return list;
 }
 
-export function mergeCategoryProducts(baseList, categoryId) {
-  return applyOverridesToList(baseList, categoryId);
+export async function mergeCategoryProducts(baseList, categoryId) {
+  const overrides = await getProductOverrides();
+  return applyOverridesToList(baseList, categoryId, overrides);
 }
 
-export function mergeAllProducts(getBaseAll) {
-  const { created = [], updated = {}, deleted = [] } = getProductOverrides();
+export async function mergeAllProducts(getBaseAll) {
+  const { created = [], updated = {}, deleted = [] } =
+    await getProductOverrides();
   const deletedSet = new Set(deleted);
   const base = getBaseAll()
     .filter((p) => !deletedSet.has(p.id))
@@ -75,8 +77,8 @@ export function mergeAllProducts(getBaseAll) {
   return base;
 }
 
-export function createProductOverride(input) {
-  const overrides = getProductOverrides();
+export async function createProductOverride(input) {
+  const overrides = await getProductOverrides();
   const id =
     input.id ||
     `admin-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
@@ -100,12 +102,12 @@ export function createProductOverride(input) {
   overrides.created = overrides.created.filter((p) => p.id !== id);
   overrides.created.push(product);
   overrides.deleted = (overrides.deleted || []).filter((d) => d !== id);
-  saveProductOverrides(overrides);
+  await saveProductOverrides(overrides);
   return product;
 }
 
-export function updateProductOverride(id, patch, existsInBase) {
-  const overrides = getProductOverrides();
+export async function updateProductOverride(id, patch, existsInBase) {
+  const overrides = await getProductOverrides();
   const createdIdx = (overrides.created || []).findIndex((p) => p.id === id);
 
   if (createdIdx >= 0) {
@@ -122,7 +124,7 @@ export function updateProductOverride(id, patch, existsInBase) {
         patch.images?.[0] ||
         overrides.created[createdIdx].image,
     };
-    saveProductOverrides(overrides);
+    await saveProductOverrides(overrides);
     return overrides.created[createdIdx];
   }
 
@@ -140,12 +142,12 @@ export function updateProductOverride(id, patch, existsInBase) {
   if (patch.image && !patch.images) {
     overrides.updated[id].images = [patch.image];
   }
-  saveProductOverrides(overrides);
+  await saveProductOverrides(overrides);
   return { id, ...overrides.updated[id] };
 }
 
-export function deleteProductOverride(id, existsInBase) {
-  const overrides = getProductOverrides();
+export async function deleteProductOverride(id, existsInBase) {
+  const overrides = await getProductOverrides();
   const beforeCreated = overrides.created.length;
   overrides.created = (overrides.created || []).filter((p) => p.id !== id);
   const wasCreated = overrides.created.length < beforeCreated;
@@ -162,6 +164,6 @@ export function deleteProductOverride(id, existsInBase) {
     throw err;
   }
 
-  saveProductOverrides(overrides);
+  await saveProductOverrides(overrides);
   return { id };
 }

@@ -138,10 +138,10 @@ router.post(
 router.use("/print/jobs", requireShopper);
 
 // POST /api/print/jobs
-router.post("/print/jobs", (req, res) => {
+router.post("/print/jobs", async (req, res) => {
   try {
     const body = req.body || {};
-    const job = createPrintJob({
+    const job = await createPrintJob({
       ...body,
       name: req.shopper.name,
       phone: req.shopper.phone,
@@ -156,9 +156,9 @@ router.post("/print/jobs", (req, res) => {
 });
 
 // GET /api/print/jobs
-router.get("/print/jobs", (req, res) => {
+router.get("/print/jobs", async (req, res) => {
   const phone = req.shopper.phone;
-  const list = getPrintJobsByPhone(phone);
+  const list = await getPrintJobsByPhone(phone);
   res.json({
     success: true,
     data: { phone, count: list.length, jobs: list },
@@ -166,9 +166,9 @@ router.get("/print/jobs", (req, res) => {
 });
 
 // GET /api/print/jobs/:id
-router.get("/print/jobs/:id", (req, res) => {
+router.get("/print/jobs/:id", async (req, res) => {
   try {
-    const job = getPrintJobById(req.params.id);
+    const job = await getPrintJobById(req.params.id);
     assertOwnsJob(job, req.shopper.phone);
     res.json({ success: true, data: job });
   } catch (err) {
@@ -180,9 +180,9 @@ router.get("/print/jobs/:id", (req, res) => {
 });
 
 // POST /api/print/jobs/:id/cancel
-router.post("/print/jobs/:id/cancel", (req, res) => {
+router.post("/print/jobs/:id/cancel", async (req, res) => {
   try {
-    const job = cancelPrintJob({
+    const job = await cancelPrintJob({
       jobId: req.params.id,
       phone: req.shopper.phone,
     });

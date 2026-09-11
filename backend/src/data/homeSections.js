@@ -90,15 +90,15 @@ function filterProducts(products, hubId) {
  * Full section list. Client paginates for infinite scroll.
  * @param {{ hub?: string }} opts
  */
-export function buildHomeSections({ hub = "all" } = {}) {
-  const snacks = getProductsByCategoryId("c8");
-  const drinks = getProductsByCategoryId("c7");
-  const dairy = getProductsByCategoryId("c2");
-  const veg = getProductsByCategoryId("c1");
-  const personal = getProductsByCategoryId("c9");
-  const bakery = getProductsByCategoryId("c5");
-  const all = getAllProducts();
-  const festivalBanners = getBanners();
+export async function buildHomeSections({ hub = "all" } = {}) {
+  const snacks = await getProductsByCategoryId("c8");
+  const drinks = await getProductsByCategoryId("c7");
+  const dairy = await getProductsByCategoryId("c2");
+  const veg = await getProductsByCategoryId("c1");
+  const personal = await getProductsByCategoryId("c9");
+  const bakery = await getProductsByCategoryId("c5");
+  const all = await getAllProducts();
+  const festivalBanners = await getBanners();
 
   const moving = pickHero(
     snacks,
@@ -124,16 +124,26 @@ export function buildHomeSections({ hub = "all" } = {}) {
     ...withCategory(personal.slice(0, 4), "c9"),
   ];
 
+  const c13 = await getProductsByCategoryId("c13");
+  const c16 = await getProductsByCategoryId("c16");
+  const c15 = await getProductsByCategoryId("c15");
+  const c3 = await getProductsByCategoryId("c3");
+  const cleaning = await getProductsByCategoryId("c10");
+  const c4 = await getProductsByCategoryId("c4");
+  const c11 = await getProductsByCategoryId("c11");
+  const c12 = await getProductsByCategoryId("c12");
+  const c6 = await getProductsByCategoryId("c6");
+
   const lifestyleNew = [
-    ...withCategory(getProductsByCategoryId("c13").slice(0, 4), "c13"),
-    ...withCategory(getProductsByCategoryId("c16").slice(0, 4), "c16"),
-    ...withCategory(getProductsByCategoryId("c15").slice(0, 4), "c15"),
+    ...withCategory(c13.slice(0, 4), "c13"),
+    ...withCategory(c16.slice(0, 4), "c16"),
+    ...withCategory(c15.slice(0, 4), "c15"),
   ];
 
   const dealProducts = dealsFrom(all, 12);
 
   const breakfast = pickHero(
-    [...dairy, ...bakery, ...getProductsByCategoryId("c3")],
+    [...dairy, ...bakery, ...c3],
     [/milk|bread|egg|oats|butter|jam|cornflake|atta/i],
     10
   );
@@ -144,10 +154,8 @@ export function buildHomeSections({ hub = "all" } = {}) {
     10
   );
 
-  const cleaning = getProductsByCategoryId("c10");
-
   const hosting = pickHero(
-    [...snacks, ...drinks, ...getProductsByCategoryId("c16")],
+    [...snacks, ...drinks, ...c16],
     [/chips|namkeen|cola|juice|coin|festive|mixture/i],
     10
   );
@@ -171,7 +179,7 @@ export function buildHomeSections({ hub = "all" } = {}) {
     {
       id: "rail-masala",
       title: "Masala & Oil",
-      products: getProductsByCategoryId("c4").slice(0, 12),
+      products: c4.slice(0, 12),
     },
     {
       id: "rail-veg",
@@ -186,22 +194,22 @@ export function buildHomeSections({ hub = "all" } = {}) {
     {
       id: "rail-stationery",
       title: "Stationery essentials",
-      products: getProductsByCategoryId("c13").slice(0, 10),
+      products: c13.slice(0, 10),
     },
     {
       id: "rail-baby",
       title: "Baby care picks",
-      products: getProductsByCategoryId("c11").slice(0, 10),
+      products: c11.slice(0, 10),
     },
     {
       id: "rail-pet",
       title: "Pet favourites",
-      products: getProductsByCategoryId("c12").slice(0, 10),
+      products: c12.slice(0, 10),
     },
     {
       id: "rail-meat",
       title: "Chicken, Meat & Fish",
-      products: getProductsByCategoryId("c6").slice(0, 10),
+      products: c6.slice(0, 10),
     },
   ];
 

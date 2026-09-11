@@ -1,12 +1,10 @@
 /**
- * Promo coupons — JSON store under data/store/coupons.json.
- * evaluateCoupon is the checkout source of truth; shopper UI previews the same rules.
+ * Promo coupons — Postgres-backed.
  */
 
-import { readJson, writeJson } from "./cmsStore.js";
+import { query } from "../db/pool.js";
 
 const COUPON_TYPES = new Set(["flat", "percent", "free_delivery"]);
-const FALLBACK = { coupons: [] };
 
 function normalizeCode(code) {
   return String(code || "")
@@ -15,14 +13,19 @@ function normalizeCode(code) {
     .replace(/[^A-Z0-9_-]/g, "");
 }
 
-function loadStore() {
-  const store = readJson("coupons.json", FALLBACK);
-  return Array.isArray(store.coupons) ? store.coupons : [];
-}
-
-function saveStore(coupons) {
-  writeJson("coupons.json", { coupons });
-  return coupons;
+function rowToCoupon(row) {
+  if (!row) return null;
+  const coupon = {
+    code: row.code,
+    title: row.title,
+    description: row.description || "",
+    type: row.type,
+    minOrder: Number(row.min_order) || 0,
+    active: row.active !== false,
+  };
+  if (row.value != null) coupon.value = Number(row.value);
+  if (row.max_discount != null) coupon.maxDiscount = Number(row.max_discount);
+  return coupon;
 }
 
 function normalizeCoupon(input, { requireCode = true } = {}) {
@@ -72,82 +75,100 @@ function normalizeCoupon(input, { requireCode = true } = {}) {
   return coupon;
 }
 
-/** All coupons (admin), including inactive. */
-export function listCoupons() {
-  return loadStore().map((c) => ({ ...c }));
+export async function listCoupons() {
+  const res = await query(
+    "SELECT * FROM coupons ORDER BY code ASC"
+  );
+  return res.rows.map(rowToCoupon);
 }
 
-/** Active coupons only (shopper chips + checkout). */
-export function listActiveCoupons() {
-  return loadStore().filter((c) => c.active !== false);
+export async function listActiveCoupons() {
+  const res = await query(
+    "SELECT * FROM coupons WHERE active = TRUE ORDER BY code ASC"
+  );
+  return res.rows.map(rowToCoupon);
 }
 
-export function getCouponByCode(code, { includeInactive = false } = {}) {
+export async function getCouponByCode(code, { includeInactive = false } = {}) {
   const key = normalizeCode(code);
-  const coupon = loadStore().find((c) => c.code === key) || null;
+  const res = await query("SELECT * FROM coupons WHERE code = $1", [key]);
+  const coupon = rowToCoupon(res.rows[0]);
   if (!coupon) return null;
   if (!includeInactive && coupon.active === false) return null;
-  return { ...coupon };
-}
-
-export function createCoupon(input) {
-  const coupons = loadStore();
-  const coupon = normalizeCoupon(input);
-  if (coupons.some((c) => c.code === coupon.code)) {
-    const err = new Error(`Coupon ${coupon.code} already exists`);
-    err.status = 409;
-    throw err;
-  }
-  coupons.push(coupon);
-  saveStore(coupons);
   return coupon;
 }
 
-export function updateCoupon(code, patch) {
+export async function createCoupon(input) {
+  const coupon = normalizeCoupon(input);
+  try {
+    await query(
+      `INSERT INTO coupons (code, title, description, type, value, max_discount, min_order, active, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())`,
+      [
+        coupon.code,
+        coupon.title,
+        coupon.description,
+        coupon.type,
+        coupon.value ?? null,
+        coupon.maxDiscount ?? null,
+        coupon.minOrder,
+        coupon.active,
+      ]
+    );
+  } catch (err) {
+    if (err.code === "23505") {
+      const e = new Error(`Coupon ${coupon.code} already exists`);
+      e.status = 409;
+      throw e;
+    }
+    throw err;
+  }
+  return coupon;
+}
+
+export async function updateCoupon(code, patch) {
   const key = normalizeCode(code);
-  const coupons = loadStore();
-  const idx = coupons.findIndex((c) => c.code === key);
-  if (idx < 0) {
+  const existing = await getCouponByCode(key, { includeInactive: true });
+  if (!existing) {
     const err = new Error("Coupon not found");
     err.status = 404;
     throw err;
   }
-
-  const merged = {
-    ...coupons[idx],
-    ...patch,
-    code: key, // code is identity — do not rename via patch
-  };
-  const next = normalizeCoupon(merged);
-  coupons[idx] = next;
-  saveStore(coupons);
+  const next = normalizeCoupon({ ...existing, ...patch, code: key });
+  await query(
+    `UPDATE coupons
+     SET title=$2, description=$3, type=$4, value=$5, max_discount=$6,
+         min_order=$7, active=$8, updated_at=NOW()
+     WHERE code=$1`,
+    [
+      next.code,
+      next.title,
+      next.description,
+      next.type,
+      next.value ?? null,
+      next.maxDiscount ?? null,
+      next.minOrder,
+      next.active,
+    ]
+  );
   return next;
 }
 
-export function deleteCoupon(code) {
+export async function deleteCoupon(code) {
   const key = normalizeCode(code);
-  const coupons = loadStore();
-  const next = coupons.filter((c) => c.code !== key);
-  if (next.length === coupons.length) {
+  const res = await query("DELETE FROM coupons WHERE code = $1 RETURNING code", [
+    key,
+  ]);
+  if (!res.rowCount) {
     const err = new Error("Coupon not found");
     err.status = 404;
     throw err;
   }
-  saveStore(next);
   return { code: key };
 }
 
-/**
- * @returns {{
- *   ok: boolean,
- *   coupon: object | null,
- *   discount: number,
- *   deliveryFee: number,
- *   message?: string
- * }}
- */
-export function evaluateCoupon(code, itemTotal, baseDeliveryFee) {
-  const coupon = getCouponByCode(code);
+export async function evaluateCoupon(code, itemTotal, baseDeliveryFee) {
+  const coupon = await getCouponByCode(code);
   if (!coupon) {
     return {
       ok: false,

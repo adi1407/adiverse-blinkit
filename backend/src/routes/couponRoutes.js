@@ -4,11 +4,11 @@ import { listActiveCoupons } from "../data/coupons.js";
 const router = Router();
 
 /** GET /api/coupons — active promos for cart chips (public) */
-router.get("/coupons", (_req, res) => {
+router.get("/coupons", async (_req, res) => {
   res.json({
     success: true,
     data: {
-      coupons: listActiveCoupons(),
+      coupons: await listActiveCoupons(),
     },
   });
 });
